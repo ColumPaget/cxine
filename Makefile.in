@@ -1,0 +1,39 @@
+CFLAGS=@CFLAGS@
+LDFLAGS=@LDFLAGS@
+LIBS=@LIBS@
+
+OBJ=common.o playback_control.o control_protocol.o command_line.o keypress.o bookmarks.o osd.o plugins.o X11.o 
+
+all: $(OBJ)
+	$(CC) -Wall $(CFLAGS) $(LIBS) $(LDFLAGS) $(OBJ) cxine.c -o cxine
+
+common.o: common.h common.c
+	$(CC) $(CFLAGS) -c common.c
+
+control_protocol.o: control_protocol.h control_protocol.c
+	$(CC) $(CFLAGS) -c control_protocol.c
+
+command_line.o: command_line.h command_line.c
+	$(CC) $(CFLAGS) -c command_line.c
+
+playback_control.o: playback_control.h playback_control.c common.h
+	$(CC) $(CFLAGS) -c playback_control.c
+
+bookmarks.o: bookmarks.h bookmarks.c common.h
+	$(CC) $(CFLAGS) -c bookmarks.c
+
+keypress.o: keypress.h keypress.c common.h
+	$(CC) $(CFLAGS) -c keypress.c
+
+osd.o: osd.h osd.c common.h
+	$(CC) $(CFLAGS) -c osd.c
+
+plugins.o: plugins.h plugins.c common.h
+	$(CC) $(CFLAGS) -c plugins.c
+
+
+X11.o: X11.h X11.c common.h
+	$(CC) $(CFLAGS)  -c X11.c
+
+clean:
+	rm -f *.o cxine
