@@ -68,13 +68,18 @@ const char *ptr;
 ptr=rstrtok(plugins, ",", &name);
 while (ptr)
 {
-plug=xine_post_init(xine, name, 0, ao_port, vo_port);
-XineListPluginApi(plug);
-
-audio_out =xine_get_audio_source(stream);
-plug_input=xine_post_input(plug, "audio in");
-xine_post_wire(audio_out, plug_input);
-ptr=rstrtok(ptr, ",", &name);
+	plug=xine_post_init(xine, name, 0, ao_port, vo_port);
+	if (plug)
+	{
+		//XineListPluginApi(plug);
+	
+		audio_out =xine_get_audio_source(stream);
+		plug_input=xine_post_input(plug, "audio in");
+		xine_post_wire(audio_out, plug_input);
+	}
+	else fprintf(stderr, "ERROR: Failed to load postprocess plugin '%s'\n",name);
+	
+	ptr=rstrtok(ptr, ",", &name);
 }
 
 destroy(name);

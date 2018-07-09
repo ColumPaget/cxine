@@ -239,26 +239,26 @@ configure:3285: checking for /usr/X11/include/X11/X.h
 configure:3298: result: no
 configure:3303: checking for /usr/X11R7/include/X11/X.h
 configure:3316: result: yes
-configure:3371: checking for xine_new in -lxine
-configure:3396: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lxine   >&5
-configure:3396: $? = 0
-configure:3405: result: yes
-configure:3423: checking for XOpenDisplay in -lX11
-configure:3448: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lX11  -lxine  >&5
-configure:3448: $? = 0
-configure:3457: result: yes
-configure:3475: checking for XScreenSaverSuspend in -lXss
-configure:3500: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lXss  -lX11 -lxine  >&5
-configure:3500: $? = 0
-configure:3509: result: yes
-configure:3528: checking for sqrt in -lm
-configure:3553: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lm  -lXss -lX11 -lxine  >&5
-conftest.c:23:6: warning: conflicting types for built-in function 'sqrt' [-Wbuiltin-declaration-mismatch]
+configure:3370: checking for sqrt in -lm
+configure:3395: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lm   >&5
+conftest.c:18:6: warning: conflicting types for built-in function 'sqrt' [-Wbuiltin-declaration-mismatch]
  char sqrt ();
       ^~~~
-configure:3553: $? = 0
-configure:3562: result: yes
-configure:3738: creating ./config.status
+configure:3395: $? = 0
+configure:3404: result: yes
+configure:3418: checking for xine_new in -lxine
+configure:3443: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lxine  -lm  >&5
+configure:3443: $? = 0
+configure:3452: result: yes
+configure:3474: checking for XOpenDisplay in -lX11
+configure:3499: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lX11  -lxine -lm  >&5
+configure:3499: $? = 0
+configure:3508: result: yes
+configure:3529: checking for XScreenSaverSuspend in -lXss
+configure:3554: gcc -o conftest -g -O2 -I/usr/X11R7/include   -L/usr/X11R7/lib conftest.c -lXss  -lX11 -lxine -lm  >&5
+configure:3554: $? = 0
+configure:3563: result: yes
+configure:3741: creating ./config.status
 
 ## ---------------------- ##
 ## Running config.status. ##
@@ -326,7 +326,7 @@ CC='gcc'
 CFLAGS='-g -O2 -I/usr/X11R7/include'
 CPP='gcc -E'
 CPPFLAGS=''
-DEFS='-DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DSTDC_HEADERS=1 -D_FILE_OFFSET_BITS=64 -DHAVE_LIBXINE=1 -DHAVE_XINE=1 -DHAVE_LIBX11=1 -DHAVE_X11=1 -DHAVE_LIBXSS=1 -DHAVE_LIBM=1'
+DEFS='-DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -DPACKAGE_VERSION=\"\" -DPACKAGE_STRING=\"\" -DPACKAGE_BUGREPORT=\"\" -DPACKAGE_URL=\"\" -DSTDC_HEADERS=1 -D_FILE_OFFSET_BITS=64 -DHAVE_LIBM=1 -DHAVE_LIBXINE=1 -DHAVE_XINE=1 -DHAVE_LIBX11=1 -DHAVE_X11=1 -DHAVE_LIBXSS=1 -DHAVE_XSCREENSAVER=1'
 ECHO_C=''
 ECHO_N='-n'
 ECHO_T=''
@@ -335,7 +335,7 @@ EXEEXT=''
 GREP='/bin/grep'
 LDFLAGS=' -L/usr/X11R7/lib'
 LIBOBJS=''
-LIBS='-lm -lXss -lX11 -lxine '
+LIBS='-lXss -lX11 -lxine -lm '
 LTLIBOBJS=''
 OBJEXT='o'
 PACKAGE_BUGREPORT=''
@@ -388,11 +388,12 @@ target_alias=''
 #define PACKAGE_URL ""
 #define STDC_HEADERS 1
 #define _FILE_OFFSET_BITS 64
+#define HAVE_LIBM 1
 #define HAVE_LIBXINE 1
 #define HAVE_XINE 1
 #define HAVE_LIBX11 1
 #define HAVE_X11 1
 #define HAVE_LIBXSS 1
-#define HAVE_LIBM 1
+#define HAVE_XSCREENSAVER 1
 
 configure: exit 0

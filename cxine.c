@@ -479,6 +479,7 @@ int main(int argc, char **argv)
 	XineSwitchUser();
 	KeyGrabsSetup(X11Out);
 
+
   running = 1;
   while(running)
 	{

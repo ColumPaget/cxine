@@ -43,6 +43,26 @@ void PrintUsage(const char *Page)
 	printf("<volume down>   with 'shift' casues a larger decrease\n");	
 	printf("<volume mute>\n");	
 	}
+	else if ( StrLen(Page) && (strcmp(Page, "keygrabs")==0) )
+	{
+		printf("Keygrabs:\n");
+		printf("cxine can grab keys for its exclusive use. Keys are described by a comma-separated list of strings like 'alt-k' or 'cntrl-left'. Cxine recognises the following key names:\n");
+		printf("up, down, left, right       arrow keys\n");
+		printf("pgup, pgdn, home, end       page-up, page-down, home and end keys\n");
+		printf("pgup, pgdn, home, end       page-up, page-down, home and end keys\n");
+		printf("ins, del                    insert and delete keys\n");
+		printf("vup, vdown, mute            volume up, down and mute keys found on 'internet' keyboards\n");
+		printf("stop, play, next, prev      playback keys found on 'internet' keyboards\n");
+		printf("vpause                      media pause key found on 'internet' keyboards\n");
+		printf("\nCXine also supports the following key group names:\n");
+		printf("arrow                       left right up down\n");
+		printf("volume                      vup, vdown, mute\n");
+		printf("page                        pgup, pgdn\n");
+		printf("nav                         left, right, up, down, pgup, pgdn, home, end\n");
+		printf("media                       vup, vdown, mute, stop, play, prev, next, vpause\n");
+		printf("keypad                      up, down, left, right pgup, pgdn, home, end, +, -\n");
+		printf("\nKeynames and keygroups can be prefixed with the modifiers 'alt-', 'shift', and 'cntrl'. If cxine receives a keypress that it doesn't have a binding for, like alt-righ... oh dear... like 'alt-up' for example, it will read it as the unmodified key. Hence keys like the arrow keys can be bound using 'alt' and used as globally bound keystrokes to navigate a stream.\n");
+	}
 	else if ( StrLen(Page) && (strcmp(Page, "osd")==0) )
 	{
 	printf("OSD configure:\n\n");
@@ -135,6 +155,9 @@ void PrintUsage(const char *Page)
 	printf("  -pause                 Start paused.\n");
 	printf("  -mute                  Start muted.\n");
 	printf("  -shuffle               Shuffle playlist.\n");
+	printf("  -loop <n>              Repeat playback <n> times.\n");
+	printf("  -image-time <ms>       Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
+	printf("  -imagems <ms>          Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
 	printf("  -stop_xscreensaver     Disable screensaver during playing, re-enable it on exit.\n");
 	printf("  -persist               Don't exit when nothing left to do, wait for commands on stdin.\n");
 	printf("  -slave                 Mplayer compatible flag, equivalent to '-persist -startms 0'.\n");
@@ -158,6 +181,7 @@ void PrintUsage(const char *Page)
 	printf("  -help                  Show this help.\n");
 	printf("  --help                 Show this help.\n");
 	printf("  --help keys            Show keybindings.\n");
+	printf("  --help keygrabs        Show help for keygrab config.\n");
 	printf("  --help osd             Show help for OSD config.\n");
 	printf("  --help slave           Show help for MPlayer-compatible slave mode.\n");
 	printf("\nBy default cxine 'bookmarks' the position in a video if exit is requested, and restarts from that position if the media is played again. This can be disabled with '-startms 0'. \n");
@@ -260,6 +284,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 			}
       else if ( strcmp(argv[i], "-pause")==0 ) Config->flags |= CONFIG_PAUSE;
       else if ( strcmp(argv[i], "-image-time")==0 ) Config->image_ms=atoi(argv[++i]);
+      else if ( strcmp(argv[i], "-imagems")==0 ) Config->image_ms=atoi(argv[++i]);
       else if ( strcmp(argv[i], "-mute")==0 ) Config->flags |= CONFIG_MUTE;
       else if ( strcmp(argv[i], "-halfspeed")==0 ) Config->flags |= CONFIG_HALFSPEED;
       else if ( strcmp(argv[i], "-slow")==0 ) Config->flags |= CONFIG_HALFSPEED;

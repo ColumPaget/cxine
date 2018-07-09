@@ -232,7 +232,7 @@ KeyGrabAdd(X11Out, mod, "prev");
 KeyGrabAdd(X11Out, mod, "next");
 KeyGrabAdd(X11Out, mod, "vpause");
 }
-else if (strcmp(kptr, "arrow")==0)
+else if ((strcmp(kptr, "arrow")==0) || (strcmp(kptr, "arrows")==0))
 {
 KeyGrabAdd(X11Out, mod, "up");
 KeyGrabAdd(X11Out, mod, "down");
@@ -270,7 +270,6 @@ KeyGrabAdd(X11Out, mod, "end");
 KeyGrabAdd(X11Out, mod, "+");
 KeyGrabAdd(X11Out, mod, "-");
 }
-
 else X11GrabKey(X11Out, Token);
 
 ptr=rstrtok(ptr, ",",&Token);

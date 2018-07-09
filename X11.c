@@ -656,6 +656,8 @@ if (strncmp(keystr, "alt-",4)==0)
 }
 
 
+printf("Keygrab: %s\n",keystr);
+
 if (StrLen(ptr)==1)
 {
    tmpBuff[0]=*ptr & 0xFF;

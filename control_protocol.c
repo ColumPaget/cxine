@@ -33,7 +33,7 @@ const char *ptr;
 int result, pos_msecs, len_msecs, pos, val;
 int RetVal=EVENT_NONE;
 
-Tempstr=calloc(1, 256);
+Tempstr=(char *) calloc(1, 256);
 result=read(fd, Tempstr, 255);
 
 //fd is closed at the other end. close it our end,

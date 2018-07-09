@@ -28,11 +28,20 @@ AC_ARG_WITH(x-libraries, [  --with-x-libraries     path to X11 libraries directo
 LDFLAGS="$LDFLAGS $X11LIB"
 CFLAGS="$CFLAGS $X11INC"
 
+
+AC_CHECK_LIB(m,sqrt,,)
+cf_have_x11=$ac_cv_lib_m_sqrt
+
+
 AC_CHECK_LIB(xine,xine_new,,)
 cf_have_xine=$ac_cv_lib_xine_xine_new
+
 if test "$cf_have_xine" = "yes"
 then
 AC_DEFINE([HAVE_XINE])
+else 
+echo "ERROR: cannot find libxine"
+exit
 fi
 
 AC_CHECK_LIB(X11,XOpenDisplay,,)
@@ -40,21 +49,18 @@ cf_have_x11=$ac_cv_lib_X11_XOpenDisplay
 if test "$cf_have_x11" = "yes"
 then
 AC_DEFINE([HAVE_X11])
+else 
+echo "ERROR: cannot find libX11"
+exit
 fi
 
 AC_CHECK_LIB(Xss, XScreenSaverSuspend,,)
-cf_have_xss=$ac_cv_lib_XSS_XScreenSaveSuspend
+cf_have_xss=$ac_cv_lib_Xss_XScreenSaverSuspend
 if test "$cf_have_xss" = "yes"
 then
 AC_DEFINE([HAVE_XSCREENSAVER])
-fi
-
-
-AC_CHECK_LIB(m,sqrt,,)
-cf_have_x11=$ac_cv_lib_m_sqrt
-if test "$cf_have_m" = "yes"
-then
-AC_DEFINE([HAVE_X11])
+else
+echo "WARNING: cannot find libXss. Screensaver control functions will be disabled."
 fi
 
 
