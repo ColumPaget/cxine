@@ -230,8 +230,10 @@ CXine supports the following keys
                 ctrl: single-step 1-frame forwards
 <page up>       forward dvd chapter 
 <page down>     back dvd chapter 
-+               increase volume
--               decrease volume
++ (or '=')      increase volume
+								shift: increase audio compression
+- (or '_')      decrease volume
+								shift: decrease audio compression
 m               mute
 o               toggle online display
 f               toggle 'fast' playback (4*speed, no sound)
@@ -243,6 +245,9 @@ s               toggle 'slow' playback (1/4 speed, no sound)
 <               prev item in playlist
 >               next item in playlist
 1,2,3...        seek to n*10 percent (so 5 seeks to 50% of stream)
+
+
+The '+' and '-' keys represent a departure from mplayer. On the keypad they work as expected, with the 'shift' modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get '+' on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard '=' and '-' change volume up and down, and their shifted versions '_' and '+' alter audio compression.
 
 The following keys on 'internet' or 'media' keyboards are supported
 <play>

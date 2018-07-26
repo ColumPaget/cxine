@@ -146,11 +146,13 @@ switch (keychar)
 	break;
 
 	case '+':
+	case '=':
 	case KEY_VOLUME_UP:
 		if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, 25);
 		else XineVolume(stream, SET_ADD, 5);
 	break;
 
+	case '_':
 	case '-':
 	case KEY_VOLUME_DOWN:
 		if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, -25);

@@ -52,8 +52,10 @@ if (Type==XA_STRING) Size=8;
 else if (Type==XA_UTF8_STRING) Size=8;
 else Size=32;
 
+XLockDisplay(display);
 Prop=XInternAtom(display, Name, False);
 if (Prop) XChangeProperty(display, Win, Prop, Type, Size, PropModeReplace, Data, Len);
+XUnlockDisplay(display);
 }
 
 
@@ -655,8 +657,6 @@ if (strncmp(keystr, "alt-",4)==0)
 	ptr+=4;
 }
 
-
-printf("Keygrab: %s\n",keystr);
 
 if (StrLen(ptr)==1)
 {

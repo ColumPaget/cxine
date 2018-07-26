@@ -33,11 +33,11 @@
 #include <sys/resource.h>
 
 #ifndef VERSION
-#define VERSION                   "1.0"
+#define VERSION                   "1.1"
 #endif
 
 #define DEFAULT_TOPOSD_STRING "top,%tt %T - %A"
-#define DEFAULT_BOTTOMOSD_STRING "bottom,POS: %tP%% %tw  VOL: %v  v: %aw"
+#define DEFAULT_BOTTOMOSD_STRING "bottom,POS: %tP%% %tw  VOL: %v  ac: %aw"
 
 
 static xine_t              *xine;
@@ -50,6 +50,19 @@ static xine_event_queue_t  *event_queue;
 CXineOSD *topOSD=NULL;
 CXineOSD *bottomOSD=NULL;
 
+void SignalHandler(int sig)
+{
+switch (sig)
+{
+case SIGINT:
+case SIGTERM:
+	running=0;
+break;
+}
+
+signal(SIGINT, SignalHandler);
+signal(SIGTERM, SignalHandler);
+}
 
 
 static void event_listener(void *user_data, const xine_event_t *event) 
@@ -451,6 +464,9 @@ int main(int argc, char **argv)
 	const char *ptr;
 	void *X11Out=NULL;
 	
+	//call 'SignalHandler' with a signal it ignores as it will set up
+	//handlers for SIGINT and SIGTERM
+	SignalHandler(SIGCONT);
 	Config=ConfigInit();
 
 	ParseCommandLine(argc, argv, Config);
