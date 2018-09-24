@@ -8,6 +8,9 @@
 #define PLAY_PREV -2
 
 
+#define SKIP_SMALL 10000
+#define SKIP_LARGE 60000
+
 #define XineVolume(s, t, v) ( XineSetRangeValue((s), XINE_PARAM_AUDIO_VOLUME, (t), (v)) )
 #define XineAudioComp(s, t, v) ( XineSetRangeValue((s), XINE_PARAM_AUDIO_COMPR_LEVEL, (t), (v)) )
 #define XineBrightness(s, t, v) ( XineSetRangeValue((s), XINE_PARAM_VO_BRIGHTNESS, (t), (v)) )
@@ -16,10 +19,11 @@
 
 void XineEventSend(xine_stream_t *stream, int type);
 void XineMute(xine_stream_t *stream, int Setting);
+void XineSwitchAudioChannel(xine_stream_t *stream, int skip);
 void XinePause(xine_stream_t *stream);
 void XineSetRangeValue(xine_stream_t *stream, int Type, int SetType, int Value);
 int XinePlayStream(xine_stream_t *stream, const char *url);
 int XineSelectStream(xine_stream_t *stream, int Which);
-
+void XineSetPos(xine_stream_t *stream, int skip);
 
 #endif

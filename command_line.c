@@ -139,7 +139,7 @@ void PrintUsage(const char *Page)
 	printf("  -add <url>             Add <url> to the playlist of an existing cxine, then exit.\n");
 	printf("  -queue <url>           If no cxine is currently running, then start up and play <url>, else add it to the playlist of an existing cxine.\n");
 	printf("  -esc                   Allow the 'escape' key to exit the app.\n");
-	printf("  -win     <win id>      'root', 'fullscreen', 'sticky', 'shaded', 'ontop', 'stickontop' or id of window to reparent into.\n");
+	printf("  -win     <win id>      'none', 'root', 'fullscreen', 'sticky', 'shaded', 'ontop', 'stickontop', 'below', 'stickbelow', or id of window to reparent into.\n");
 	printf("  -into    <win id>      Window to reparent into (xterm style option).\n");
 	printf("  -wid     <win id>      Window to reparent into (mplayer style option).\n");
 	printf("  -parent  <win id>      Window to reparent into (maximum clarity style).\n");

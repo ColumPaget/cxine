@@ -2,20 +2,6 @@
 #include "playback_control.h"
 #include "X11.h"
 
-#define SKIP_SMALL 10000
-#define SKIP_LARGE 60000
-
-
-void KeyPressSetPos(xine_stream_t *stream, int skip)
-{
-int val, pos_msecs, len_msecs;
-
-		xine_get_pos_length (stream, &val, &pos_msecs, &len_msecs);
-		val = pos_msecs + skip;
-		if (val > len_msecs) val=len_msecs - SKIP_SMALL;
-		if (val < 0) val=0;
-		xine_play(stream, 0, val);
-}
 
 
 
@@ -77,38 +63,38 @@ switch (keychar)
 	else if (modifier & KEYMOD_SHIFT) XineSelectStream(stream, PLAY_PREV);
 	else if (modifier & KEYMOD_CTRL) 
 	{
-		KeyPressSetPos(stream, -1);
+		XineSetPos(stream, -1);
 		xine_set_param (stream,  XINE_PARAM_VO_SINGLE_STEP, 1);
 	}
-	else KeyPressSetPos(stream, 0-SKIP_SMALL);
+	else XineSetPos(stream, 0-SKIP_SMALL);
 	break;
 
 	case KEY_RIGHT:
 	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_RIGHT);
 	else if (modifier & KEYMOD_SHIFT) XineSelectStream(stream, PLAY_NEXT);
 	else if (modifier & KEYMOD_CTRL) xine_set_param (stream,  XINE_PARAM_VO_SINGLE_STEP, 1);
-	else KeyPressSetPos(stream, SKIP_SMALL);
+	else XineSetPos(stream, SKIP_SMALL);
 	break;
 
 	case KEY_UP:
 	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_UP);
-	else KeyPressSetPos(stream, SKIP_LARGE);
+	else XineSetPos(stream, SKIP_LARGE);
 	break;
 
 	case KEY_DOWN:
 	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_DOWN);
-	else KeyPressSetPos(stream, 0-SKIP_LARGE);
+	else XineSetPos(stream, 0-SKIP_LARGE);
 	break;
 
 
 	case KEY_PGDN:
 	if (xine_get_stream_info (stream,  XINE_STREAM_INFO_HAS_CHAPTERS)) XineEventSend(stream, XINE_EVENT_INPUT_PREVIOUS);
-	else KeyPressSetPos(stream, 0-SKIP_LARGE*10);
+	else XineSetPos(stream, 0-SKIP_LARGE*10);
 	break;
 
 	case KEY_PGUP:
 	if (xine_get_stream_info (stream,  XINE_STREAM_INFO_HAS_CHAPTERS)) XineEventSend(stream, XINE_EVENT_INPUT_NEXT);
-	else KeyPressSetPos(stream, SKIP_LARGE*10);
+	else XineSetPos(stream, SKIP_LARGE*10);
 	break;
 
 	case KEY_ENTER:
@@ -148,14 +134,16 @@ switch (keychar)
 	case '+':
 	case '=':
 	case KEY_VOLUME_UP:
-		if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, 25);
+		if (modifier & KEYMOD_SHIFT) XineSwitchAudioChannel(stream, 1);
+		else if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, 25);
 		else XineVolume(stream, SET_ADD, 5);
 	break;
 
 	case '_':
 	case '-':
 	case KEY_VOLUME_DOWN:
-		if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, -25);
+		if (modifier & KEYMOD_SHIFT) XineSwitchAudioChannel(stream, -1);
+		else if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, -25);
 		else XineVolume(stream, SET_ADD, -5);
 	break;
 

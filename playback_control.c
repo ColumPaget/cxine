@@ -50,6 +50,17 @@ gettimeofday(&(event.tv), NULL);
 xine_event_send(stream, &event);
 }
 
+
+void XineSwitchAudioChannel(xine_stream_t *stream, int skip)
+{
+int pos;
+
+pos=xine_get_param(stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL);
+
+xine_set_param(stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, pos + skip);
+}
+
+
 void XineMute(xine_stream_t *stream, int Setting)
 {
 int val;
@@ -66,6 +77,18 @@ xine_set_param (stream, XINE_PARAM_AUDIO_MUTE, val);
 xine_set_param (stream, XINE_PARAM_AUDIO_AMP_MUTE, val);
 }
 
+void XineSetPos(xine_stream_t *stream, int skip)
+{
+int val, pos_msecs, len_msecs;
+
+    xine_get_pos_length (stream, &val, &pos_msecs, &len_msecs);
+    val = pos_msecs + skip;
+    if (val > len_msecs) val=len_msecs - SKIP_SMALL;
+    if (val < 0) val=0;
+    xine_play(stream, 0, val);
+}
+
+
 void XinePause(xine_stream_t *stream)
 {
 int val;
@@ -74,7 +97,12 @@ int val;
 		if (val == XINE_SPEED_PAUSE) val=XINE_SPEED_NORMAL;
 		else val=XINE_SPEED_PAUSE;
 		xine_set_param (stream, XINE_PARAM_SPEED, val);
+
+		//pause seems to lose its place in the audio stream, so
+		//we seek back slightly to resync
+		if (val==XINE_SPEED_NORMAL) XineSetPos(stream, -1);
 }
+
 
 void XineSetRangeValue(xine_stream_t *stream, int Type, int SetType, int Value)
 {
