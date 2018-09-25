@@ -222,13 +222,13 @@ if (! tv) tv=(struct timeval *) calloc(1,sizeof(struct timeval));
 
 FD_ZERO(&select_set);
 
-if ((Config->flags & CONFIG_CONTROL) && (fcntl(stdin_fd, F_GETFD) > -1))
+if ((stdin_fd > -1) && (Config->flags & CONFIG_CONTROL) && (fcntl(stdin_fd, F_GETFD) > -1))
 {
   FD_SET(stdin_fd, &select_set);
 	if (stdin_fd > high_fd) high_fd=stdin_fd;
 }
 
-if (fcntl(control_pipe, F_GETFD) > -1)
+if (control_pipe && (fcntl(control_pipe, F_GETFD) > -1))
 {
   FD_SET(control_pipe, &select_set);
 	if (control_pipe > high_fd) high_fd=control_pipe;
@@ -253,6 +253,7 @@ if (result > 0)
 						stdin_fd=-1;
 		}
 	}
+
 	if ((control_pipe > -1) && FD_ISSET(control_pipe, &select_set)) 
 	{
 		if (ControlHandleInput(control_pipe, stream) == EVENT_CLOSE) 
@@ -460,7 +461,7 @@ destroy(PipeStr);
 
 int main(int argc, char **argv) 
 {
-	int control_pipe=-1, result, sleep_ms;
+	int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
 	const char *ptr;
 	void *X11Out=NULL;
 	
@@ -472,6 +473,8 @@ int main(int argc, char **argv)
 	ParseCommandLine(argc, argv, Config);
 
 	signal(SIGPIPE, SIG_IGN);
+
+	if (Config->flags & CONFIG_PERSIST) stdin_fd=0;
 	if (Config->priority > 0) setpriority(PRIO_PROCESS, getpid(), Config->priority - 21);
 
   xine = xine_new();
@@ -524,7 +527,7 @@ int main(int argc, char **argv)
 		if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) sleep_ms=Config->image_ms;
 		else sleep_ms=100;
 
-		result=WatchFileDescriptors(0, control_pipe, X11Out, sleep_ms);
+		result=WatchFileDescriptors(stdin_fd, control_pipe, X11Out, sleep_ms);
 		if (result==EVENT_RESIZE) OSDSetup(X11Out, stream);
 
 		if (result==EVENT_TIMEOUT)
