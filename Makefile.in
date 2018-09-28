@@ -2,7 +2,7 @@ CFLAGS=@CFLAGS@
 LDFLAGS=@LDFLAGS@
 LIBS=@LIBS@
 
-OBJ=common.o playback_control.o control_protocol.o command_line.o keypress.o bookmarks.o osd.o plugins.o X11.o 
+OBJ=common.o playback_control.o control_protocol.o command_line.o help.o keypress.o bookmarks.o osd.o plugins.o X11.o 
 
 all: $(OBJ)
 	$(CC) -Wall $(CFLAGS) $(LIBS) $(LDFLAGS) $(OBJ) cxine.c -o cxine
@@ -15,6 +15,9 @@ control_protocol.o: control_protocol.h control_protocol.c
 
 command_line.o: command_line.h command_line.c
 	$(CC) $(CFLAGS) -c command_line.c
+
+help.o: help.h help.c
+	$(CC) $(CFLAGS) -c help.c
 
 playback_control.o: playback_control.h playback_control.c common.h
 	$(CC) $(CFLAGS) -c playback_control.c

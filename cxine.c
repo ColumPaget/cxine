@@ -472,6 +472,18 @@ destroy(Tempstr);
 destroy(PipeStr);
 }
 
+
+void XineOutputs(xine_t *xine, xine_stream_t *stream)
+{
+xine_post_out_t *out;
+
+out=xine_get_video_source(stream);
+if (out) printf("vid: %s\n",out->name);
+out=xine_get_audio_source(stream);
+if (out) printf("aud: %s\n",out->name);
+}
+
+
 int main(int argc, char **argv) 
 {
 	int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
@@ -493,6 +505,7 @@ int main(int argc, char **argv)
   xine = xine_new();
   xine_init(xine);
 	//XineDisplayPlugins(xine);
+	HelpMimeTypes(xine);
  
 	control_pipe=ControlPipeOpen(O_RDWR | O_NONBLOCK);
 	X11Out=X11Init(Config->parent, 0, 0, Config->width, Config->height);
@@ -511,6 +524,7 @@ int main(int argc, char **argv)
 	XineSwitchUser();
 	KeyGrabsSetup(X11Out);
 
+	XineOutputs(xine, stream);
 
   running = 1;
   while(running)

@@ -102,6 +102,7 @@ extern TConfig *Config;
 extern int running;
 
 const char *cbasename(const char *Path);
+void strrep(char *Str, char c1, char c2);
 char *rstrcat(char *Dest, const char *Src);
 char *rstrcpy(char *Dest, const char *Src);
 char *rstrlcat(char *Dest, const char *Src, int SrcLen);

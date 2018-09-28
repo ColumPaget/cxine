@@ -45,6 +45,17 @@ char *rstrcpy(char *Dest, const char *Src)
     return(rstrcat(Dest,Src));
 }
 
+void strrep(char *Str, char c1, char c2)
+{
+char *ptr;
+
+for (ptr=Str; *ptr != '\0'; ptr++)
+{
+if (*ptr==c1) *ptr=c2;
+}
+
+}
+
 const char *advanceto(const char *ptr, char term)
 {
 for (; *ptr!=term; ptr++)
