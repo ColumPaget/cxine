@@ -81,6 +81,22 @@ return(ptr);
 }
 
 
+char *rstrquot(char *RetStr, const char *Str, const char *QuoteChars)
+{
+const char *ptr;
+
+RetStr=rstrcpy(RetStr, "");
+ptr=Str;
+while (ptr && (*ptr !='\0'))
+{
+if (strchr(QuoteChars, *ptr)) RetStr=rstrcat(RetStr, "\\");
+RetStr=rstrlcat(RetStr, ptr, 1);
+ptr++;
+}
+
+return(RetStr);
+}
+
 TStringList *StringListCreate(int argc, char **argv)
 {
 TStringList *sl;

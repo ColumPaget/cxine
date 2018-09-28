@@ -136,8 +136,8 @@ void PrintUsage(const char *Page)
 	printf("Usage:\n");
 	printf("	cxine [options] [url]\n");
 	printf("Options:\n");
-	printf("  -add <url>             Add <url> to the playlist of an existing cxine, then exit.\n");
-	printf("  -queue <url>           If no cxine is currently running, then start up and play <url>, else add it to the playlist of an existing cxine.\n");
+	printf("  -add <url> [title]     Add <url> to the playlist of an existing cxine, then exit. 'title' is an optional title to be displayed while playing\n");
+	printf("  -queue <url> [title]   If no cxine is currently running, then start up and play <url>, else add it to the playlist of an existing cxine.\n");
 	printf("  -esc                   Allow the 'escape' key to exit the app.\n");
 	printf("  -win     <win id>      'none', 'root', 'fullscreen', 'sticky', 'shaded', 'ontop', 'stickontop', 'below', 'stickbelow', or id of window to reparent into.\n");
 	printf("  -into    <win id>      Window to reparent into (xterm style option).\n");
@@ -207,7 +207,7 @@ Config->height=strtol(ptr, &ptr, 10);
 }
 
 
-int XineAddURL(const char *URL)
+int XineAddURL(const char *URL, const char *Title)
 {
 int fd, result=-1;
 char *Tempstr=NULL;
@@ -217,6 +217,11 @@ if ( (fd > -1) && (lockf(fd, F_LOCK, 0)==0) )
 {
 Tempstr=rstrcpy(Tempstr, "add ");
 Tempstr=rstrcat(Tempstr, URL);
+if (StrLen(Title))
+{
+Tempstr=rstrcpy(Tempstr, " ");
+Tempstr=rstrcat(Tempstr, Title);
+}
 result=write(fd, Tempstr, StrLen(Tempstr));
 close(fd);
 Config->control_pipe=-1;
@@ -227,11 +232,22 @@ return(result > 0);
 }
 
 
-int XineQueueURL(const char *URL)
+int XineQueueURL(const char *URL, const char *Title)
 {
-if (XineAddURL(URL)) exit(0);
+char *Tempstr=NULL;
 
-StringListAdd(Config->playlist, URL);
+if (XineAddURL(URL, Title)) exit(0);
+
+Tempstr=rstrquot(Tempstr, URL, " ");
+if (StrLen(Title))
+{
+Tempstr=rstrcat(Tempstr, " ");
+Tempstr=rstrcat(Tempstr, Title);
+}
+
+StringListAdd(Config->playlist, Tempstr);
+
+destroy(Tempstr);
 }
 
 
@@ -265,8 +281,20 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 
   for(i = 1; i < argc; i++) 
 	{
-      if (strcmp(argv[i], "-add")==0 ) XineAddURL(argv[++i]);
-			else if ( strcmp(argv[i], "-queue")==0 ) XineQueueURL(argv[++i]);
+      if (strcmp(argv[i], "-add")==0 ) XineAddURL(argv[++i], "");
+      else if (strcmp(argv[i], "+add")==0 ) 
+			{
+				i++;
+				XineAddURL(argv[i], argv[i+1]);
+				i++;
+			}
+			else if ( strcmp(argv[i], "-queue")==0 ) XineQueueURL(argv[++i], "");
+			else if ( strcmp(argv[i], "+queue")==0 )
+			{
+				i++;
+				XineQueueURL(argv[i], argv[i+1]);
+				i++;
+			}
       else if ( strcmp(argv[i], "-vo")==0 ) Config->vo_driver = strdup(argv[++i]);
       else if ( strcmp(argv[i], "-ao")==0 ) Config->ao_driver = strdup(argv[++i]);
       else if ( strcmp(argv[i], "-esc")==0 ) Config->flags |= CONFIG_ALLOW_KEY_EXIT;

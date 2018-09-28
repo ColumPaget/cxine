@@ -67,6 +67,7 @@ char **list;
 #define STATE_NEWTITLE 65536
 #define STATE_RAISED 131072
 #define STATE_SHADED 262144
+#define STATE_STDIN_URL 524288
 
 
 typedef struct
@@ -106,6 +107,7 @@ char *rstrcpy(char *Dest, const char *Src);
 char *rstrlcat(char *Dest, const char *Src, int SrcLen);
 char *rstrlcpy(char *Dest, const char *Src, int SrcLen);
 const char *rstrtok(const char *Str, const char *Separators, char **Token);
+char *rstrquot(char *RetStr, const char *Str, const char *QuoteChars);
 
 TStringList *StringListCreate(int argc, char **argv);
 int StringListAdd(TStringList *sl, const char *str);

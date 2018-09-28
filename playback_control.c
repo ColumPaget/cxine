@@ -118,46 +118,52 @@ int val;
 
 
 
-int XinePlayStream(xine_stream_t *stream, const char *url)
+int XinePlayStream(xine_stream_t *stream, const char *info)
 {
+char *url=NULL;
+const char *p_title=NULL;
 int startms;
-int len;
+int len, result=0;
 
+	p_title=rstrtok(info, " ", &url);
 	len=StrLen(url);
-  if (len==0) return(0);
-
+  if (len >0) 
+	{
 	//xine interprets anything starting with '-' to mean 'stdin', and sits there trying to read from stdin. 
 	//so if we get a file path starting with '-' (probably a command-line option that we don't recognize)
 	//then we don't want to pass it to xine unless the file really exists
-	if ((*url=='-') && (len > 1) && (access(url, F_OK) !=0)) return(0);
 
-  if (! xine_open(stream, url))
-  {
-    printf("Unable to open url '%s'\n", url);
-    return(0);
-  }
-  Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(url));
-  //do this before calling play..
-  XineStreamInitConfig(stream, Config);
+printf("URL: %s\n", url); fflush(NULL);
+	if ((*url=='-') && (len > 1) && (access(url, F_OK) !=0)) /* do nothing*/ ;
+  else if (xine_open(stream, url))
+	{
+		if (StrLen(p_title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, p_title);
+	  else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(url));
+	  //do this before calling play..
+	  XineStreamInitConfig(stream, Config);
+	
+	  startms=Config->startms;
+	  if ((startms==0) && xine_get_stream_info(stream, XINE_STREAM_INFO_SEEKABLE))
+	  {
+	    startms=LoadBookmark(url);
+	  }
+	
+	  if (xine_play(stream, 0, startms))
+		{
+	  //and again after, because some configs require the stream to be playing to take effect (pause)
+	  XineStreamInitConfig(stream, Config);
+	  Config->flags |= STATE_PLAYING;
+		if (strncmp(url,"stdin:",6)==0) Config->flags |= STATE_STDIN_URL;
+		else Config->flags &= ~STATE_STDIN_URL;
+		result=1;
+		}
+		else printf("Unable to play url '%s'\n", url);
+	}
+	else printf("Unable to open url '%s'\n", url);
+	}
 
-  startms=Config->startms;
-  if ((startms==0) && xine_get_stream_info(stream, XINE_STREAM_INFO_SEEKABLE))
-  {
-    startms=LoadBookmark(url);
-  }
-
-  if (! xine_play(stream, 0, startms))
-  {
-   printf("Unable to play url '%s'\n", url);
-   return(0);
-  }
-
-  //and again after, because some configs require the stream to be playing to take effect (pause)
-  XineStreamInitConfig(stream, Config);
-
-  Config->flags |= STATE_PLAYING;
-
-  return(1);
+	destroy(url);
+  return(result);
 }
 
 
@@ -173,8 +179,6 @@ if (Which==PLAY_NEXT)
 					if (Config->loop != 0) Config->loop--;
 					if (Config->loop !=0) ptr=StringListGet(Config->playlist, 0);
 				}
-
-
 }
 else if (Which==PLAY_PREV) ptr=StringListPrev(Config->playlist);
 

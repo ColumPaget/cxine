@@ -79,6 +79,7 @@ xine_ui_data_t *msg;
 	case XINE_EVENT_UI_SET_TITLE:
 		msg=(xine_ui_data_t *) event->data;
 		Config->CurrTitle=rstrlcpy(Config->CurrTitle, msg->str, msg->str_len);
+printf("UI SET TITLE [%s]\n", Config->CurrTitle);
 		Config->flags |= STATE_NEWTITLE;
 	break;
 
@@ -222,7 +223,7 @@ if (! tv) tv=(struct timeval *) calloc(1,sizeof(struct timeval));
 
 FD_ZERO(&select_set);
 
-if ((stdin_fd > -1) && (Config->flags & CONFIG_CONTROL) && (fcntl(stdin_fd, F_GETFD) > -1))
+if ((stdin_fd > -1) && (! (Config->flags & STATE_STDIN_URL)) && (Config->flags & CONFIG_CONTROL) && (fcntl(stdin_fd, F_GETFD) > -1))
 {
   FD_SET(stdin_fd, &select_set);
 	if (stdin_fd > high_fd) high_fd=stdin_fd;
@@ -392,11 +393,22 @@ ID_CHAPTERS=0
 const char *XineGetStringValue(xine_stream_t *stream, int ValID, int Quote)
 {
 const char *ptr;
+char *Tempstr=NULL;
+
 ptr=xine_get_meta_info(stream, ValID);
 if (! ptr) 
 {
-	if (ValID==XINE_META_INFO_TITLE) return(StringListCurr(Config->playlist));
-		return("");
+	if (ValID==XINE_META_INFO_TITLE) 
+	{
+		ptr=StringListCurr(Config->playlist);
+		if (StrLen(ptr)) 
+		{
+			//first arg is the URL
+			ptr=rstrtok(ptr, " ", &Tempstr);
+			if (! StrLen(ptr)) ptr=StringListCurr(Config->playlist);
+		}
+	}
+	return("");
 }
 return(ptr);
 }
@@ -442,11 +454,12 @@ if (Config->nowplay_pipe > 0) write(Config->nowplay_pipe, PipeStr, StrLen(PipeSt
 xine_get_pos_length(stream, &pos, &pos_msecs, &len_msecs);
 ptr=StringListCurr(Config->playlist);
 
-X11SetTextProperty(X11Out, "CXINE:Filename", ptr);
+rstrtok(ptr, " ", &Tempstr);
+X11SetTextProperty(X11Out, "CXINE:Filename", Tempstr);
 
 if (Config->flags & CONFIG_IDENTIFY)
 {
-printf("ID_FILENAME=%s\n", ptr);
+printf("ID_FILENAME=%s\n", Tempstr);
 printf("ID_AUDIO_BITRATE=%d\n", xine_get_stream_info(stream, XINE_STREAM_INFO_AUDIO_BITRATE));
 printf("ID_AUDIO_RATE=%d\n", xine_get_stream_info(stream, XINE_STREAM_INFO_AUDIO_SAMPLERATE)); 
 printf("ID_SEEKABLE=%d\n", xine_get_stream_info(stream, XINE_STREAM_INFO_SEEKABLE));
