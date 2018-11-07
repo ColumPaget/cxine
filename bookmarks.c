@@ -40,6 +40,7 @@ char *Line=NULL, *InPath=NULL, *OutPath=NULL, *Tempstr=NULL;
 const char *ptr;
 int val, pos, size;
 
+if (! url) return;
 OutPath=rstrcpy(OutPath, xine_get_homedir());
 OutPath=rstrcat(OutPath, "/.xine/cxine.bookmarks+");
 outf=fopen(OutPath, "w");
@@ -57,7 +58,7 @@ if (outf)
 			if (StrLen(Line))
 			{
 				ptr=rstrtok(Line, " 	", &Tempstr);
-				if (strcmp(ptr, url) !=0) fprintf(outf, "%s\n", Line);
+				if (ptr && strcmp(ptr, url) !=0) fprintf(outf, "%s\n", Line);
 			}
 		}
 		fclose(inf);

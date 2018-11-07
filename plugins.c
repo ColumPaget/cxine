@@ -1,5 +1,7 @@
 #include "plugins.h"
 
+
+
 typedef const char *(*PLUGIN_DESC_FUNC)(xine_t *, const char *const *);
 
 void DisplayPluginInfo(xine_t *xine, const char *title, const char *const *list, PLUGIN_DESC_FUNC description_func)
@@ -22,17 +24,17 @@ printf("\n");
 
 
 
-void XineDisplayPlugins(xine_t *xine)
+void CXineDisplayPlugins(TConfig *Config)
 {
-DisplayPluginInfo(xine, "audio", xine_list_audio_output_plugins(xine), (PLUGIN_DESC_FUNC) xine_get_audio_driver_plugin_description); 
-DisplayPluginInfo(xine, "video", xine_list_video_output_plugins(xine),  (PLUGIN_DESC_FUNC) xine_get_video_driver_plugin_description); 
-DisplayPluginInfo(xine, "demux", xine_list_demuxer_plugins(xine),  (PLUGIN_DESC_FUNC) xine_get_demux_plugin_description); 
-DisplayPluginInfo(xine, "input", xine_list_input_plugins(xine),  (PLUGIN_DESC_FUNC) xine_get_input_plugin_description); 
-DisplayPluginInfo(xine, "postprocess", xine_list_post_plugins(xine),  (PLUGIN_DESC_FUNC) xine_get_post_plugin_description); 
+DisplayPluginInfo(Config->xine, "audio", xine_list_audio_output_plugins(Config->xine), (PLUGIN_DESC_FUNC) xine_get_audio_driver_plugin_description); 
+DisplayPluginInfo(Config->xine, "video", xine_list_video_output_plugins(Config->xine),  (PLUGIN_DESC_FUNC) xine_get_video_driver_plugin_description); 
+DisplayPluginInfo(Config->xine, "demux", xine_list_demuxer_plugins(Config->xine),  (PLUGIN_DESC_FUNC) xine_get_demux_plugin_description); 
+DisplayPluginInfo(Config->xine, "input", xine_list_input_plugins(Config->xine),  (PLUGIN_DESC_FUNC) xine_get_input_plugin_description); 
+DisplayPluginInfo(Config->xine, "postprocess", xine_list_post_plugins(Config->xine),  (PLUGIN_DESC_FUNC) xine_get_post_plugin_description); 
 }
 
 
-void XineListPluginApi(xine_post_t *plug)
+void CXineListPluginApi(xine_post_t *plug)
 {
 xine_post_in_t *plug_input;
 xine_post_api_t *api;
@@ -57,7 +59,16 @@ parm++;
 }
 
 
-void XineAddAudioPostPlugins(xine_t *xine, xine_stream_t *stream, const char *plugins, xine_audio_port_t **ao_port, xine_video_port_t **vo_port)
+void CXineClearAudioPlugins(TConfig *Config)
+{
+xine_post_out_t *audio_out;
+
+audio_out =xine_get_audio_source(Config->stream);
+xine_post_wire(audio_out, Config->ao_port);
+}
+
+
+void CXineAddAudioPostPlugins(TConfig *Config)
 {
 xine_post_t *plug;
 xine_post_in_t *plug_input;
@@ -65,15 +76,14 @@ xine_post_out_t *audio_out;
 char *name=NULL;
 const char *ptr;
 
-ptr=rstrtok(plugins, ",", &name);
+ptr=rstrtok(Config->audio_plugins, ",", &name);
 while (ptr)
 {
-	plug=xine_post_init(xine, name, 0, ao_port, vo_port);
+	plug=xine_post_init(Config->xine, name, 0, &Config->ao_port, &Config->vo_port);
+	printf("plugin: %d %s\n", plug, name);
 	if (plug)
 	{
-		//XineListPluginApi(plug);
-	
-		audio_out =xine_get_audio_source(stream);
+		audio_out =xine_get_audio_source(Config->stream);
 		plug_input=xine_post_input(plug, "audio in");
 		xine_post_wire(audio_out, plug_input);
 	}
@@ -86,7 +96,7 @@ destroy(name);
 } 
  
 
-void XineAddVideoPostPlugins(xine_t *xine, xine_stream_t *stream, xine_audio_port_t **ao_port, xine_video_port_t **vo_port)
+void CXineAddVideoPostPlugins(xine_t *xine, xine_stream_t *stream, xine_audio_port_t **ao_port, xine_video_port_t **vo_port)
 {
 xine_post_t *plug;
 xine_post_in_t *plug_input;

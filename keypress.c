@@ -9,22 +9,24 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 {
 int val, pos_msecs, len_msecs;
 
+//if (Config->flags & CONFIG_DEBUG) 
 switch (keychar)
 {
 	case KEY_ESC:
-	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_PREVIOUS);
+	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_PREVIOUS);
 	else if (Config->flags & CONFIG_ALLOW_KEY_EXIT) running=0;
 	break;
 
 	case ' ': 
 	case KEY_PAUSE:
 	case KEY_PLAY:
-		XinePause(stream);
+		val=CXinePause(Config);
+    if (! (Config->flags & KILL_SCREENSAVER)) X11ScreenSaver(X11Out, (val != XINE_SPEED_PAUSE));
 	break;
 
 	case 'm':
 	case KEY_MUTE:
-		XineMute(stream, TOGGLE);
+		CXineMute(stream, TOGGLE);
 	break;
 
 	case 'o':
@@ -59,59 +61,57 @@ switch (keychar)
 
 
 	case KEY_LEFT:
-	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_LEFT);
-	else if (modifier & KEYMOD_SHIFT) XineSelectStream(stream, PLAY_PREV);
+	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_LEFT);
+	else if (modifier & KEYMOD_SHIFT) CXineSelectStream(Config, PLAY_PREV);
 	else if (modifier & KEYMOD_CTRL) 
 	{
-		XineSetPos(stream, -1);
+		CXineSetPos(stream, -1);
 		xine_set_param (stream,  XINE_PARAM_VO_SINGLE_STEP, 1);
 	}
-	else XineSetPos(stream, 0-SKIP_SMALL);
+	else CXineSetPos(stream, 0-SKIP_SMALL);
 	break;
 
 	case KEY_RIGHT:
-	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_RIGHT);
-	else if (modifier & KEYMOD_SHIFT) XineSelectStream(stream, PLAY_NEXT);
+	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_RIGHT);
+	else if (modifier & KEYMOD_SHIFT) CXineSelectStream(Config, PLAY_NEXT);
 	else if (modifier & KEYMOD_CTRL) xine_set_param (stream,  XINE_PARAM_VO_SINGLE_STEP, 1);
-	else XineSetPos(stream, SKIP_SMALL);
+	else CXineSetPos(stream, SKIP_SMALL);
 	break;
 
 	case KEY_UP:
-	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_UP);
-	else XineSetPos(stream, SKIP_LARGE);
+	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_UP);
+	else CXineSetPos(stream, SKIP_LARGE);
 	break;
 
 	case KEY_DOWN:
-	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_DOWN);
-	else XineSetPos(stream, 0-SKIP_LARGE);
+	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_DOWN);
+	else CXineSetPos(stream, 0-SKIP_LARGE);
 	break;
 
-
 	case KEY_PGDN:
-	if (xine_get_stream_info (stream,  XINE_STREAM_INFO_HAS_CHAPTERS)) XineEventSend(stream, XINE_EVENT_INPUT_PREVIOUS);
-	else XineSetPos(stream, 0-SKIP_LARGE*10);
+	if (xine_get_stream_info (stream,  XINE_STREAM_INFO_HAS_CHAPTERS)) CXineEventSend(Config, XINE_EVENT_INPUT_PREVIOUS);
+	else CXineSetPos(stream, 0-SKIP_LARGE*10);
 	break;
 
 	case KEY_PGUP:
-	if (xine_get_stream_info (stream,  XINE_STREAM_INFO_HAS_CHAPTERS)) XineEventSend(stream, XINE_EVENT_INPUT_NEXT);
-	else XineSetPos(stream, SKIP_LARGE*10);
+	if (xine_get_stream_info (stream,  XINE_STREAM_INFO_HAS_CHAPTERS)) CXineEventSend(Config, XINE_EVENT_INPUT_NEXT);
+	else CXineSetPos(stream, SKIP_LARGE*10);
 	break;
 
 	case KEY_ENTER:
-	if (Config->DVDNavButtons > 1) XineEventSend(stream, XINE_EVENT_INPUT_SELECT);
-	else XineSelectStream(stream, PLAY_NEXT);
+	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_SELECT);
+	else CXineSelectStream(Config, PLAY_NEXT);
 	break;
-
 
 	case KEY_TAB:
 	if (modifier & KEYMOD_CTRL)
 	{	
-	if (Config->flags & STATE_SHADED) X11SetWindowState(X11Out,  "_NET_WM_STATE_UNSHADE");
+	if (Config->state & STATE_SHADED) X11SetWindowState(X11Out,  "_NET_WM_STATE_UNSHADE");
 	else X11SetWindowState(X11Out,  "_NET_WM_STATE_SHADED");
 	}
 	else
 	{					
-	if (Config->flags & STATE_RAISED) X11SetWindowState(X11Out,  "_NET_WM_STATE_BELOW");
+	if (Config->state & STATE_RAISED) X11SetWindowState(X11Out,  "_NET_WM_STATE_BELOW");
 	else X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
 	}
 	break;
@@ -123,28 +123,28 @@ switch (keychar)
 
 	case '>':
 	case KEY_NEXT:
-		XineSelectStream(stream, PLAY_NEXT);
+		CXineSelectStream(Config, PLAY_NEXT);
 	break;
 
 	case '<':
 	case KEY_PREV:
-		XineSelectStream(stream, PLAY_PREV);
+		CXineSelectStream(Config, PLAY_PREV);
 	break;
 
 	case '+':
 	case '=':
 	case KEY_VOLUME_UP:
-		if (modifier & KEYMOD_SHIFT) XineSwitchAudioChannel(stream, 1);
-		else if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, 25);
-		else XineVolume(stream, SET_ADD, 5);
+		if (modifier & KEYMOD_SHIFT) CXineSwitchAudioChannel(stream, 1);
+		else if (modifier & KEYMOD_SHIFT) CXineAudioComp(stream, SET_ADD, 25);
+		else CXineVolume(stream, SET_ADD, 5);
 	break;
 
 	case '_':
 	case '-':
 	case KEY_VOLUME_DOWN:
-		if (modifier & KEYMOD_SHIFT) XineSwitchAudioChannel(stream, -1);
-		else if (modifier & KEYMOD_SHIFT) XineAudioComp(stream, SET_ADD, -25);
-		else XineVolume(stream, SET_ADD, -5);
+		if (modifier & KEYMOD_SHIFT) CXineSwitchAudioChannel(stream, -1);
+		else if (modifier & KEYMOD_SHIFT) CXineAudioComp(stream, SET_ADD, -25);
+		else CXineVolume(stream, SET_ADD, -5);
 	break;
 
 	case '0':

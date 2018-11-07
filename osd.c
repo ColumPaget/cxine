@@ -13,6 +13,18 @@
 
 #define MIN_MINSECS 60000
 
+
+
+#define OSD_TEXT    0
+#define OSD_BUTTONS 1
+
+
+CXineOSD *topOSD=NULL;
+CXineOSD *bottomOSD=NULL;
+CXineOSD *buttonsOSD=NULL;
+
+
+
 char *OSDFormatMSecs(char *ValueStr, int msecs)
 {
 int mins, secs;
@@ -20,6 +32,7 @@ int mins, secs;
 	mins=msecs / MIN_MINSECS;
 	secs=(msecs % MIN_MINSECS) / 1000;
 	snprintf(ValueStr, VALUE_STR_LEN, "%d:%d", mins, secs);
+
 return(ValueStr);
 }
 
@@ -245,12 +258,43 @@ destroy(ValueStr);
 return(RetStr);
 }
 
-
-void OSDUpdate(CXineOSD *OSD, int show)
+void OSDDrawButton(CXineOSD *OSD, const char *Text, int x, int y, int *wid, int *high)
 {
-int wid, high, result;
-char *Tempstr=NULL;
+int ex, ey;
 
+	xine_osd_get_text_size(OSD->osd, Text, wid, high);
+	ex=x + *wid  + 4;
+	ey=y + *high + 2;
+
+	xine_osd_draw_rect(OSD->osd, x - 2, y, ex,  ey, 1, 0); 
+	xine_osd_draw_text(OSD->osd, x, y, Text, XINE_OSD_TEXT1);
+}
+
+
+void OSDDrawButtons(CXineOSD *OSD)
+{
+int x=4, y=4, wid, high;
+
+	OSDDrawButton(OSD, "<<", x, y, &wid, &high);
+	x+=wid *2;
+
+	OSDDrawButton(OSD, ">", x, y, &wid, &high);
+	x+=wid *2;
+
+	OSDDrawButton(OSD, "|", x, y, &wid, &high);
+	x+=wid *2;
+
+	OSDDrawButton(OSD, ">>", x, y, &wid, &high);
+}
+
+
+void OSDUpdateSingle(CXineOSD *OSD, int show)
+{
+int wid, high, result, pos;
+char *Tempstr=NULL;
+const char *ptr;
+
+if (! OSD) return;
 xine_osd_clear(OSD->osd);
 
 //xine_osd_set_palette(osd, &textpalettes_color, &textpalettes_trans);
@@ -264,11 +308,26 @@ xine_osd_clear(OSD->osd);
 
 xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_WHITE_NONE_TRANSLUCID, XINE_OSD_TEXT1);
 xine_osd_set_encoding(OSD->osd, "");
-result=xine_osd_set_font(OSD->osd, "mono", 18);
 
-Tempstr=OSDFormatString(Tempstr, OSD->Contents, OSD->stream);
-xine_osd_get_text_size(OSD->osd, Tempstr, &wid, &high);
-xine_osd_draw_text(OSD->osd, 0, 0, Tempstr, XINE_OSD_TEXT1);
+ptr=rstrtok(OSD->Font, ",", &Tempstr);
+while (ptr)
+{
+if (xine_osd_set_font(OSD->osd, Tempstr, 18)) break;
+ptr=rstrtok(ptr, ",", &Tempstr);
+}
+
+switch (OSD->type)
+{
+case OSD_BUTTONS:
+	OSDDrawButtons(OSD);
+break;
+
+default:
+	Tempstr=OSDFormatString(Tempstr, OSD->Contents, OSD->stream);
+	xine_osd_get_text_size(OSD->osd, Tempstr, &wid, &high);
+	xine_osd_draw_text(OSD->osd, 0, 0, Tempstr, XINE_OSD_TEXT1);
+break;
+}
 
 if (show) xine_osd_show_unscaled(OSD->osd, 0);
 else xine_osd_hide(OSD->osd, 0);
@@ -277,9 +336,54 @@ destroy(Tempstr);
 }
 
 
+void OSDUpdate(int show)
+{
+OSDUpdateSingle(topOSD, show);
+OSDUpdateSingle(bottomOSD, show);
+//OSDUpdateSingle(buttonsOSD, show);
+}
 
 
-CXineOSD *OSDCreate(void *X11Win, xine_stream_t *stream, const char *config)
+
+void OSDSetupGeometry(CXineOSD *OSD, const char *config)
+{
+char *Token=NULL;
+const char *ptr;
+
+ptr=rstrtok(config, ",", &Token);
+if (  (! StrLen(Token)) || (strcmp(Token, "top")==0) )
+{
+	OSD->x=0;
+	OSD->y=0;
+	OSD->wid=0;
+	OSD->high=20;
+	if (ptr) OSD->Contents=strdup(ptr);
+}
+else if (strcmp(Token, "bottom")==0)
+{
+	OSD->x=0;
+	OSD->y=-20;
+	OSD->wid=0;
+	OSD->high=-20;
+	if (ptr) OSD->Contents=strdup(ptr);
+}
+else
+{
+	OSD->x=strtol(config,(char **) &ptr,10);
+	if (ptr) ptr++;
+	OSD->y=strtol(ptr,(char **) &ptr,10);
+	if (ptr) ptr++;
+	OSD->wid=strtol(ptr,(char **) &ptr,10);
+	if (ptr) ptr++;
+	OSD->high=strtol(ptr,(char **) &ptr,10);
+	if (ptr) ptr++;
+}
+
+destroy(Token);
+}
+
+
+CXineOSD *OSDCreate(void *X11Win, xine_stream_t *stream, const char *config, const char *text)
 {
 xine_osd_t *osd;
 int x=0, y=0, wid=0, high=0;
@@ -292,36 +396,21 @@ OSD->stream=stream;
 OSD->X11Win=X11Win;
 
 
-ptr=rstrtok(config, ",", &Token);
+ptr=rstrtok(config, " ", &Token);
+OSDSetupGeometry(OSD, Token);
+ptr=rstrtok(ptr, " ", &Token);
+while (ptr)
+{
+if (strncmp(Token,"font=", 5)==0) OSD->Font=rstrcpy(OSD->Font, Token+5);
+if (strncmp(Token,"x=", 2)==0) OSD->x=atoi(Token+2);
+if (strncmp(Token,"y=", 2)==0) OSD->y=atoi(Token+2);
+if (strncmp(Token,"wid=", 5)==0) OSD->wid=atoi(Token+4);
+if (strncmp(Token,"high=", 2)==0) OSD->high=atoi(Token+5);
+if (strncmp(Token,"buttons", 2)==0) OSD->type=OSD_BUTTONS;
 
-if (  (! StrLen(Token)) || (strcmp(Token, "top")==0) )
-{
-OSD->x=0;
-OSD->y=0;
-OSD->wid=0;
-OSD->high=20;
-OSD->Contents=strdup(ptr);
+ptr=rstrtok(ptr, " ", &Token);
 }
-else if (strcmp(Token, "bottom")==0)
-{
-OSD->x=0;
-OSD->y=-20;
-OSD->wid=0;
-OSD->high=-20;
-OSD->Contents=strdup(ptr);
-}
-else
-{
-OSD->x=strtol(config,(char **) &ptr,10);
-if (ptr) ptr++;
-OSD->y=strtol(ptr,(char **) &ptr,10);
-if (ptr) ptr++;
-OSD->wid=strtol(ptr,(char **) &ptr,10);
-if (ptr) ptr++;
-OSD->high=strtol(ptr,(char **) &ptr,10);
-if (ptr) ptr++;
-OSD->Contents=strdup(ptr);
-}
+OSD->Contents=strdup(text);
 
 x=OSD->x;
 y=OSD->y;
@@ -339,9 +428,34 @@ return(OSD);
 
 
 
+
 void *OSDDestroy(CXineOSD *OSD)
 {
 xine_osd_free(OSD->osd);
 free(OSD->Contents);
 free(OSD);
 }
+
+
+
+void OSDSetup(TConfig *Config)
+{
+  if (StrLen(Config->top_osd_text))
+  {
+    if (topOSD) OSDDestroy(topOSD);
+    topOSD=OSDCreate(Config->X11Out, Config->stream, "top font=mono", Config->top_osd_text);
+  }
+
+  if (StrLen(Config->bottom_osd_text))
+  {
+    if (bottomOSD) OSDDestroy(bottomOSD);
+    bottomOSD=OSDCreate(Config->X11Out, Config->stream, "bottom font=mono", Config->bottom_osd_text);
+  }
+
+	/*
+  if (buttonsOSD) OSDDestroy(buttonsOSD);
+	buttonsOSD=OSDCreate(Config->X11Out, Config->stream, "top font=mono buttons x=10 y=-40 wid=-20 high=25", "");
+	*/
+}
+
+

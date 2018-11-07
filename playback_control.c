@@ -1,28 +1,33 @@
 
 #include "playback_control.h"
+#include "now_playing.h"
 #include "bookmarks.h"
+#include "download.h"
 #include "plugins.h"
+#include "xine/xine_internal.h"
+#include "X11.h"
 
-void XineStreamInitConfig(xine_stream_t *stream, TConfig *Config)
+static void CXineStreamInitConfig(TConfig *Config)
 {
-if ((Config->flags & CONFIG_MUTE) && (! xine_get_param (stream, XINE_PARAM_AUDIO_MUTE))) XineMute(stream, 1);
-else XineMute(stream, 0);
+if ((Config->flags & CONFIG_MUTE) && (! xine_get_param (Config->stream, XINE_PARAM_AUDIO_MUTE))) CXineMute(Config->stream, 1);
+else CXineMute(Config->stream, 0);
 
-if (Config->flags & CONFIG_HALFSPEED) xine_set_param (stream, XINE_PARAM_SPEED, XINE_SPEED_SLOW_2);
-if (Config->flags & CONFIG_QUARTSPEED) xine_set_param (stream, XINE_PARAM_SPEED, XINE_SPEED_SLOW_4);
-if (Config->flags & CONFIG_PAUSE) xine_set_param (stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
-if (Config->flags & CONFIG_LOUD) xine_set_param (stream, XINE_PARAM_AUDIO_AMP_LEVEL, 150);
+if (Config->flags & CONFIG_NOVIDEO) xine_set_param (Config->stream, XINE_PARAM_IGNORE_VIDEO, 1);
+if (Config->flags & CONFIG_HALFSPEED) xine_set_param (Config->stream, XINE_PARAM_SPEED, XINE_SPEED_SLOW_2);
+if (Config->flags & CONFIG_QUARTSPEED) xine_set_param (Config->stream, XINE_PARAM_SPEED, XINE_SPEED_SLOW_4);
+if (Config->flags & CONFIG_PAUSE) xine_set_param (Config->stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE);
+if (Config->flags & CONFIG_LOUD) xine_set_param (Config->stream, XINE_PARAM_AUDIO_AMP_LEVEL, 150);
 if (Config->flags & CONFIG_VLOUD)
 {
-xine_set_param (stream, XINE_PARAM_AUDIO_VOLUME, 100);
-xine_set_param (stream, XINE_PARAM_AUDIO_AMP_LEVEL, 200);
+xine_set_param (Config->stream, XINE_PARAM_AUDIO_VOLUME, 100);
+xine_set_param (Config->stream, XINE_PARAM_AUDIO_AMP_LEVEL, 200);
 }
 
-xine_set_param (stream, XINE_PARAM_AUDIO_COMPR_LEVEL, Config->audio_compression);
+xine_set_param (Config->stream, XINE_PARAM_AUDIO_COMPR_LEVEL, Config->audio_compression);
 if (Config->zoom > 0)
 {
-  xine_set_param (stream, XINE_PARAM_VO_ZOOM_X, Config->zoom);
-  xine_set_param (stream, XINE_PARAM_VO_ZOOM_Y, Config->zoom);
+  xine_set_param (Config->stream, XINE_PARAM_VO_ZOOM_X, Config->zoom);
+  xine_set_param (Config->stream, XINE_PARAM_VO_ZOOM_Y, Config->zoom);
 }
 
 //if (Config->brightness > -1) xine_set_param (stream, XINE_PARAM_VO_BRIGHTNESS, Config->brightness);
@@ -38,20 +43,20 @@ if (Config->zoom > 0)
 
 }
 
-void XineEventSend(xine_stream_t *stream, int type)
+void CXineEventSend(TConfig *Config, int type)
 {
 xine_event_t event;
 
-event.stream=stream;
+event.stream=Config->stream;
 event.type=type;
 event.data=NULL;
 event.data_length=0;
 gettimeofday(&(event.tv), NULL);
-xine_event_send(stream, &event);
+xine_event_send(Config->stream, &event);
 }
 
 
-void XineSwitchAudioChannel(xine_stream_t *stream, int skip)
+void CXineSwitchAudioChannel(xine_stream_t *stream, int skip)
 {
 int pos;
 
@@ -61,7 +66,7 @@ xine_set_param(stream, XINE_PARAM_AUDIO_CHANNEL_LOGICAL, pos + skip);
 }
 
 
-void XineMute(xine_stream_t *stream, int Setting)
+void CXineMute(xine_stream_t *stream, int Setting)
 {
 int val;
 
@@ -77,7 +82,7 @@ xine_set_param (stream, XINE_PARAM_AUDIO_MUTE, val);
 xine_set_param (stream, XINE_PARAM_AUDIO_AMP_MUTE, val);
 }
 
-void XineSetPos(xine_stream_t *stream, int skip)
+void CXineSetPos(xine_stream_t *stream, int skip)
 {
 int val, pos_msecs, len_msecs;
 
@@ -89,22 +94,26 @@ int val, pos_msecs, len_msecs;
 }
 
 
-void XinePause(xine_stream_t *stream)
+int CXinePause(TConfig *Config)
 {
 int val;
 
-		val=xine_get_param (stream, XINE_PARAM_SPEED);
+		val=xine_get_param (Config->stream, XINE_PARAM_SPEED);
 		if (val == XINE_SPEED_PAUSE) val=XINE_SPEED_NORMAL;
 		else val=XINE_SPEED_PAUSE;
-		xine_set_param (stream, XINE_PARAM_SPEED, val);
+		xine_set_param (Config->stream, XINE_PARAM_SPEED, val);
+
 
 		//pause seems to lose its place in the audio stream, so
 		//we seek back slightly to resync
-		if (val==XINE_SPEED_NORMAL) XineSetPos(stream, -1);
+		//if (val==XINE_SPEED_NORMAL) CXineSetPos(Config->stream, -1);
+
+
+		return(val==XINE_SPEED_PAUSE);
 }
 
 
-void XineSetRangeValue(xine_stream_t *stream, int Type, int SetType, int Value)
+void CXineSetRangeValue(xine_stream_t *stream, int Type, int SetType, int Value)
 {
 int val;
 
@@ -116,64 +125,101 @@ int val;
 }
 
 
-
-
-int XinePlayStream(xine_stream_t *stream, const char *info)
+static int CXineAudioOnly(TConfig *Config)
 {
-char *url=NULL;
+if  (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_HAS_AUDIO)) return(FALSE);
+if (Config->flags & CONFIG_NOVIDEO) return(TRUE);
+if (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_HAS_VIDEO)) return(TRUE);
+return(FALSE);
+}
+
+
+void CXineNewTitle(TConfig *Config)
+{
+  CXineNowPlaying(Config);
+  if (CXineAudioOnly(Config)) CXineAddAudioPostPlugins(Config);
+
+  //if (Config->vo_port) CXineAddVideoPostPlugins(Config->xine, Config->stream, &Config->ao_port, &Config->vo_port);
+  Config->state &= ~STATE_NEWTITLE;
+}
+
+
+int CXinePlayStream(TConfig *Config, const char *info)
+{
+char *url=NULL, *Tempstr=NULL;
 const char *p_title=NULL;
 int startms;
-int len, result=0;
+int len, result=0, fd;
 
-	p_title=rstrtok(info, " ", &url);
-	len=StrLen(url);
+	p_title=rstrtok(info, " ", &Tempstr);
+	len=StrLen(Tempstr);
   if (len >0) 
 	{
+	url=rstrunquot(url, Tempstr);
 	//xine interprets anything starting with '-' to mean 'stdin', and sits there trying to read from stdin. 
 	//so if we get a file path starting with '-' (probably a command-line option that we don't recognize)
 	//then we don't want to pass it to xine unless the file really exists
-
-printf("URL: %s\n", url); fflush(NULL);
 	if ((*url=='-') && (len > 1) && (access(url, F_OK) !=0)) /* do nothing*/ ;
-  else if (xine_open(stream, url))
+	else if (! DownloadDone(&url)) Config->state |= STATE_DOWNLOADING;
+  else if (xine_open(Config->stream, url))
 	{
+		Config->state &= ~STATE_DOWNLOADING;
 		if (StrLen(p_title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, p_title);
 	  else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(url));
 	  //do this before calling play..
-	  XineStreamInitConfig(stream, Config);
+	  CXineStreamInitConfig(Config);
 	
 	  startms=Config->startms;
-	  if ((startms==0) && xine_get_stream_info(stream, XINE_STREAM_INFO_SEEKABLE))
+	  if ((startms==0) && xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE))
 	  {
 	    startms=LoadBookmark(url);
 	  }
-	
-	  if (xine_play(stream, 0, startms))
+
+		CXineNewTitle(Config);
+	  if (xine_play(Config->stream, 0, startms))
 		{
+		//there is a delay before all this happens, I'm not sure why. It's as though the calling thread allows
+		//some time for the playing thread launched by 'xine_play' to get a head start or something. Hence
+		//XineNewTitle must be called *before* xine_play
+		
 	  //and again after, because some configs require the stream to be playing to take effect (pause)
-	  XineStreamInitConfig(stream, Config);
-	  Config->flags |= STATE_PLAYING;
-		if (strncmp(url,"stdin:",6)==0) Config->flags |= STATE_STDIN_URL;
-		else Config->flags &= ~STATE_STDIN_URL;
+	  CXineStreamInitConfig(Config);
+		Config->state &= ~STATE_BACKGROUND_DISPLAYED;
+	  Config->state |= STATE_PLAYING;
+		if (strncmp(url,"stdin:",6)==0) Config->state |= STATE_STDIN_URL;
+		else Config->state &= ~STATE_STDIN_URL;
+		Config->state |= STATE_NEWTITLE;
 		result=1;
 		}
-		else printf("Unable to play url '%s'\n", url);
+		else 
+		{
+			printf("Unable to play url '%s'\n", url);
+			result=PLAY_FAIL;
+		}
 	}
-	else printf("Unable to open url '%s'\n", url);
+	else 
+	{	
+			printf("Unable to open url '%s'\n", url);
+			result=PLAY_FAIL;
+	}
 	}
 
 	destroy(url);
+	destroy(Tempstr);
   return(result);
 }
 
 
-int XineSelectStream(xine_stream_t *stream, int Which)
+int CXineSelectStream(TConfig *Config, int Which)
 {
 const char *ptr;
+
+if (Config->state & STATE_DOWNLOADING) return(CXinePlayStream(Config, StringListCurr(Config->playlist)));
 
 if (Which==PLAY_NEXT) 
 {
 				ptr=StringListNext(Config->playlist);
+
 				if ( (ptr==NULL)  )
 				{
 					if (Config->loop != 0) Config->loop--;
@@ -184,9 +230,9 @@ else if (Which==PLAY_PREV) ptr=StringListPrev(Config->playlist);
 
 if (ptr)
 {
-  xine_stop(stream);
-  if (XinePlayStream(stream, ptr)) Config->flags |= STATE_NEWTITLE;
-  return(1);
+  xine_stop(Config->stream);
+  xine_close(Config->stream);
+  return(CXinePlayStream(Config, ptr));
 }
 return(0);
 }

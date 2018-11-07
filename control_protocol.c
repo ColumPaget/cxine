@@ -54,13 +54,13 @@ switch (*Cmd)
 	case 'd':
 	if (strcasecmp(Cmd, "dvdnav")==0)
 	{
-		if (strcasecmp(ptr, "up")==0) XineEventSend(stream, XINE_EVENT_INPUT_UP);
-		else if (strcasecmp(ptr, "down")==0) XineEventSend(stream, XINE_EVENT_INPUT_DOWN);
-		else if (strcasecmp(ptr, "left")==0) XineEventSend(stream, XINE_EVENT_INPUT_LEFT);
-		else if (strcasecmp(ptr, "right")==0) XineEventSend(stream, XINE_EVENT_INPUT_RIGHT);
-		else if (strcasecmp(ptr, "select")==0) XineEventSend(stream, XINE_EVENT_INPUT_SELECT);
-		//else if (strcasecmp(ptr, "menu")==0) XineEventSend(stream, XINE_EVENT_INPUT_MENU);
-		else if (strcasecmp(ptr, "prev")==0) XineEventSend(stream, XINE_EVENT_INPUT_PREVIOUS);
+		if (strcasecmp(ptr, "up")==0) CXineEventSend(Config, XINE_EVENT_INPUT_UP);
+		else if (strcasecmp(ptr, "down")==0) CXineEventSend(Config, XINE_EVENT_INPUT_DOWN);
+		else if (strcasecmp(ptr, "left")==0) CXineEventSend(Config, XINE_EVENT_INPUT_LEFT);
+		else if (strcasecmp(ptr, "right")==0) CXineEventSend(Config, XINE_EVENT_INPUT_RIGHT);
+		else if (strcasecmp(ptr, "select")==0) CXineEventSend(Config, XINE_EVENT_INPUT_SELECT);
+		//else if (strcasecmp(ptr, "menu")==0) CXineEventSend(Config, XINE_EVENT_INPUT_MENU);
+		else if (strcasecmp(ptr, "prev")==0) CXineEventSend(Config, XINE_EVENT_INPUT_PREVIOUS);
 	}
 	break;
 	
@@ -104,20 +104,20 @@ switch (*Cmd)
 	{
 		ptr=rstrtok(ptr, " 	",&Token);
 		val=StringListAdd(Config->playlist, Token);
-		if (strtol(ptr, NULL, 10) == 0) XinePlayStream(stream, StringListGet(Config->playlist, val));
+		if (strtol(ptr, NULL, 10) == 0) CXinePlayStream(Config, StringListGet(Config->playlist, val));
 	}
 	break;
 
 	case 'm':
 	if (strcasecmp(Cmd, "mute")==0) 
 	{
-		if (StrLen(ptr)==0) XineMute(stream, TOGGLE);
-		else XineMute(stream, atoi(ptr));
+		if (StrLen(ptr)==0) CXineMute(stream, TOGGLE);
+		else CXineMute(stream, atoi(ptr));
 	}
 	break;
 
 	case 'p':
-	if (strcasecmp(Cmd, "pause")==0) XinePause(stream);
+	if (strcasecmp(Cmd, "pause")==0) CXinePause(Config);
 	break;
 
 	case 'q':
@@ -151,8 +151,8 @@ switch (*Cmd)
 	{
 		ptr=rstrtok(ptr, " 	",&Token);
 		val=atoi(Token);
-		if (atoi(ptr) !=0) XineVolume(stream, SET_ADD, val);
-		XineVolume(stream, 0, val);
+		if (atoi(ptr) !=0) CXineVolume(stream, SET_ADD, val);
+		CXineVolume(stream, 0, val);
 	}
 	break;
 

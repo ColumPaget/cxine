@@ -17,6 +17,8 @@
 #define StrLen(s) ((s) ? strlen(s) : 0)
 #define destroy(s) ((s) ? free(s) : 0)
 
+#define TRUE 1
+#define FALSE 0
 
 #define TOGGLE -1
 #define SET_ADD 1
@@ -61,21 +63,30 @@ char **list;
 #define CONFIG_SHUFFLE  4096
 #define CONFIG_ALLOW_KEY_EXIT 8192
 #define DISABLE_SCREENSAVER   16384
+#define KILL_SCREENSAVER      32768
+#define CONFIG_NOVIDEO        65536
+#define CONFIG_STREAM         131072
+#define CONFIG_DEBUG 1048576
+#define CONFIG_SAVE  2097152
 
-//these mustn't clash with CONFIG_ 
-#define STATE_PLAYING  32768
-#define STATE_NEWTITLE 65536
-#define STATE_RAISED 131072
-#define STATE_SHADED 262144
-#define STATE_STDIN_URL 524288
+#define STATE_NEWTITLE 1
+#define STATE_RAISED   2
+#define STATE_SHADED   4
+#define STATE_ICONIZED 8
+#define STATE_DOWNLOADING 32
+#define STATE_PLAYING 64
+#define STATE_STDIN_URL 1024
+#define STATE_BACKGROUND_DISPLAYED 2048
 
 
 typedef struct
 {
 int flags;
+int state;
 int width;
 int height;
 int zoom;
+int debug;
 int audio_compression;
 int brightness;
 int contrast;
@@ -88,19 +99,30 @@ double startms;
 int DVDNavButtons;
 int control_pipe;
 int nowplay_pipe;
+char *path_prefix;
 char *audio_plugins;
 char *control_pipe_path;
+char *nowplay_pipe_path;
 char *top_osd_text;
 char *bottom_osd_text;
 char *keygrabs;
+char *background;
+char *cache_dir;
 int priority;
 int loop;
 int image_ms;
+void *X11Out;
+xine_t              *xine;
+xine_stream_t       *stream;
+xine_video_port_t   *vo_port;
+xine_audio_port_t   *ao_port;
+xine_event_queue_t  *event_queue;
 } TConfig;
 
 extern TConfig *Config;
 extern int running;
 
+unsigned int fnv_hash(unsigned const char *key, int NoOfItems);
 const char *cbasename(const char *Path);
 void strrep(char *Str, char c1, char c2);
 char *rstrcat(char *Dest, const char *Src);
@@ -109,6 +131,9 @@ char *rstrlcat(char *Dest, const char *Src, int SrcLen);
 char *rstrlcpy(char *Dest, const char *Src, int SrcLen);
 const char *rstrtok(const char *Str, const char *Separators, char **Token);
 char *rstrquot(char *RetStr, const char *Str, const char *QuoteChars);
+char *rstrunquot(char *RetStr, const char *Str);
+void MkDirPath(const char *Dir);
+char *PathSearch(char *RetStr, const char *FileName, const char *Path);
 
 TStringList *StringListCreate(int argc, char **argv);
 int StringListAdd(TStringList *sl, const char *str);
@@ -118,6 +143,9 @@ void StringListSet(TStringList *sl, unsigned int pos, const char *Str);
 const char *StringListCurr(TStringList *sl);
 const char *StringListPrev(TStringList *sl);
 const char *StringListNext(TStringList *sl);
-void StrListDestroy(TStringList *sl);
+void StringListDestroy(TStringList *sl);
+
+int ParseURL(const char *URL, char **Proto, char **Host, char **Port, char **Path);
+void Exec(const char *CmdLine);
 
 #endif

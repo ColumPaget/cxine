@@ -7,6 +7,9 @@
 #include "X11.h"
 #include "common.h"
 #include "keypress.h"
+#include "playlist.h"
+#include <ctype.h>
+
 
 #define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
                       ButtonMotionMask | StructureNotifyMask |        \
@@ -59,6 +62,41 @@ XUnlockDisplay(display);
 }
 
 
+void X11RequestSelection(Display *XDisplay, Window XWin, Atom Selection, int FirstTry)
+{
+Window SelOwner;
+Atom SelectProp;
+
+SelectProp=XInternAtom(XDisplay, "SelectProp",False);
+SelOwner=XGetSelectionOwner(XDisplay, Selection);
+if (SelOwner !=None)
+{
+  XConvertSelection(XDisplay, Selection, XA_STRING, SelectProp, XWin, CurrentTime);
+  sleep(0);
+}
+}
+
+
+void X11HandleSelectionAvailableEvent(Display *XDisplay, Window XWin, int Selection)
+{
+unsigned char *Data=NULL;
+Atom PType, SelectProp;
+int PFormat;
+unsigned long dlen=0, Dummy;
+
+SelectProp=XInternAtom(XDisplay, "SelectProp",False);
+Data=(unsigned char *) calloc(1024, sizeof(uint32_t));
+XGetWindowProperty(XDisplay, XWin, SelectProp,0, 1024, 0, AnyPropertyType, &PType, &PFormat, &dlen, &Dummy, &Data);
+
+Data[dlen]='\0';
+
+printf("SELECT: %s\n", Data);
+PlaylistAdd(Data, "");
+XDeleteProperty(XDisplay,XWin,SelectProp);
+}
+
+
+
 void X11SetTextProperty(void *p_Win, const char *Name, const char *Str)
 {
 X11Window *Win;
@@ -109,32 +147,43 @@ void X11SetWindowState(void *p_Win, const char *StateStr)
 
 if (strcmp(StateStr,  "_NET_WM_STATE_ABOVE") ==0) 
 {
-	Config->flags |=STATE_RAISED;
+	Config->state |=STATE_RAISED;
 	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_BELOW");
 	X11SendSetStateEvent(p_Win, WINSTATE_ADD, StateStr);
 }
 else if (strcmp(StateStr,  "_NET_WM_STATE_BELOW") ==0) 
 {
-	Config->flags &= ~STATE_RAISED;
+	Config->state &= ~STATE_RAISED;
 	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_ABOVE");
 	X11SendSetStateEvent(p_Win, WINSTATE_ADD, StateStr);
 }
 else if (strcmp(StateStr,  "_NET_WM_STATE_SHADED") ==0) 
 {
-	Config->flags |= STATE_SHADED;
+	Config->state |= STATE_SHADED;
 	X11SendSetStateEvent(p_Win, WINSTATE_ADD, "_NET_WM_STATE_SHADED");
 }
 else if (strcmp(StateStr,  "_NET_WM_STATE_UNSHADE") ==0) 
 {
-	Config->flags &= ~STATE_SHADED;
+	Config->state &= ~STATE_SHADED;
 	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_SHADED");
+}
+else if (strcmp(StateStr,  "_NET_WM_STATE_ICONIZED") ==0) 
+{
+	Config->state |= STATE_ICONIZED;
+	X11SendSetStateEvent(p_Win, WINSTATE_ADD, "_NET_WM_STATE_HIDDEN");
+}
+else if (strcmp(StateStr,  "_NET_WM_STATE_RESTORED") ==0) 
+{
+	Config->state &= ~STATE_ICONIZED;
+	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_HIDDEN");
 }
 else if (strcmp(StateStr,  "_NET_WM_STATE_NORMAL") ==0) 
 {
-	Config->flags &= ~STATE_RAISED;
+	Config->state &= ~STATE_RAISED;
 	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_ABOVE");
 	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_BELOW");
 	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_SHADED");
+	X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_HIDDEN");
 }
 else X11SendSetStateEvent(p_Win, WINSTATE_ADD, StateStr);
 }
@@ -167,15 +216,24 @@ X11SetProperty(Win->display, Win->drawable,  XA_UTF8_STRING, "_NET_WM_VISIBLE_IC
 #define WIN_SETTING_BELOW  4
 #define WIN_SETTING_FULLSCREEN 8
 #define WIN_SETTING_SHADED 16
+#define WIN_SETTING_ICONIZED 32
+
+#define WT_NONE    0
+#define WT_NORMAL  1
+#define WT_ROOT    2
+#define WT_FULLSCREEN 3
+#define WT_EMBEDDED 4
 
 X11Window *X11WindowCreate(Display *display, const char *ParentID, int x, int y, int width, int height)
 {
 X11Window *Win;
 Window root_win;
 unsigned int screen, tmpx, tmpy, tmpwidth, tmpheight, tmpborder, tmpdepth;
-int WinSettings=0;
+int WinSettings=0, WinType=WT_NORMAL;
 XSetWindowAttributes WinAttr;
 int WinAttrSet=0, val;
+char *Token=NULL;
+const char *ptr;
 
 	Win=(X11Window *) calloc(1, sizeof(X11Window));
 	Win->display=display;
@@ -183,81 +241,70 @@ int WinAttrSet=0, val;
 	root_win=XDefaultRootWindow(display);
 	Win->parent=root_win;
 
-
-	if (! StrLen(ParentID)) 
+	ptr=rstrtok(ParentID, ",", &Token);
+	while (ptr)
 	{
+	if (strcmp(Token, "none")==0) WinType=WT_NONE;
+	else if (strcmp(Token, "root")==0) WinType=WT_ROOT;
+	else if (strcmp(Token, "fullscreen")==0) WinType=WT_FULLSCREEN;
+	else if (strcmp(Token, "max")==0) WinType=WT_FULLSCREEN;
+	else if (strcmp(Token, "shaded")==0) WinSettings |= WIN_SETTING_SHADED;
+	else if (strcmp(Token, "sticky")==0) WinSettings |= WIN_SETTING_STICKY;
+	else if (strcmp(Token, "ontop")==0) WinSettings |= WIN_SETTING_ONTOP;
+	else if (strcmp(Token, "above")==0) WinSettings |= WIN_SETTING_ONTOP;
+	else if (strcmp(Token, "below")==0) WinSettings |= WIN_SETTING_BELOW;
+	else if (strcmp(Token, "iconized")==0) WinSettings |= WIN_SETTING_ICONIZED;
+	else if (strcmp(Token, "minimized")==0) WinSettings |= WIN_SETTING_ICONIZED;
+	else if (strcmp(Token, "min")==0) WinSettings |= WIN_SETTING_ICONIZED;
+	else if (strcmp(Token, "iconic")==0) WinSettings |= WIN_SETTING_ICONIZED;
+	else if (strcmp(Token, "stickontop")==0) WinSettings |= WIN_SETTING_ONTOP | WIN_SETTING_STICKY;
+	else if (strcmp(Token, "stickabove")==0) WinSettings |= WIN_SETTING_ONTOP | WIN_SETTING_STICKY;
+	else if (strcmp(Token, "stickbelow")==0) WinSettings |= WIN_SETTING_BELOW | WIN_SETTING_STICKY;
+	else if (strncmp(Token,"0x",2)==0) 
+	{
+		Win->parent=strtol(Token, NULL, 16);
+		WinType=WT_EMBEDDED;
+	}
+	else if (isdigit(*Token))
+	{
+		Win->parent=strtol(Token, NULL, 10);
+		WinType=WT_EMBEDDED;
+	}
+
+	ptr=rstrtok(ptr, ",", &Token);
+	}
+
+
+	switch (WinType)
+	{
+		case WT_NONE:
+		Win->inputonly=XCreateWindow(display, root_win, 0, 0, 1, 1, 0, CopyFromParent, InputOnly, CopyFromParent, 0, NULL);
+		break;
+
+		case WT_NORMAL:
 		if (width==0) width=460;
 		if (height==0) height=380;
   	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
-	}
-	else if (strcmp(ParentID,"root")==0)
-	{
+		break;
+
+		case WT_ROOT:
 		Win->drawable=root_win;
 		XGetGeometry(display, Win->parent, &root_win, &x, &y, &width, &height, &tmpborder, &tmpdepth); 
-	}
-	else if (strcmp(ParentID,"fullscreen")==0)
-	{
+		break;
+
+		case WT_FULLSCREEN:
 		XGetGeometry(display, root_win, &root_win, &x, &y, &width, &height, &tmpborder, &tmpdepth); 
 	 	Win->drawable = XCreateSimpleWindow(display, Win->parent, 0, 0, width, height, 1, 0, 0);
 		WinSettings |= WIN_SETTING_FULLSCREEN;
-	}
-	else if (strcmp(ParentID,"shaded")==0)
-	{
-		if (width==0) width=460;
-		if (height==0) height=380;
-  	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
-		WinSettings |= WIN_SETTING_SHADED;
-	}
-	else if (strcmp(ParentID,"sticky")==0)
-	{
-		if (width==0) width=460;
-		if (height==0) height=380;
-  	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
-		WinSettings |= WIN_SETTING_STICKY;
-	}
-	else if (strcmp(ParentID,"ontop")==0)
-	{
-		if (width==0) width=460;
-		if (height==0) height=380;
-  	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
-		WinSettings |= WIN_SETTING_ONTOP;
-	}
-	else if (strcmp(ParentID,"stickontop")==0)
-	{
-		if (width==0) width=460;
-		if (height==0) height=380;
-  	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
-		WinSettings |= WIN_SETTING_ONTOP | WIN_SETTING_STICKY;
-	}
-	else if (strcmp(ParentID,"below")==0)
-	{
-		if (width==0) width=460;
-		if (height==0) height=380;
-  	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
-		WinSettings |= WIN_SETTING_BELOW;
-	}
-	else if (strcmp(ParentID,"stickbelow")==0)
-	{
-		if (width==0) width=460;
-		if (height==0) height=380;
-  	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
-		WinSettings |= WIN_SETTING_BELOW | WIN_SETTING_STICKY;
-	}
-	else if (strcmp(ParentID,"none")==0)
-	{
-		Win->inputonly=XCreateWindow(display, root_win, 0, 0, 1, 1, 0, CopyFromParent, InputOnly, CopyFromParent, 0, NULL);
-	}
-	else
-	{
-		if (strncmp(ParentID,"0x",2)==0) Win->parent=strtol(ParentID, NULL, 16);
-		else Win->parent=strtol(ParentID, NULL, 10);
+		break;
+
+		case WT_EMBEDDED:
 		XGetGeometry(display, Win->parent, &root_win, &tmpx, &tmpy, &tmpwidth, &tmpheight, &tmpborder, &tmpdepth); 
 		if (width==0) width=tmpwidth;
 		if (height==0) height=tmpheight;
-
   	Win->drawable = XCreateSimpleWindow(display, Win->parent, x, y, width, height, 1, 0, 0);
+		break;
 	}
-
 
 
 	X11SetDefaultProps(Win);
@@ -268,11 +315,11 @@ int WinAttrSet=0, val;
 
 	if (Win->drawable)
 	{
-
 	if (Win->drawable != root_win)
 	{
   XSelectInput (display, Win->drawable, INPUT_MOTION);
-  XMapRaised(display, Win->drawable);
+	if (WinSettings & WIN_SETTING_ICONIZED | WIN_SETTING_BELOW) XMapWindow(display, Win->drawable);
+  else XMapRaised(display, Win->drawable);
 	}
 
 	if (WinSettings & WIN_SETTING_STICKY)
@@ -284,6 +331,7 @@ int WinAttrSet=0, val;
 	if (WinSettings & WIN_SETTING_ONTOP) X11SetWindowState(Win, "_NET_WM_STATE_ABOVE");
 	if (WinSettings & WIN_SETTING_BELOW) X11SetWindowState(Win, "_NET_WM_STATE_BELOW");
 	if (WinSettings & WIN_SETTING_SHADED) X11SetWindowState(Win, "_NET_WM_STATE_SHADED");
+	if (WinSettings & WIN_SETTING_ICONIZED) X11SetWindowState(Win, "_NET_WM_STATE_ICONIZED");
 	if (WinSettings & WIN_SETTING_FULLSCREEN) 
 	{
 		X11SetWindowState(Win, "_NET_WM_STATE_FULLSCREEN");
@@ -303,6 +351,13 @@ int WinAttrSet=0, val;
 return(Win);
 }
 
+
+void X11ScreenSaver(void *p_Win, int OnOrOff)
+{
+#ifdef HAVE_XSCREENSAVER	
+	XScreenSaverSuspend(((X11Window *) Win)->display, OnOrOff);
+#endif
+}
 
 
 
@@ -327,9 +382,7 @@ int resx, resy;
   }
 
   XLockDisplay(display);
-#ifdef HAVE_XSCREENSAVER	
-	if (Config.Flags & DISABLE_SCREENSAVER) XScreenSaverSuspend(Win->display, True);
-#endif
+	if (Config->flags & DISABLE_SCREENSAVER) X11ScreenSaver(Win, False);
 
 	XA_UTF8_STRING=XInternAtom(display,"UTF8_STRING",False);
 	WMProtocols=XInternAtom(display,"WM_PROTOCOLS",False);
@@ -358,7 +411,7 @@ Win=(X11Window *) p_Win;
 }
 
 //these callbacks go here not because they're X11 related, but becasue they are only referenced in
-//X11BindXineOutput
+//X11BindCXineOutput
 static void dest_size_cb(void *p_Win, int video_width, int video_height, double video_pixel_aspect, int *dest_width, int *dest_height, double *dest_pixel_aspect) 
 {
 X11Window *Win;
@@ -387,13 +440,13 @@ X11Window *Win;
 }
 
 
-xine_video_port_t *X11BindXineOutput(void *p_Win, xine_t *xine, const char *driver)
+xine_video_port_t *X11BindCXineOutput(TConfig *Config)
 {
 X11Window *Win;
 xine_video_port_t *vo_port;
 x11_visual_t vis;
 
-	Win=(X11Window *) p_Win;
+	Win=(X11Window *) Config->X11Out;
 	if (!Win->drawable) return(NULL);
 
   vis.display           = Win->display;
@@ -401,16 +454,16 @@ x11_visual_t vis;
   vis.d                 = Win->drawable;
   vis.dest_size_cb      = dest_size_cb;
   vis.frame_output_cb   = frame_output_cb;
-  vis.user_data         = p_Win;
+  vis.user_data         = Win;
 
-  vo_port = xine_open_video_driver(xine, driver, XINE_VISUAL_TYPE_X11, (void *) &vis);
-	if (vo_port == NULL) printf("I'm unable to initialize '%s' video driver. Giving up.\n", driver);
+  vo_port = xine_open_video_driver(Config->xine, Config->vo_driver, XINE_VISUAL_TYPE_X11, (void *) &vis);
+	if (vo_port == NULL) printf("I'm unable to initialize '%s' video driver. Giving up.\n", Config->vo_driver);
 
 return(vo_port);
 }
 
 
-void X11ActivateXineOutput(void *p_Win, xine_video_port_t *vo_port)
+void X11ActivateCXineOutput(void *p_Win, xine_video_port_t *vo_port)
 {
 X11Window *Win;
 
@@ -530,6 +583,8 @@ Event->arg2=0;
 if (xevent->xkey.state & ShiftMask) Event->arg2 |= KEYMOD_SHIFT;
 if (xevent->xkey.state & ControlMask) Event->arg2 |= KEYMOD_CTRL;
 if (xevent->xkey.state & Mod1Mask) Event->arg2 |= KEYMOD_ALT;
+
+if (Event->arg1==KEY_INSERT) X11RequestSelection(Win->display, Win->drawable, XA_PRIMARY, 0);
 }
 
 
@@ -567,6 +622,20 @@ X11Window *Win;
 		case KeyPress:
 			X11HandleKeyPress(Win, &xevent, Event);
 		break;
+
+		case SelectionNotify:
+    xevent.xselection.selection;
+    if (xevent.xselection.property !=None)
+    {
+      X11HandleSelectionAvailableEvent(Win->display, Win->drawable, xevent.xselection.selection);
+      Event->type=EVENT_NONE;
+    }
+    else
+    {
+      Event->type=EVENT_NONE;
+      //X11TryRequestSelectionType(X11Win, NextEvent.xselection.selection, FALSE);
+    }
+  break;
 
   case ClientMessage:
     if (
@@ -738,7 +807,7 @@ X11Window *Win;
   XDestroyWindow(Win->display, Win->drawable);
 	}
 #ifdef HAVE_XSCREENSAVER	
-	if (Config.Flags & DISABLE_SCREENSAVER) XScreenSaverSuspend(Win->display, False);
+	if (Config->flags & DISABLE_SCREENSAVER) X11ScreenSaver(p_Win, True);
 #endif
   XUnlockDisplay(Win->display);
   XCloseDisplay (Win->display);

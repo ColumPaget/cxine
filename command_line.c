@@ -1,6 +1,8 @@
 #include "command_line.h"
 #include "control_protocol.h"
 #include "help.h"
+#include "playlist.h"
+#include "config.h"
 
 
 
@@ -15,19 +17,20 @@ Config->height=strtol(ptr, &ptr, 10);
 }
 
 
-static int XineAddURL(const char *URL, const char *Title)
+static int CXineAddURL(const char *URL, const char *Title)
 {
 int fd, result=-1;
-char *Tempstr=NULL;
+char *Tempstr=NULL, *Quoted=NULL;
 
 fd=ControlPipeOpen(O_WRONLY | O_NONBLOCK);
 if ( (fd > -1) && (lockf(fd, F_LOCK, 0)==0) )
 {
 Tempstr=rstrcpy(Tempstr, "add ");
-Tempstr=rstrcat(Tempstr, URL);
+Quoted=rstrquot(Quoted, URL, " 	");
+Tempstr=rstrcat(Tempstr, Quoted);
 if (StrLen(Title))
 {
-Tempstr=rstrcpy(Tempstr, " ");
+Tempstr=rstrcat(Tempstr, " ");
 Tempstr=rstrcat(Tempstr, Title);
 }
 result=write(fd, Tempstr, StrLen(Tempstr));
@@ -35,16 +38,17 @@ close(fd);
 Config->control_pipe=-1;
 }
 destroy(Tempstr);
+destroy(Quoted);
 
 return(result > 0);
 }
 
 
-static int XineQueueURL(const char *URL, const char *Title)
+static int CXineQueueURL(const char *URL, const char *Title)
 {
 char *Tempstr=NULL;
 
-if (XineAddURL(URL, Title)) exit(0);
+if (CXineAddURL(URL, Title)) exit(0);
 
 Tempstr=rstrquot(Tempstr, URL, " ");
 if (StrLen(Title))
@@ -60,42 +64,6 @@ destroy(Tempstr);
 
 
 
-void ShufflePlaylist()
-{
-char *Tempstr=NULL;
-int rec1, rec2, i;
-
-srand(time(NULL));
-for (i=0; i < 100; i++)
-{
-rec1=rand() % Config->playlist->size;
-rec2=rand() % Config->playlist->size;
-
-Tempstr=rstrcpy(Tempstr, StringListGet(Config->playlist, rec1));
-StringListSet(Config->playlist, rec1, StringListGet(Config->playlist, rec2));
-StringListSet(Config->playlist, rec2, Tempstr);
-}
-Config->playlist->next=0;
-
-destroy(Tempstr);
-}
-
-
-static void CommandLineAddPlayItem(const char *URL, const char *Title)
-{
-char *Tempstr=NULL;
-
-	Tempstr=rstrcpy(Tempstr, URL);
-	if (StrLen(Title))
-	{
-		Tempstr=rstrcat(Tempstr, " ");
-		Tempstr=rstrcat(Tempstr, Title);
-	}
-	StringListAdd(Config->playlist, Tempstr);
-
-destroy(Tempstr);
-}
-
 
 int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 {
@@ -105,18 +73,19 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 
   for(i = 1; i < argc; i++) 
 	{
-      if (strcmp(argv[i], "-add")==0 ) XineAddURL(argv[++i], "");
+      if (strcmp(argv[i], "-add")==0 ) CXineAddURL(argv[++i], "");
       else if (strcmp(argv[i], "+add")==0 ) 
 			{
 				i++;
-				XineAddURL(argv[i], argv[i+1]);
+				CXineAddURL(argv[i], argv[i+1]);
 				i++;
 			}
-			else if ( strcmp(argv[i], "-queue")==0 ) XineQueueURL(argv[++i], "");
+			else if ( strcmp(argv[i], "-queue")==0 ) CXineQueueURL(argv[++i], "");
+			else if ( strcmp(argv[i], "-enqueue")==0 ) CXineQueueURL(argv[++i], "");
 			else if ( strcmp(argv[i], "+queue")==0 )
 			{
 				i++;
-				XineQueueURL(argv[i], argv[i+1]);
+				CXineQueueURL(argv[i], argv[i+1]);
 				i++;
 			}
       else if ( strcmp(argv[i], "-vo")==0 ) Config->vo_driver = strdup(argv[++i]);
@@ -134,10 +103,14 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 				Config->startms=strtof(argv[++i], NULL);
 				if (Config->startms==0) Config->startms=1;
 			}
+      else if ( strcmp(argv[i], "-debug")==0 ) Config->flags |= CONFIG_DEBUG;
+      else if ( strcmp(argv[i], "-save-config")==0 ) Config->flags |= CONFIG_SAVE;
+      else if ( strcmp(argv[i], "-defaults")==0 ) ConfigDefaults(Config);
       else if ( strcmp(argv[i], "-pause")==0 ) Config->flags |= CONFIG_PAUSE;
+      else if ( strcmp(argv[i], "-mute")==0 ) Config->flags |= CONFIG_MUTE;
       else if ( strcmp(argv[i], "-image-time")==0 ) Config->image_ms=atoi(argv[++i]);
       else if ( strcmp(argv[i], "-imagems")==0 ) Config->image_ms=atoi(argv[++i]);
-      else if ( strcmp(argv[i], "-mute")==0 ) Config->flags |= CONFIG_MUTE;
+      else if ( strcmp(argv[i], "-prefix")==0 ) Config->path_prefix=strdup(argv[++i]);
       else if ( strcmp(argv[i], "-halfspeed")==0 ) Config->flags |= CONFIG_HALFSPEED;
       else if ( strcmp(argv[i], "-slow")==0 ) Config->flags |= CONFIG_HALFSPEED;
       else if ( strcmp(argv[i], "-quartspeed")==0 ) Config->flags |= CONFIG_QUARTSPEED;
@@ -146,8 +119,17 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
       else if ( strcmp(argv[i], "-vloud")==0 ) Config->flags |= CONFIG_VLOUD;
       else if ( strcmp(argv[i], "-identify")==0 ) Config->flags |=CONFIG_IDENTIFY;
       else if ( strcmp(argv[i], "-bookmark")==0 ) Config->flags |= CONFIG_BOOKMARK;
+      else if ( strcmp(argv[i], "-no-bookmark")==0 ) Config->flags &= ~CONFIG_BOOKMARK;
+      else if ( strcmp(argv[i], "-stream")==0 ) Config->flags |= CONFIG_STREAM;
+      else if ( strcmp(argv[i], "-background")==0 ) Config->background=strdup(argv[++i]);
       else if ( strcmp(argv[i], "-persist")==0 ) Config->flags |= CONFIG_PERSIST;
+      else if ( strcmp(argv[i], "-quit")==0 ) Config->flags &= ~CONFIG_PERSIST;
       else if ( strcmp(argv[i], "-stop_xscreensaver")==0 ) Config->flags |= DISABLE_SCREENSAVER;
+      else if ( strcmp(argv[i], "-screensaver")==0 ) Config->flags |= DISABLE_SCREENSAVER;
+      else if ( strcmp(argv[i], "+screensaver")==0 ) Config->flags &= ~ (DISABLE_SCREENSAVER | KILL_SCREENSAVER);
+      else if ( strcmp(argv[i], "-ss")==0 ) Config->flags |= DISABLE_SCREENSAVER;
+      else if ( strcmp(argv[i], "-SS")==0 ) Config->flags |= DISABLE_SCREENSAVER | KILL_SCREENSAVER;
+      else if ( strcmp(argv[i], "+ss")==0 ) Config->flags &= ~ (DISABLE_SCREENSAVER | KILL_SCREENSAVER);
       else if ( strcmp(argv[i], "-slave")==0 ) 
 			{
 			Config->flags |= CONFIG_PERSIST;
@@ -170,13 +152,21 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
       else if ( strcmp(argv[i], "-nowplay")==0 ) 
 			{
 				i++;
-				if ( (access(argv[i], F_OK)==0) || (mkfifo(argv[i], 0700)==0) ) Config->nowplay_pipe=open(argv[i], O_WRONLY | O_NONBLOCK);
+				if ( (access(argv[i], F_OK)==0) || (mkfifo(argv[i], 0700)==0) ) Config->nowplay_pipe_path=rstrcpy(Config->nowplay_pipe_path, argv[i]);
 			}
       else if ( strcmp(argv[i], "-ac")==0 ) Config->audio_compression=atoi(argv[++i]);
       else if ( strcmp(argv[i], "-ap")==0 ) Config->audio_plugins=strdup(argv[++i]);
       else if ( strcmp(argv[i], "-aplug")==0 ) Config->audio_plugins=strdup(argv[++i]);
+      else if ( strcmp(argv[i], "-no-video")==0 ) Config->flags |= CONFIG_NOVIDEO;
+      else if ( strcmp(argv[i], "-novideo")==0 ) Config->flags |= CONFIG_NOVIDEO;
+			else if ( strcmp(argv[i], "-dvd-device")==0) CXineConfigModify(Config->xine, "media.dvd.device", argv[++i]);
+			else if ( strcmp(argv[i], "-dvd-lang")==0) CXineConfigModify(Config->xine, "media.dvd.language", argv[++i]);
+			else if ( strcmp(argv[i], "-dvd-region")==0) CXineConfigNumericModify(Config->xine, "media.dvd.region", atoi(argv[++i]));
+			else if ( strcmp(argv[i], "-alang")==0) CXineConfigModify(Config->xine, "media.dvd.language", argv[++i]);
       else if ( strcmp(argv[i], "-osd-show")==0 ) Config->flags |= CONFIG_OSD;
+      else if ( strcmp(argv[i], "-show-osd")==0 ) Config->flags |= CONFIG_OSD;
       else if ( strcmp(argv[i], "-osd-hide")==0 ) Config->flags &= ~CONFIG_OSD;
+      else if ( strcmp(argv[i], "-hide-osd")==0 ) Config->flags &= ~CONFIG_OSD;
       else if ( strcmp(argv[i], "-osd")==0 ) 
 			{
       	Config->flags |= CONFIG_OSD;
@@ -190,18 +180,16 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 								( strcmp(argv[i], "-")==0 ) 
 						)
 			{
-				CommandLineAddPlayItem("stdin://", Title);
+				PlaylistAdd("stdin://", Title);
 //			Config->flags &= ~CONFIG_CONTROL;
 			}
+      else if ( strcmp(argv[i], "-v")==0 ) Config->debug++;
       else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);
       else if ( strcmp(argv[i], "-help")==0 ) Help(argv[++i]);
       else if ( strcmp(argv[i], "--help")==0 ) Help(argv[++i]);
-      else CommandLineAddPlayItem(argv[i], Title);
+      else PlaylistAdd(argv[i], Title);
 	}
 
-if (! StrLen(Config->vo_driver)) Config->vo_driver=strdup("auto");
-if (! StrLen(Config->ao_driver)) Config->ao_driver=strdup("auto");
-if (Config->flags & CONFIG_SHUFFLE) ShufflePlaylist();
 
 destroy(Token);
 destroy(Title);
