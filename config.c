@@ -32,13 +32,13 @@ char *Tempstr=NULL;
   Config->control_pipe=-1;
   Config->nowplay_pipe=-1;
 
-	Config->vo_driver=strdup(xine_config_register_string (xine, "cxine.vo_driver", "auto", "Default video driver for cxine", "", 1, 0, NULL));
-  Config->ao_driver=strdup(xine_config_register_string (xine, "cxine.ao_driver", "auto", "Default audio driver for cxine", "", 1, 0, NULL));
+	Config->vo_driver=rstrcpy(Config->vo_driver, xine_config_register_string (xine, "cxine.vo_driver", "auto", "Default video driver for cxine", "", 1, 0, NULL));
+  Config->ao_driver=rstrcpy(Config->ao_driver, xine_config_register_string (xine, "cxine.ao_driver", "auto", "Default audio driver for cxine", "", 1, 0, NULL));
 
 
   Tempstr=rstrcpy(Tempstr, xine_get_homedir());
   Tempstr=rstrcat(Tempstr, "/.cxine/cache/");
-	Config->cache_dir=strdup(xine_config_register_string (xine, "cxine.cachedir", Tempstr, "Cache directory for cxine downloads", "", 1, 0, NULL));
+	Config->cache_dir=rstrcpy(Config->cache_dir, xine_config_register_string (xine, "cxine.cachedir", Tempstr, "Cache directory for cxine downloads", "", 1, 0, NULL));
 
 	Tempstr=rstrcpy(Tempstr, xine_get_homedir());
 	Tempstr=rstrcat(Tempstr, "/.cxine/control.pipe");
@@ -124,7 +124,9 @@ xine_cfg_entry_t entry;
 
 if (xine_config_lookup_entry(xine, Key, &entry))
 {
-	entry.str_value=rstrcpy(entry.str_value, Value);
+	//seems these strings are internally freed by libxine, so we can't copy over them
+//	entry.str_value=rstrcpy(entry.str_value, Value);
+	entry.str_value=strdup(Value);
 
 	switch (entry.type)
 	{

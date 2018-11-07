@@ -1,6 +1,7 @@
 CFLAGS=-g -O2 -I/usr/X11R7/include
 LDFLAGS= -L/usr/X11R7/lib
 LIBS=-lXss -lX11 -lxine -lm 
+prefix=/usr/local
 
 OBJ=common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o plugins.o X11.o 
 
@@ -55,3 +56,7 @@ X11.o: X11.h X11.c common.h
 
 clean:
 	rm -f *.o cxine
+
+install:
+	-mkdir -p $(prefix)/bin
+	cp cxine $(prefix)/bin
