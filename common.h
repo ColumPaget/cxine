@@ -14,6 +14,8 @@
 #include <xine.h>
 #include <xine/xineutils.h>
 
+#include "string_list.h"
+
 #define StrLen(s) ((s) ? strlen(s) : 0)
 #define destroy(s) ((s) ? free(s) : 0)
 
@@ -40,13 +42,6 @@ int type;
 int arg1;
 int arg2;
 } TEvent;
-
-typedef struct
-{
-int next;
-int size;
-char **list;
-} TStringList;
 
 
 #define CONFIG_MUTE 1
@@ -135,15 +130,6 @@ char *rstrunquot(char *RetStr, const char *Str);
 void MkDirPath(const char *Dir);
 char *PathSearch(char *RetStr, const char *FileName, const char *Path);
 
-TStringList *StringListCreate(int argc, char **argv);
-int StringListAdd(TStringList *sl, const char *str);
-int StringListSplit(TStringList *sl, const char *str, const char *separators);
-const char *StringListGet(TStringList *sl, unsigned int pos);
-void StringListSet(TStringList *sl, unsigned int pos, const char *Str);
-const char *StringListCurr(TStringList *sl);
-const char *StringListPrev(TStringList *sl);
-const char *StringListNext(TStringList *sl);
-void StringListDestroy(TStringList *sl);
 
 int ParseURL(const char *URL, char **Proto, char **Host, char **Port, char **Path);
 void Exec(const char *CmdLine);

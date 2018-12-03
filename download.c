@@ -107,6 +107,7 @@ if (StrLen(Cmd))
 Cmd=rstrcat(Cmd, " ");
 Cmd=rstrcat(Cmd, ptr);
 
+printf("LAUNCH %s\n", Cmd);
 Path=DownloadFormatPath(Path, MRL);
 Tempstr=rstrcpy(Tempstr, Path);
 Tempstr=rstrcat(Tempstr, ".init");
@@ -183,7 +184,7 @@ int DownloadLaunch(const char *MRL)
 const char *ptr;
 int result=FALSE;
 
-ptr=StringListNext(Helpers);
+ptr=StringListFirst(Helpers);
 while (ptr)
 {
 	if (DownloadLaunchTry(ptr, MRL)) 

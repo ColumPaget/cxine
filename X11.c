@@ -91,7 +91,7 @@ XGetWindowProperty(XDisplay, XWin, SelectProp,0, 1024, 0, AnyPropertyType, &PTyp
 Data[dlen]='\0';
 
 printf("SELECT: %s\n", Data);
-PlaylistAdd(Data, "");
+PlaylistAdd(Config->playlist, Data, "");
 XDeleteProperty(XDisplay,XWin,SelectProp);
 }
 

@@ -44,6 +44,7 @@
 
 #define DEFAULT_CACHE_DIR "~/.cxine/cache"
 
+static CXineOSD *DownloadOSD=NULL;
 
 
 void SignalHandler(int sig)
@@ -196,6 +197,40 @@ return(ao_port);
 }
 
 
+//This to do every so many ms
+void PeriodicProcessing()
+{
+char *URL=NULL;
+const char *ptr;
+int pos;
+
+// Sweep through playlist and start downloading things that need downloading
+if (Config->playlist && (! (Config->flags & CONFIG_STREAM)))
+{
+	pos=Config->playlist->next;
+	ptr=StringListFirst(Config->playlist);
+	while (ptr)
+	{
+		URL=rstrcpy(URL, ptr);
+		if (! DownloadDone(&URL)) break;
+		ptr=StringListNext(Config->playlist);
+	}
+	Config->playlist->next=pos;
+}
+
+// if current item is an image, then it must have had it's display time 
+// so mark us as not playing
+ptr=xine_get_meta_info(Config->stream, XINE_STREAM_INFO_VIDEO_FOURCC);
+if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) Config->state &= ~STATE_PLAYING;
+
+
+//if there's not a 'nowplaying' pipe, perhaps because a client disconnected, then open one
+if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK);
+
+OSDUpdate(Config->flags & CONFIG_OSD);
+
+destroy(URL);
+}
 
 
 
@@ -361,6 +396,19 @@ void CXineExit(TConfig *Config)
 }
 
 
+
+void DisplayDownloadProgress()
+{
+char *Tempstr=NULL;
+	Tempstr=rstrcpy(Tempstr, "Downloading: ");
+	Tempstr=rstrcat(Tempstr, StringListCurr(Config->playlist));
+	if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Tempstr);
+	OSDUpdateSingle(DownloadOSD);
+
+destroy(Tempstr);
+}
+
+
 int main(int argc, char **argv) 
 {
 	int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
@@ -373,10 +421,10 @@ int main(int argc, char **argv)
 	Config=ConfigInit(xine_new());
   xine_init(Config->xine);
 
-	DownloadAddHelper("http:,https,ftp,ftps:", "wget -q -O - $(mrl)");
-	DownloadAddHelper("http:,https,ftp,ftps,sftp,smb,smbs:", "curl -o - $(mrl)");
-	DownloadAddHelper("http:,https:", "links -source $(mrl)");
-	DownloadAddHelper("ssh:", "ssh -T $(host) 'cat $(path)'");
+	DownloadAddHelper("http,https", "links -source $(mrl)");
+	DownloadAddHelper("http,https,ftp,ftps,sftp,smb,smbs:", "curl -o - $(mrl)");
+	DownloadAddHelper("http,https,ftp,ftps:", "wget -q -O - $(mrl)");
+	DownloadAddHelper("ssh", "ssh -T $(host) 'cat $(path)'");
 	ParseCommandLine(argc, argv, Config);
 
 	if (Config->flags & CONFIG_SHUFFLE) PlaylistShuffle();
@@ -417,7 +465,15 @@ int main(int argc, char **argv)
   while(running)
 	{
 
-		if (! (Config->state & STATE_PLAYING)) 
+		if (Config->state & STATE_PLAYING)
+		{
+			if (DownloadOSD)
+			{
+				OSDDestroy(DownloadOSD);
+				DownloadOSD=NULL;
+			}
+		}
+		else
 		{
 			if (! (Config->state & STATE_BACKGROUND_DISPLAYED))
 			{
@@ -427,12 +483,17 @@ int main(int argc, char **argv)
 					Config->state |= STATE_BACKGROUND_DISPLAYED;
 				}
 			}
+
 			result=CXineSelectStream(Config, PLAY_NEXT);
 
-			if ( (! result) &&
-						(! (Config->state & STATE_DOWNLOADING)) &&
-						(! (Config->flags & (CONFIG_PERSIST))) 
-					) running=0;
+			if  (! result)
+			{
+				if (Config->state & STATE_DOWNLOADING) DisplayDownloadProgress();
+				else if (
+								(StringListPos(Config->playlist) >= StringListSize(Config->playlist)) &&
+								(! (Config->flags & (CONFIG_PERSIST))) 
+								) running=0;
+			}
 		}
 
 //		if (Config->state & STATE_NEWTITLE) CXineNewTitle(Config);
@@ -444,16 +505,8 @@ int main(int argc, char **argv)
 		result=WatchFileDescriptors(Config, stdin_fd, control_pipe, sleep_ms);
 		if (result==EVENT_RESIZE) OSDSetup(Config);
 
-		if (result==EVENT_TIMEOUT)
-		{
-			ptr=xine_get_meta_info(Config->stream, XINE_STREAM_INFO_VIDEO_FOURCC);
-			if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) 
-			{
-							Config->state &= ~STATE_PLAYING;
-			}
-			OSDUpdate(Config->flags & CONFIG_OSD);
-			if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK);
-		}
+		if (result==EVENT_TIMEOUT) PeriodicProcessing();
+
 		waitpid(-1, NULL, WNOHANG);
   }
 	CXineExit(Config);

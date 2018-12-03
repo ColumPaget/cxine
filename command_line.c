@@ -26,13 +26,14 @@ fd=ControlPipeOpen(O_WRONLY | O_NONBLOCK);
 if ( (fd > -1) && (lockf(fd, F_LOCK, 0)==0) )
 {
 Tempstr=rstrcpy(Tempstr, "add ");
-Quoted=rstrquot(Quoted, URL, " 	");
+Quoted=rstrquot(Quoted, URL, "\\ 	");
 Tempstr=rstrcat(Tempstr, Quoted);
 if (StrLen(Title))
 {
 Tempstr=rstrcat(Tempstr, " ");
 Tempstr=rstrcat(Tempstr, Title);
 }
+Tempstr=rstrcat(Tempstr, "\n");
 result=write(fd, Tempstr, StrLen(Tempstr));
 close(fd);
 Config->control_pipe=-1;
@@ -48,6 +49,7 @@ static int CXineQueueURL(const char *URL, const char *Title)
 {
 char *Tempstr=NULL;
 
+//if a cxine is already running, then send it there
 if (CXineAddURL(URL, Title)) exit(0);
 
 Tempstr=rstrquot(Tempstr, URL, " ");
@@ -57,7 +59,7 @@ Tempstr=rstrcat(Tempstr, " ");
 Tempstr=rstrcat(Tempstr, Title);
 }
 
-StringListAdd(Config->playlist, Tempstr);
+PlaylistAdd(Config->playlist, URL, Title);
 
 destroy(Tempstr);
 }
@@ -180,14 +182,14 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 								( strcmp(argv[i], "-")==0 ) 
 						)
 			{
-				PlaylistAdd("stdin://", Title);
+				PlaylistAdd(Config->playlist, "stdin://", Title);
 //			Config->flags &= ~CONFIG_CONTROL;
 			}
       else if ( strcmp(argv[i], "-v")==0 ) Config->debug++;
       else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);
       else if ( strcmp(argv[i], "-help")==0 ) Help(argv[++i]);
       else if ( strcmp(argv[i], "--help")==0 ) Help(argv[++i]);
-      else PlaylistAdd(argv[i], Title);
+      else PlaylistAdd(Config->playlist, argv[i], Title);
 	}
 
 

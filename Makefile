@@ -3,10 +3,13 @@ LDFLAGS= -L/usr/X11R7/lib
 LIBS=-lXss -lX11 -lxine -lm 
 prefix=/usr/local
 
-OBJ=common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o plugins.o X11.o 
+OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o plugins.o X11.o 
 
 all: $(OBJ)
 	$(CC) -Wall $(CFLAGS) $(LIBS) $(LDFLAGS) $(OBJ) cxine.c -o cxine
+
+string_list.o: string_list.h string_list.c
+	$(CC) $(CFLAGS) -c string_list.c
 
 common.o: common.h common.c
 	$(CC) $(CFLAGS) -c common.c

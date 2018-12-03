@@ -28,18 +28,24 @@ return(Config->control_pipe);
 
 int ControlHandleInput(int fd, xine_stream_t *stream)
 {
-char *Tempstr=NULL, *Cmd=NULL, *Token=NULL;
+char *Tempstr=NULL, *Cmd=NULL, *Token=NULL, *URL=NULL;
 const char *ptr;
 int result, pos_msecs, len_msecs, pos, val;
 int RetVal=EVENT_NONE;
 
-Tempstr=(char *) calloc(1, 256);
-result=read(fd, Tempstr, 255);
+Token=(char *) calloc(1, 256);
+result=read(fd, Token, 255);
+while (result > 0)
+{
+	Token[result]='\0';
+	Tempstr=rstrcat(Tempstr, Token);
+	if (strchr(Token, '\n')) break;
+	result=read(fd, Token, 255);
+}
 
 //fd is closed at the other end. close it our end,
 if (result > 0) 
 {
-Tempstr[result]='\0';
 xine_chomp(Tempstr);
 
 ptr=rstrtok(Tempstr, " 	",&Cmd);
@@ -48,7 +54,12 @@ if (StrLen(Cmd))
 switch (*Cmd)
 {
 	case 'a':
-	if (strcasecmp(Cmd, "add")==0) StringListAdd(Config->playlist, ptr);
+	if (strcasecmp(Cmd, "add")==0) 
+	{
+		ptr=rstrtok(ptr, " ", &Token);
+		URL=rstrunquot(URL, Token);
+		PlaylistAdd(Config->playlist, URL, ptr);
+	}
 	break;
 	
 	case 'd':
@@ -166,6 +177,7 @@ fflush(stdout);
 
 destroy(Tempstr);
 destroy(Token);
+destroy(URL);
 destroy(Cmd);
 
 return(RetVal);

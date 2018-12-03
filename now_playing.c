@@ -76,7 +76,6 @@ int i, pos_msecs, len_msecs, pos;
 char *Tempstr=NULL, *PipeStr=NULL;
 
 
-printf("NOW PLAY: %d\n", Config->nowplay_pipe);
 X11WindowSetTitle(Config->X11Out, Config->CurrTitle,"cxine");
 
 printf("\nClip info:\n");

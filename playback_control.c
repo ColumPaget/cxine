@@ -150,6 +150,7 @@ char *url=NULL, *Tempstr=NULL;
 const char *p_title=NULL;
 int startms;
 int len, result=0, fd;
+TStringList *NewPlaylist;
 
 	p_title=rstrtok(info, " ", &Tempstr);
 	len=StrLen(Tempstr);
@@ -160,7 +161,16 @@ int len, result=0, fd;
 	//so if we get a file path starting with '-' (probably a command-line option that we don't recognize)
 	//then we don't want to pass it to xine unless the file really exists
 	if ((*url=='-') && (len > 1) && (access(url, F_OK) !=0)) /* do nothing*/ ;
-	else if (! DownloadDone(&url)) Config->state |= STATE_DOWNLOADING;
+	else if (! DownloadDone(&url)) 
+	{
+		Config->state |= STATE_DOWNLOADING;
+	}
+	else if (IsPlaylist(url)) 
+	{
+		NewPlaylist=PlaylistExpandCurr(Config->playlist, Tempstr, url);
+		StringListDestroy(Config->playlist);
+		Config->playlist=NewPlaylist;
+	}
   else if (xine_open(Config->stream, url))
 	{
 		Config->state &= ~STATE_DOWNLOADING;
@@ -199,7 +209,7 @@ int len, result=0, fd;
 	}
 	else 
 	{	
-			printf("Unable to open url '%s'\n", url);
+			//printf("Unable to open url '%s'\n", url);
 			result=PLAY_FAIL;
 	}
 	}
@@ -214,7 +224,10 @@ int CXineSelectStream(TConfig *Config, int Which)
 {
 const char *ptr;
 
-if (Config->state & STATE_DOWNLOADING) return(CXinePlayStream(Config, StringListCurr(Config->playlist)));
+if (Config->state & STATE_DOWNLOADING) 
+{
+				return(CXinePlayStream(Config, StringListCurr(Config->playlist)));
+}
 
 if (Which==PLAY_NEXT) 
 {

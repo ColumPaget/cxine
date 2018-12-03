@@ -24,7 +24,8 @@ xine_stream_t *stream;
 void OSDSetup(TConfig *Config);
 CXineOSD *OSDCreate(void *X11Win, xine_stream_t *stream, const char *config, const char *text);
 CXineOSD *OSDButtonsCreate(void *X11Win, xine_stream_t *stream, const char *config);
+CXineOSD *OSDMessage(int x, int y, const char *Text);
 void OSDUpdate(int Show);
-void *OSDDestroy(CXineOSD *OSD);
+void OSDDestroy(CXineOSD *OSD);
 
 #endif

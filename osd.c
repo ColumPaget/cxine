@@ -244,7 +244,12 @@ switch (*ptr)
 
 				case 'T': 
 				vptr=xine_get_meta_info(stream, XINE_META_INFO_TITLE);
-			 	if (StrLen(vptr)==0) vptr=cbasename(StringListCurr(Config->playlist));
+
+			 	if (StrLen(vptr)==0) 
+				{
+					vptr=StringListCurr(Config->playlist);
+					if (vptr) vptr=cbasename(vptr);
+				}
 				RetStr=rstrcat(RetStr, vptr); 
 				break;
 }
@@ -427,9 +432,22 @@ return(OSD);
 }
 
 
+CXineOSD *OSDMessage(int x, int y, const char *Text)
+{
+char *Tempstr=NULL;
+CXineOSD *OSD;
+
+ Tempstr=realloc(Tempstr, 1024);
+ snprintf(Tempstr, 1024, "%d,%d,-10,-10 font=mono",x,y);
+ OSD=OSDCreate(Config->X11Out, Config->stream, Tempstr, Text);
+
+ destroy(Tempstr);
+ return(OSD);
+}
 
 
-void *OSDDestroy(CXineOSD *OSD)
+
+void OSDDestroy(CXineOSD *OSD)
 {
 xine_osd_free(OSD->osd);
 free(OSD->Contents);

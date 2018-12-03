@@ -1,6 +1,7 @@
 #include "playlist.h"
 #include "playlist_files.h"
 #include "download.h"
+#include "osd.h"
 
 void PlaylistShuffle()
 {
@@ -23,14 +24,18 @@ destroy(Tempstr);
 }
 
 
-void PlaylistAdd(const char *iURL, const char *Title)
+void PlaylistAdd(TStringList *playlist, const char *iURL, const char *Title)
 {
 char *Tempstr=NULL, *URL=NULL;
+CXineOSD *OSD=NULL;
 
+printf("PLA: [%s] [%s]\n", iURL, Title);
 URL=rstrcpy(URL, iURL);
-while (! DownloadDone(&URL));
-
-if ( ! PlaylistLoad(Config->playlist, URL) )
+if (IsPlaylist(URL))
+{
+	if ( ! PlaylistLoad(playlist, URL) ) StringListAdd(playlist, URL);
+}
+else if ( ! PlaylistLoad(playlist, URL) )
 {
 
 	if ( 
@@ -50,7 +55,9 @@ if ( ! PlaylistLoad(Config->playlist, URL) )
 		Tempstr=rstrcat(Tempstr, " ");
 		Tempstr=rstrcat(Tempstr, Title);
 	}
-	StringListAdd(Config->playlist, Tempstr);
+
+printf("PLA: %s\n",Tempstr);
+	StringListAdd(playlist, Tempstr);
 }
 
 
@@ -58,3 +65,26 @@ destroy(Tempstr);
 destroy(URL);
 }
 
+
+TStringList *PlaylistExpandCurr(TStringList *playlist, const char *URL, const char *LocalPath)
+{
+TStringList *Items;
+const char *ptr;
+int size, item_count, pos, i;
+
+pos=playlist->next-1;
+Items=StringListCreate(0, NULL);
+for (i=0; i < pos; i++)
+{
+	StringListAdd(Items, StringListGet(playlist, i));
+}
+PlaylistLoad(Items, LocalPath);
+
+for (i=pos+1; i < StringListSize(playlist); i++)
+{
+	StringListAdd(Items, StringListGet(playlist, i));
+}
+Items->next=0;
+
+return(Items);
+}

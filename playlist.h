@@ -4,7 +4,8 @@
 #include "common.h"
 
 void PlaylistShuffle();
-void PlaylistAdd(const char *URL, const char *Title);
+void PlaylistAdd(TStringList *playlist, const char *URL, const char *Title);
+TStringList *PlaylistExpandCurr(TStringList *playlist, const char *URL, const char *LocalPath);
 
 #endif
 
