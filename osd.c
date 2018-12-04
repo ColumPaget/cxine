@@ -1,5 +1,6 @@
 #include "X11.h"
 #include "osd.h"
+#include "playlist.h"
 #include <time.h>
 
 #define VALUE_STR_LEN 255
@@ -143,7 +144,7 @@ return(ValueStr);
 char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
 {
 const char *ptr, *prev, *vptr;
-char *ValueStr=NULL;
+char *ValueStr=NULL, *Tempstr=NULL;
 
 prev=fmt;
 ptr=strchr(fmt, '%');
@@ -167,6 +168,7 @@ switch (*ptr)
 				case 'B': RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_BITRATE)); break;
 				case 'w': RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_WIDTH)); break;
 				case 'h': RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_HEIGHT)); break;
+
 				case 't':
 					ptr++;
 					switch (*ptr)
@@ -183,21 +185,44 @@ switch (*ptr)
 					case 'N': RetStr=rstrcat(RetStr, OSDFormatTime(ValueStr, "%Y/%m/%d %H:%M:%S")); break;
 					}	
 				break;	
+
 				case 'o': RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AV_OFFSET)); break;
 				case 'v': RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AUDIO_VOLUME)); break;
 				case 'f': RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_FINE_SPEED)); break;
 				case 'A': RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_ARTIST)); break;
 				case 'C': RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_COMMENT)); break;
-				case 'c': RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_COPYRIGHT)); break;
+
+				// Audio info
 				case 'a': 
 					ptr++;
-					if (*ptr=='c') RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_FOURCC));
-					if (*ptr=='b') RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_BITRATE));
-					if (*ptr=='s') RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_SAMPLERATE));
-					if (*ptr=='v') RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AUDIO_VOLUME));
-					if (*ptr=='w') RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AUDIO_COMPR_LEVEL));
+					switch (*ptr)
+					{
+					case 'c': RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_FOURCC)); break;
+					case 'b': RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_BITRATE)); break;
+					case 's': RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_SAMPLERATE)); break;
+					case 'v': RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AUDIO_VOLUME)); break;
+					case 'w': RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AUDIO_COMPR_LEVEL)); break;
+					}
 				break;
 
+				// Playlist info
+				case 'L':
+					ptr++;
+					switch (*ptr)
+					{
+						case 's': 
+							snprintf(ValueStr, VALUE_STR_LEN, "%d",	StringListSize(Config->playlist));
+							RetStr=rstrcat(RetStr, ValueStr);
+						break;
+
+						case 'p': 
+							snprintf(ValueStr, VALUE_STR_LEN, "%d",	StringListPos(Config->playlist));
+							RetStr=rstrcat(RetStr, ValueStr);
+						break;
+					}
+				break;
+
+				// Track metainfo 
 				case 'm':
 					ptr++;
 					switch (*ptr)
@@ -233,24 +258,19 @@ switch (*ptr)
 						break;
 
 
+						case 'R': RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_COPYRIGHT)); break;
+
 						case 't':
 						case 'T': 
-						vptr=xine_get_meta_info(stream, XINE_META_INFO_TITLE);
-					 	if (StrLen(vptr)==0) vptr=cbasename(StringListCurr(Config->playlist));
-						RetStr=rstrcat(RetStr, vptr); 
+						Tempstr=PlaylistCurrTitle(Tempstr);
+						RetStr=rstrcat(RetStr, Tempstr); 
 						break;
 					}
 				break;
 
 				case 'T': 
-				vptr=xine_get_meta_info(stream, XINE_META_INFO_TITLE);
-
-			 	if (StrLen(vptr)==0) 
-				{
-					vptr=StringListCurr(Config->playlist);
-					if (vptr) vptr=cbasename(vptr);
-				}
-				RetStr=rstrcat(RetStr, vptr); 
+					Tempstr=PlaylistCurrTitle(Tempstr);
+					RetStr=rstrcat(RetStr, Tempstr); 
 				break;
 }
 if (*ptr != '\0') ptr++;
@@ -260,6 +280,7 @@ ptr=strchr(ptr, '%');
 if (prev) RetStr=rstrcat(RetStr, prev);
 
 destroy(ValueStr);
+destroy(Tempstr);
 return(RetStr);
 }
 
@@ -300,7 +321,6 @@ char *Tempstr=NULL;
 const char *ptr;
 
 if (! OSD) return;
-xine_osd_clear(OSD->osd);
 
 //xine_osd_set_palette(osd, &textpalettes_color, &textpalettes_trans);
 //xine_osd_draw_rect(osd, 10, 10, 100, 30, XINE_OSD_TEXT1, 0);
@@ -329,8 +349,13 @@ break;
 
 default:
 	Tempstr=OSDFormatString(Tempstr, OSD->Contents, OSD->stream);
+	if (strcmp(Tempstr, OSD->Prev) !=0)
+	{
+	xine_osd_clear(OSD->osd);
 	xine_osd_get_text_size(OSD->osd, Tempstr, &wid, &high);
 	xine_osd_draw_text(OSD->osd, 0, 0, Tempstr, XINE_OSD_TEXT1);
+	OSD->Prev=rstrcpy(OSD->Prev, Tempstr);
+	}
 break;
 }
 
@@ -399,7 +424,7 @@ CXineOSD *OSD;
 OSD=(CXineOSD *) calloc(1, sizeof(CXineOSD));
 OSD->stream=stream;
 OSD->X11Win=X11Win;
-
+OSD->Prev=rstrcpy(NULL, "");
 
 ptr=rstrtok(config, " ", &Token);
 OSDSetupGeometry(OSD, Token);
@@ -451,6 +476,7 @@ void OSDDestroy(CXineOSD *OSD)
 {
 xine_osd_free(OSD->osd);
 free(OSD->Contents);
+free(OSD->Prev);
 free(OSD);
 }
 

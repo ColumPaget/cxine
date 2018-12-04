@@ -399,13 +399,16 @@ void CXineExit(TConfig *Config)
 
 void DisplayDownloadProgress()
 {
-char *Tempstr=NULL;
+char *Tempstr=NULL, *Title=NULL;
+
+  Title=PlaylistCurrTitle(Title);
 	Tempstr=rstrcpy(Tempstr, "Downloading: ");
-	Tempstr=rstrcat(Tempstr, StringListCurr(Config->playlist));
+	Tempstr=rstrcat(Tempstr, Title);
 	if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Tempstr);
-	OSDUpdateSingle(DownloadOSD);
+	OSDUpdateSingle(DownloadOSD, TRUE);
 
 destroy(Tempstr);
+destroy(Title);
 }
 
 
@@ -417,6 +420,8 @@ int main(int argc, char **argv)
 	//call 'SignalHandler' with a signal it ignores as it will set up
 	//handlers for SIGINT and SIGTERM
 	SignalHandler(SIGCONT);
+
+	DownloadCleanCacheDir();
 
 	Config=ConfigInit(xine_new());
   xine_init(Config->xine);

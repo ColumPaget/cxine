@@ -103,6 +103,7 @@ char *bottom_osd_text;
 char *keygrabs;
 char *background;
 char *cache_dir;
+int cache_maxage;
 int priority;
 int loop;
 int image_ms;
@@ -127,6 +128,8 @@ char *rstrlcpy(char *Dest, const char *Src, int SrcLen);
 const char *rstrtok(const char *Str, const char *Separators, char **Token);
 char *rstrquot(char *RetStr, const char *Str, const char *QuoteChars);
 char *rstrunquot(char *RetStr, const char *Str);
+
+void TouchFile(const char *Path);
 void MkDirPath(const char *Dir);
 char *PathSearch(char *RetStr, const char *FileName, const char *Path);
 

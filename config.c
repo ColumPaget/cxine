@@ -14,6 +14,9 @@ char *Tempstr=NULL;
 	Config->xine=xine;
   Config->playlist=StringListCreate(0,NULL);
 
+	//Cache media for 48 hours
+	Config->cache_maxage=3600 * 48;
+
   Tempstr=rstrcpy(Tempstr, xine_get_homedir());
 	Tempstr=rstrcat(Tempstr, "/.cxine/cxine.conf");
 	xine_config_load(xine, Tempstr);
@@ -113,7 +116,6 @@ char *Tempstr=NULL;
 
 
 	destroy(Tempstr);
-  return(Config);
 }
 
 

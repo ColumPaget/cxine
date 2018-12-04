@@ -88,3 +88,26 @@ Items->next=0;
 
 return(Items);
 }
+
+
+char *PlaylistCurrTitle(char *RetStr)
+{
+char *URL=NULL, *Token=NULL;
+const char *ptr=NULL;
+
+if (Config->stream) ptr=xine_get_meta_info(Config->stream, XINE_META_INFO_TITLE);
+if (StrLen(ptr)==0) 
+{
+	ptr=StringListCurr(Config->playlist);
+	ptr=rstrtok(ptr, " ", &Token);
+	URL=rstrunquot(URL, Token);
+	if (StrLen(ptr) ==0) ptr=cbasename(URL);
+}
+
+RetStr=rstrcpy(RetStr, ptr);
+
+destroy(Token);
+destroy(URL);
+
+return(RetStr);
+}

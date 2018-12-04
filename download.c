@@ -2,8 +2,35 @@
 #include "playlist_files.h"
 #include <fcntl.h>
 #include <sys/file.h>
+#include <glob.h>
 
 TStringList *Helpers=NULL;
+
+void DownloadCleanCacheDir()
+{
+const char *ptr;
+char *Tempstr=NULL;
+struct stat Stat;
+glob_t Glob;
+time_t Now, Then;
+int i;
+
+Tempstr=rstrcpy(Tempstr, Config->cache_dir);
+Tempstr=rstrcat(Tempstr, "/*");
+
+glob(Tempstr, 0, 0, &Glob);
+for (i=0; i < Glob.gl_pathc; i++)
+{
+stat(Glob.gl_pathv[i], &Stat);
+Then=Stat.st_atime;
+if (Stat.st_mtime > Then) Then=Stat.st_mtime;
+
+if ((Now - Then) > Config->cache_maxage) unlink(Glob.gl_pathv[i]); 
+}
+
+destroy(Tempstr);
+}
+
 
 char * DownloadFormatPath(char *RetStr, const char *MRL)
 {

@@ -3,6 +3,8 @@
 #include "now_playing.h"
 #include "bookmarks.h"
 #include "download.h"
+#include "playlist.h"
+#include "playlist_files.h"
 #include "plugins.h"
 #include "xine/xine_internal.h"
 #include "X11.h"
@@ -173,6 +175,7 @@ TStringList *NewPlaylist;
 	}
   else if (xine_open(Config->stream, url))
 	{
+		TouchFile(url);
 		Config->state &= ~STATE_DOWNLOADING;
 		if (StrLen(p_title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, p_title);
 	  else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(url));

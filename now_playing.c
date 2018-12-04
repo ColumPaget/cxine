@@ -1,4 +1,5 @@
 #include "now_playing.h"
+#include "playlist.h"
 #include "X11.h"
 
 
@@ -50,16 +51,6 @@ char *Tempstr=NULL;
 ptr=xine_get_meta_info(Config->stream, ValID);
 if (! ptr)
 {
-  if (ValID==XINE_META_INFO_TITLE)
-  {
-    ptr=StringListCurr(Config->playlist);
-    if (StrLen(ptr))
-    {
-      //first arg is the URL
-      ptr=rstrtok(ptr, " ", &Tempstr);
-      if (! StrLen(ptr)) ptr=StringListCurr(Config->playlist);
-    }
-  }
   return("");
 }
 return(ptr);
@@ -73,17 +64,22 @@ const char *ClipInfoTypes[]={"Title","Artist","Album","Year","Comment","Track","
 int ClipInfoID[]={XINE_META_INFO_TITLE, XINE_META_INFO_ARTIST, XINE_META_INFO_ALBUM, XINE_META_INFO_YEAR, XINE_META_INFO_COMMENT, XINE_META_INFO_TRACK_NUMBER, XINE_META_INFO_GENRE};
 const char *ptr;
 int i, pos_msecs, len_msecs, pos;
-char *Tempstr=NULL, *PipeStr=NULL;
+char *Tempstr=NULL, *Title=NULL, *PipeStr=NULL;
 
 
 X11WindowSetTitle(Config->X11Out, Config->CurrTitle,"cxine");
 
 printf("\nClip info:\n");
 for (i=0; ClipInfoTypes[i] !=NULL; i++)
+{  
+if (ClipInfoID[i]==XINE_META_INFO_TITLE)
 {
-ptr=CXineGetStringValue(Config->stream, ClipInfoID[i], 0);
-printf(" %s: %s\n",ClipInfoTypes[i], ptr);
+	Title=PlaylistCurrTitle(Title);
+	ptr=Title;
+}
+else ptr=CXineGetStringValue(Config->stream, ClipInfoID[i], 0);
 
+printf(" %s: %s\n",ClipInfoTypes[i], ptr);
 Tempstr=rstrcpy(Tempstr, "CXINE:");
 Tempstr=rstrcat(Tempstr, ClipInfoTypes[i]);
 

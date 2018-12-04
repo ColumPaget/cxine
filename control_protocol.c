@@ -1,5 +1,6 @@
 #include "control_protocol.h"
 #include "playback_control.h"
+#include "playlist.h"
 
 int ControlPipeOpen(int mode)
 {
@@ -86,7 +87,11 @@ switch (*Cmd)
 	else if (strcasecmp(Cmd, "get_audio_codec")==0) printf("ANS_AUDIO_CODEC='%s'\n", xine_get_meta_info(stream, XINE_META_INFO_AUDIOCODEC));
 	else if (strcasecmp(Cmd, "get_video_codec")==0) printf("ANS_VIDEO_CODEC='%s'\n", xine_get_meta_info(stream, XINE_META_INFO_VIDEOCODEC));
 	else if (strcasecmp(Cmd, "get_meta_album")==0) printf("ANS_META_ALBUM='%s'\n", xine_get_meta_info(stream, XINE_META_INFO_ALBUM));
-	else if (strcasecmp(Cmd, "get_meta_title")==0) printf("ANS_META_TITLE='%s'\n", xine_get_meta_info(stream, XINE_META_INFO_TITLE));
+	else if (strcasecmp(Cmd, "get_meta_title")==0) 
+	{
+		Token=PlaylistCurrTitle(Token);
+		printf("ANS_META_TITLE='%s'\n", Token);
+	}
 	else if (strcasecmp(Cmd, "get_meta_artist")==0) printf("ANS_META_ARTIST='%s'\n", xine_get_meta_info(stream, XINE_META_INFO_ARTIST));
 	else if (strcasecmp(Cmd, "get_meta_genre")==0) printf("ANS_META_GENRE='%s'\n", xine_get_meta_info(stream, XINE_META_INFO_GENRE));
 	else if (strcasecmp(Cmd, "get_meta_year")==0) printf("ANS_META_YEAR='%s'\n", xine_get_meta_info(stream, XINE_META_INFO_YEAR));

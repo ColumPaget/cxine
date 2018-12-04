@@ -1,4 +1,5 @@
 #include "help.h"
+#include "plugins.h"
 
 
 static void HelpKeys()

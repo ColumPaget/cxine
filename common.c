@@ -1,4 +1,5 @@
 #include "common.h"
+#include <utime.h>
 
 TConfig *Config=NULL;
 int  running = 0;
@@ -135,6 +136,20 @@ ptr++;
 return(RetStr);
 }
 
+
+void TouchFile(const char *Path)
+{
+struct utimbuf times;
+struct stat Stat;
+
+if (stat(Path, &Stat)==0)
+{
+	times.actime=time(NULL);
+	times.modtime=Stat.st_mtime;
+	utime(Path, &times);
+}
+
+}
 
 
 
