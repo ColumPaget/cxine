@@ -421,10 +421,10 @@ int main(int argc, char **argv)
 	//handlers for SIGINT and SIGTERM
 	SignalHandler(SIGCONT);
 
-	DownloadCleanCacheDir();
 
 	Config=ConfigInit(xine_new());
   xine_init(Config->xine);
+	DownloadCleanCacheDir();
 
 	DownloadAddHelper("http,https", "links -source $(mrl)");
 	DownloadAddHelper("http,https,ftp,ftps,sftp,smb,smbs:", "curl -o - $(mrl)");
