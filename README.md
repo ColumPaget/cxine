@@ -57,6 +57,8 @@ Options
   -persist                Don't exit when nothing left to do, wait for commands on stdin.
   -quit                   Exit when nothing left to do (use this if you saved -persist config and want to turn it off)
   -slave                  Mplayer compatible flag, equivalent to '-persist -startms 0'.
+  -cache <age>            Max age of items in the download cache. Number is in seconds, but can be postfixed with 'm' for minutes, 'h' for hours and 'd' for days. e.g. '-cache 10h' means 'cache for ten hours'
+
   -input <path>           Path to pipe to read commands from (by default cxine creates a pipe in '~/.cxine/cxine.pipe'). This accepts mplayer compatible form '-input file:<path>'.
   -nowplay <path>         Path to pipe to write 'now playing' info to (cxine will create this pipe if it doesn't already exist).
   -startms <millisecs>    Start playing at <millisecs>'.
@@ -231,7 +233,15 @@ The `-background` option allows a default image to be displayed when nothing is 
 Downloads
 ---------
 
-CXine downloads media using helper apps, either Curl, Wget or Twighbright Links need to be in your path for https/http. You can also use 'ssh:' urls if ssh is in your path, although these have to be set up in your '.ssh/config' to auto-login
+CXine downloads media using helper apps. Either Curl, Wget or Twighbright Links need to be in your path for https/http. CXine should also be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested. You can also use 'ssh:' (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your '.ssh/config' to auto-login. 
+So, for example the url 
+
+```
+'ssh://myhost/home/music/BinaryFinary.mp3' 
+```
+
+will log into 'myhost' and use ssh to pull the file '/home/music/BinaryFinary.mp3' provided that 'myhost' has been set up in your .config with an ssh key to log in with.
+
 
 Streaming
 ---------
@@ -256,21 +266,26 @@ The argument of the -osd option is a pair of comma-seperated strings. The first 
 %o      output current stream AV offset
 %A      output artist of current track
 %T      output title of current track
+%C      output comment of current track
 %v      output audio volume (0-100)
 %av     output audio volume (0-100)
 %ac     output audio file FourCC
 %ab     output audio bitrate
 %as     output audio samplerate
 %aw     output audio width (compression level)
+%Ls     output size of playlist (number of queued tracks)
+%Ls     output curr track in playlist being played
 %ma     output artist for current track
 %mA     output album for current track
 %mt     output title of current track
 %mT     output title of current track
 %mY     output year for current track
 %mG     output genre for current track
+%mR     output copyright for current track
 %mc     output DVD chapter number
 %mC     output number of chapters on DVD
 %ts     output number of seconds into track
+%tS     output seconds into and duration of track as <position>/<track length>
 %tl     output length of current track in seconds
 %tP     output percent into current track
 %tt     output current time in form HH:MM
@@ -278,9 +293,12 @@ The argument of the -osd option is a pair of comma-seperated strings. The first 
 %td     output current date in form YY/mm/dd
 %tD     output current date in form YYYY/mm/dd
 %tN     output current date and time in form YYYY/mm/dd HH:MM:SS
+%tw     output position in track as HH:MM:SS
+%tW     output length of track as HH:MM:SS
+
 ```
 
-Onscreen displays only work if there`s a video stream for them to mix into. Thus, to have an OSD when playing audio files you should either use one of the audio post-processing visualizations, or else supply cxine with a .jpeg or .png image as the first `track` to play, and use the `-image-time` or `-imagems` options to cause the next track to start playing after the image is displayed. The image will persist and be the `video` stream for the OSD to mix into.
+Onscreen displays only work if there`s a video stream for them to mix into. Thus, to have an OSD when playing audio files you should either use the -background option to set a default background image, or use one of the audio post-processing visualizations, or else supply cxine with a .jpeg or .png image as the first `track` to play, and use the `-image-time` or `-imagems` options to cause the next track to start playing after the image is displayed. The image will persist and be the `video` stream for the OSD to mix into.
 
 
 Keybindings

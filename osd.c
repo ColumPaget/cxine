@@ -28,11 +28,17 @@ CXineOSD *buttonsOSD=NULL;
 
 char *OSDFormatMSecs(char *ValueStr, int msecs)
 {
-int mins, secs;
+int hours, mins, secs;
 
 	mins=msecs / MIN_MINSECS;
 	secs=(msecs % MIN_MINSECS) / 1000;
-	snprintf(ValueStr, VALUE_STR_LEN, "%d:%d", mins, secs);
+	if (mins > 60)
+	{
+		hours=mins / 60;
+		mins=mins % 60;
+		snprintf(ValueStr, VALUE_STR_LEN, "%d:%d:%d", hours, mins, secs);
+	}
+	else snprintf(ValueStr, VALUE_STR_LEN, "%d:%d", mins, secs);
 
 return(ValueStr);
 }
@@ -176,6 +182,7 @@ switch (*ptr)
 					case 's': RetStr=rstrcat(RetStr, OSDFormatDuration(ValueStr, stream, FMT_POS_SECS)); break;
 					case 'l': RetStr=rstrcat(RetStr, OSDFormatDuration(ValueStr, stream, FMT_LEN_SECS)); break;
 					case 'w': RetStr=rstrcat(RetStr, OSDFormatDuration(ValueStr, stream, FMT_EXPENDED)); break;
+					case 'W': RetStr=rstrcat(RetStr, OSDFormatDuration(ValueStr, stream, FMT_DURATION)); break;
 					case 'S': RetStr=rstrcat(RetStr, OSDFormatDuration(ValueStr, stream, FMT_SECS)); break;
 					case 'P': RetStr=rstrcat(RetStr, OSDFormatDuration(ValueStr, stream, FMT_PERCENT)); break;
 					case 't': RetStr=rstrcat(RetStr, OSDFormatTime(ValueStr, "%H:%M")); break;
@@ -216,7 +223,7 @@ switch (*ptr)
 						break;
 
 						case 'p': 
-							snprintf(ValueStr, VALUE_STR_LEN, "%d",	StringListPos(Config->playlist));
+							snprintf(ValueStr, VALUE_STR_LEN, "%d",	StringListPos(Config->playlist)+1);
 							RetStr=rstrcat(RetStr, ValueStr);
 						break;
 					}
@@ -316,8 +323,8 @@ int x=4, y=4, wid, high;
 
 void OSDUpdateSingle(CXineOSD *OSD, int show)
 {
-int wid, high, result, pos;
-char *Tempstr=NULL;
+int wid, high, result, y;
+char *Tempstr=NULL, *Text=NULL;
 const char *ptr;
 
 if (! OSD) return;
@@ -352,8 +359,15 @@ default:
 	if (strcmp(Tempstr, OSD->Prev) !=0)
 	{
 	xine_osd_clear(OSD->osd);
-	xine_osd_get_text_size(OSD->osd, Tempstr, &wid, &high);
-	xine_osd_draw_text(OSD->osd, 0, 0, Tempstr, XINE_OSD_TEXT1);
+	ptr=rstrtok(Tempstr, "\n", &Text);
+	y=0;
+	while (ptr)
+	{
+	xine_osd_get_text_size(OSD->osd, Text, &wid, &high);
+	xine_osd_draw_text(OSD->osd, 0, y, Text, XINE_OSD_TEXT1);
+	y+=high;
+	ptr=rstrtok(ptr, "\n", &Text);
+	}
 	OSD->Prev=rstrcpy(OSD->Prev, Tempstr);
 	}
 break;
@@ -363,6 +377,7 @@ if (show) xine_osd_show_unscaled(OSD->osd, 0);
 else xine_osd_hide(OSD->osd, 0);
 
 destroy(Tempstr);
+destroy(Text);
 }
 
 

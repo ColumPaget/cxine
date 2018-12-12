@@ -29,7 +29,6 @@ void PlaylistAdd(TStringList *playlist, const char *iURL, const char *Title)
 char *Tempstr=NULL, *URL=NULL;
 CXineOSD *OSD=NULL;
 
-printf("PLA: [%s] [%s]\n", iURL, Title);
 URL=rstrcpy(URL, iURL);
 if (IsPlaylist(URL))
 {
@@ -56,7 +55,6 @@ else if ( ! PlaylistLoad(playlist, URL) )
 		Tempstr=rstrcat(Tempstr, Title);
 	}
 
-printf("PLA: %s\n",Tempstr);
 	StringListAdd(playlist, Tempstr);
 }
 

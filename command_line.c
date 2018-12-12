@@ -65,6 +65,22 @@ destroy(Tempstr);
 }
 
 
+void CommandLineParseCache(const char *Arg)
+{
+char *ptr;
+long val;
+
+val=strtol(Arg, &ptr, 10);
+
+switch (*ptr)
+{
+	case 'm': val *= 60; break;
+	case 'h': val *= 3600; break;
+	case 'd': val *= (3600 * 24); break;
+}
+
+Config->cache_maxage=val;
+}
 
 
 int ParseCommandLine(int argc, char *argv[], TConfig *Config)
@@ -151,6 +167,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
       else if ( strcmp(argv[i], "-shuffle")==0 ) Config->flags |= CONFIG_SHUFFLE;
       else if ( strcmp(argv[i], "-loop")==0 ) Config->loop=atoi(argv[++i]);
       else if ( strcmp(argv[i], "-keygrab")==0 ) Config->keygrabs=rstrcpy(Config->keygrabs, argv[++i]);
+      else if ( strcmp(argv[i], "-cache")==0 ) CommandLineParseCache(argv[++i]);
       else if ( strcmp(argv[i], "-nowplay")==0 ) 
 			{
 				i++;

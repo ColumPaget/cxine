@@ -399,16 +399,32 @@ void CXineExit(TConfig *Config)
 
 void DisplayDownloadProgress()
 {
-char *Tempstr=NULL, *Title=NULL;
+char *Tempstr=NULL, *Title=NULL, *URL=NULL, *Text=NULL;
+const char *ptr;
 
   Title=PlaylistCurrTitle(Title);
-	Tempstr=rstrcpy(Tempstr, "Downloading: ");
-	Tempstr=rstrcat(Tempstr, Title);
-	if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Tempstr);
+	
+	ptr=StringListCurr(Config->playlist);
+	if (ptr)
+	{
+	rstrtok(ptr, " ", &URL);
+	
+
+	Text=rstrcpy(Text, "Downloading: ");
+	Text=rstrcat(Text, Title);
+
+	Tempstr=(char *) calloc(1, 256);
+	snprintf(Tempstr, 255, "\nrx: %lu", DownloadTransferred(URL));
+	Text=rstrcat(Text, Tempstr);
+	if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Text);
+	else DownloadOSD->Contents=rstrcpy(DownloadOSD->Contents, Text);
 	OSDUpdateSingle(DownloadOSD, TRUE);
+	}
 
 destroy(Tempstr);
 destroy(Title);
+destroy(Text);
+destroy(URL);
 }
 
 
@@ -424,16 +440,16 @@ int main(int argc, char **argv)
 
 	Config=ConfigInit(xine_new());
   xine_init(Config->xine);
-	DownloadCleanCacheDir();
 
-	DownloadAddHelper("http,https", "links -source $(mrl)");
 	DownloadAddHelper("http,https,ftp,ftps,sftp,smb,smbs:", "curl -o - $(mrl)");
 	DownloadAddHelper("http,https,ftp,ftps:", "wget -q -O - $(mrl)");
+	DownloadAddHelper("http,https", "links -source $(mrl)");
 	DownloadAddHelper("ssh", "ssh -T $(host) 'cat $(path)'");
 	ParseCommandLine(argc, argv, Config);
 
 	if (Config->flags & CONFIG_SHUFFLE) PlaylistShuffle();
 	if (Config->flags & CONFIG_SAVE) CXineConfigSave(Config);
+	DownloadCleanCacheDir();
 
 	signal(SIGPIPE, SIG_IGN);
 

@@ -7,5 +7,6 @@ void DownloadCleanCacheDir();
 int DownloadAddHelper(const char *Protocols, const char *Helper);
 int DownloadLaunch(const char *MRL);
 int DownloadDone(char **MRL);
+size_t DownloadTransferred(const char *MRL);
 
 #endif

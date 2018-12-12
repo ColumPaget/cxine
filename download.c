@@ -15,6 +15,7 @@ glob_t Glob;
 time_t Now, Then;
 int i;
 
+time(&Now);
 Tempstr=rstrcpy(Tempstr, Config->cache_dir);
 Tempstr=rstrcat(Tempstr, "/*");
 
@@ -25,7 +26,11 @@ stat(Glob.gl_pathv[i], &Stat);
 Then=Stat.st_atime;
 if (Stat.st_mtime > Then) Then=Stat.st_mtime;
 
-if ((Now - Then) > Config->cache_maxage) unlink(Glob.gl_pathv[i]); 
+if ((Now - Then) > Config->cache_maxage) 
+{
+if (Config->flags & CONFIG_DEBUG) printf("Unlink: %s\n", Glob.gl_pathv[i]);
+unlink(Glob.gl_pathv[i]); 
+}
 }
 
 destroy(Tempstr);
@@ -134,7 +139,6 @@ if (StrLen(Cmd))
 Cmd=rstrcat(Cmd, " ");
 Cmd=rstrcat(Cmd, ptr);
 
-printf("LAUNCH %s\n", Cmd);
 Path=DownloadFormatPath(Path, MRL);
 Tempstr=rstrcpy(Tempstr, Path);
 Tempstr=rstrcat(Tempstr, ".init");
@@ -245,10 +249,11 @@ if (access(*MRL, F_OK) ==0) return(TRUE);
 if ( (Config->flags & CONFIG_STREAM) && (! IsPlaylist(*MRL)) ) return(TRUE);
 
 MkDirPath(Config->cache_dir);
+
+// format cache path
 FName=DownloadFormatPath(FName, *MRL);
 
-
-//if we couldn't find a helper to handle this path, then declare download done
+// if Path already in cache then it's downloading already
 if (access(FName, F_OK) !=0)
 {
 	destroy(FName);
@@ -257,6 +262,7 @@ if (access(FName, F_OK) !=0)
 	return(FALSE);
 }
 
+//if the file isn't locked, then it's finished downloading
 fd=open(FName, O_RDWR);
 if (fd > -1)
 {
@@ -271,4 +277,19 @@ close(fd);
 destroy(FName);
 
 return(result);
+}
+
+
+size_t DownloadTransferred(const char *MRL)
+{
+char *Tempstr=NULL;
+struct stat Stat;
+size_t size=0;
+
+Tempstr=DownloadFormatPath(Tempstr, MRL);
+if (stat(Tempstr, &Stat) > -1) size=Stat.st_size;
+
+destroy(Tempstr);
+
+return(size);
 }

@@ -214,6 +214,7 @@ TStringList *NewPlaylist;
 	{	
 			//printf("Unable to open url '%s'\n", url);
 			result=PLAY_FAIL;
+			Config->state &= ~STATE_DOWNLOADING;
 	}
 	}
 
@@ -235,14 +236,16 @@ if (Config->state & STATE_DOWNLOADING)
 if (Which==PLAY_NEXT) 
 {
 				ptr=StringListNext(Config->playlist);
-
 				if ( (ptr==NULL)  )
 				{
 					if (Config->loop != 0) Config->loop--;
 					if (Config->loop !=0) ptr=StringListGet(Config->playlist, 0);
 				}
 }
-else if (Which==PLAY_PREV) ptr=StringListPrev(Config->playlist);
+else if (Which==PLAY_PREV) 
+{
+	ptr=StringListPrev(Config->playlist);
+}
 
 if (ptr)
 {

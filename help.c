@@ -76,21 +76,26 @@ static void HelpOSD()
 	printf("%%o      output current stream AV offset\n");
 	printf("%%A      output artist of current track\n");
 	printf("%%T      output title of current track\n");
+	printf("%%C      output comment of current track\n");
 	printf("%%v      output audio volume (0-100)\n");
 	printf("%%av     output audio volume (0-100)\n");
 	printf("%%ac     output audio file FourCC\n");
 	printf("%%ab     output audio bitrate\n");
 	printf("%%as     output audio samplerate\n");
 	printf("%%aw     output audio width (compression level)\n");
+	printf("%%Ls     output size of playlist (number of queued tracks)\n");
+	printf("%%Ls     output curr track in playlist being played\n");
 	printf("%%ma     output artist for current track\n");
 	printf("%%mA     output album for current track\n");
 	printf("%%mt     output title of current track\n");
 	printf("%%mT     output title of current track\n");
 	printf("%%mY     output year for current track\n");
 	printf("%%mG     output genre for current track\n");
+	printf("%%mR     output copyright for current track\n");
 	printf("%%mc     output DVD chapter number\n");
 	printf("%%mC     output number of chapters on DVD\n");
 	printf("%%ts     output number of seconds into track\n");
+	printf("%%tS     output seconds into and duration of track as <position>/<track length>\n");
 	printf("%%tl     output length of current track in seconds\n");
 	printf("%%tP     output percent into current track\n");
 	printf("%%tt     output current time in form HH:MM\n");
@@ -98,6 +103,8 @@ static void HelpOSD()
 	printf("%%td     output current date in form YY/mm/dd\n");
 	printf("%%tD     output current date in form YYYY/mm/dd\n");
 	printf("%%tN     output current date and time in form YYYY/mm/dd HH:MM:SS\n");
+	printf("%%tw     output position in track as HH:MM:SS\n");
+	printf("%%tW     output length of track as HH:MM:SS\n");
 }
 
 
@@ -224,6 +231,7 @@ void Help(const char *Page)
 	printf("  -persist                Don't exit when nothing left to do, wait for commands on stdin.\n");
 	printf("  -quit                   Exit when nothing left to do (use this if you saved -persist config and want to turn it off)\n");
 	printf("  -slave                  Mplayer compatible flag, equivalent to '-persist -startms 0'.\n");
+	printf("  -cache <age>            Max age of items in the download cache. Number is in seconds, but can be postfixed with 'm' for minutes, 'h' for hours and 'd' for days. e.g. '-cache 10h' means 'cache for ten hours'\n");
 	printf("  -input <path>           Path to pipe to read commands from (by default cxine creates a pipe in '~/.cxine/cxine.pipe'). This accepts mplayer compatible form '-input file:<path>'.\n");
 	printf("  -nowplay <path>         Path to pipe to write 'now playing' info to (cxine will create this pipe if it doesn't already exist).\n");
 	printf("  -startms <millisecs>    Start playing at <millisecs>'.\n");
@@ -294,12 +302,12 @@ void Help(const char *Page)
 	printf("\nData from stdin can be read with a url of the form 'stdin://', and from a pipe with fifo://.\n");
 	printf("\nMedia urls can be cut-and-pasted into cxine to add them to the playlist (drag and drop not implemented yet).\n");
 	printf("\nDownloads\n");
-	printf("CXine downloads media using helper apps, either Curl, Wget or Twighbright Links need to be in your path for https/http. You can also use 'ssh:' urls if ssh is in your path, although these have to be set up in your '.ssh/config' to auto-login\n");
+	printf("CXine downloads media using helper apps. Either Curl, Wget or Twighbright Links need to be in your path for https/http. CXine should also be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested. You can also use 'ssh:' (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your '.ssh/config' to auto-login. So, for example the url 'ssh://myhost/home/music/BinaryFinary.mp3' will log into 'myhost' and use ssh to pull the file '/home/music/BinaryFinary.mp3' provided that 'myhost' has been set up in your .config with an ssh key to log in with.\n");
 	printf("\nStreaming\n");
 	printf("The '-stream' option is intended for use with internet radio, and only works for http:// streams. If '-stream' is supplied then http:// urls will be streamed without being downloaded to the cache directory\n");
 	printf("\nSaving config\n");
 	printf("\nIf '-save-config' is given then cxine will remember the following settings if they are supplied:\n");
-	printf("		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -nowplay,  -dvd-device, -dvd-region, -dvd-lang\n");
+	printf("		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -cache, -nowplay,  -dvd-device, -dvd-region, -dvd-lang\n");
 	printf("-defaults resets the config to default. It will also reset any settings prior to it  on the command-line, so it's best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this:\n");
 	printf("		cxine -defaults -background myimage.jpg -ao alsa -keygrab media -save\n");
 	}

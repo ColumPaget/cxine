@@ -14,12 +14,14 @@ char *Tempstr=NULL;
 	Config->xine=xine;
   Config->playlist=StringListCreate(0,NULL);
 
-	//Cache media for 48 hours
-	Config->cache_maxage=3600 * 48;
 
   Tempstr=rstrcpy(Tempstr, xine_get_homedir());
 	Tempstr=rstrcat(Tempstr, "/.cxine/cxine.conf");
 	xine_config_load(xine, Tempstr);
+
+  Config->audio_compression=xine_config_register_num(xine, "cxine.audio_compression", 150, "Audio compression level", "", 1, 0, NULL);
+	//Cache media for 48 hours
+  Config->cache_maxage=xine_config_register_num(xine, "cxine.cache_maxage", 3600 * 48, "Cache items for this many seconds since last played", "", 1, 0, NULL);
 
 	xine_config_register_string(xine, "media.dvd.device", "/dev/dvd", "Default DVD device for cxine", "", 1, 0, NULL);
 	xine_config_register_string(xine, "media.dvd.language", "en", "Default DVD language for cxine", "", 1, 0, NULL);
@@ -27,7 +29,7 @@ char *Tempstr=NULL;
 
 	Config->background=rstrcpy(Config->background, xine_config_register_string(xine, "cxine.background", "", "Background image for cxine", "", 1, 0, NULL));
 
-  Config->audio_compression=xine_config_register_num(xine, "cxine.audio_compression", 150, "Audio compression level", "", 1, 0, NULL);
+
   Config->top_osd_text=rstrcpy(Config->top_osd_text, xine_config_register_string (xine, "cxine.top_osd", DEFAULT_TOPOSD_STRING, "Default text for top OSD", "", 1, 0, NULL));
   Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, xine_config_register_string (xine, "cxine.bottom_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for bottom OSD", "", 1, 0, NULL));
 
@@ -81,6 +83,9 @@ char *Tempstr=NULL;
 	CXineConfigModify(Config->xine, "cxine.background", Config->background);
 	Config->audio_compression=150;
 	CXineConfigNumericModify(Config->xine, "cxine.audio_compression", Config->audio_compression);
+	Config->cache_maxage=3600 * 48;
+	CXineConfigNumericModify(Config->xine, "cxine.cache_maxage", Config->cache_maxage);
+
 	CXineConfigModify(Config->xine, "media.dvd.device", "/dev/dvd");
 	CXineConfigModify(Config->xine, "media.dvd.language", "en");
 	CXineConfigNumericModify(Config->xine, "media.dvd.region", 1);
@@ -174,6 +179,7 @@ char *Tempstr=NULL;
 	CXineConfigModify(Config->xine, "cxine.background", Config->background);
 
 	CXineConfigNumericModify(Config->xine, "cxine.audio_compression", Config->audio_compression);
+	CXineConfigNumericModify(Config->xine, "cxine.cache_maxage", Config->cache_maxage);
 	CXineConfigNumericModify(Config->xine, "cxine.show_osd", Config->flags & CONFIG_OSD);
 	CXineConfigNumericModify(Config->xine, "cxine.persist", Config->flags & CONFIG_PERSIST);
 	CXineConfigNumericModify(Config->xine, "cxine.bookmark", Config->flags & CONFIG_BOOKMARK);
