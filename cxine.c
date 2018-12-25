@@ -131,9 +131,7 @@ xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
 char *Type=NULL, *Tempstr=NULL;
 xine_audio_port_t *ao_port=NULL;
 const char *ptr;
-xine_cfg_entry_t entry;
 static const char * const devname_opts[] = {"auto", "/dev/dsp", "/dev/sound/dsp", NULL};
-int result;
 
 ptr=rstrtok(Spec,":",&Type);
 
@@ -228,6 +226,8 @@ if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) Config->state &= ~ST
 if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK);
 
 OSDUpdate(Config->flags & CONFIG_OSD);
+
+if (Config->state & STATE_DOWNLOADING) DisplayDownloadProgress();
 
 destroy(URL);
 }
@@ -414,7 +414,7 @@ const char *ptr;
 	Text=rstrcat(Text, Title);
 
 	Tempstr=(char *) calloc(1, 256);
-	snprintf(Tempstr, 255, "\nrx: %lu", DownloadTransferred(URL));
+	snprintf(Tempstr, 255, "\nrx: %lu", (unsigned long) DownloadTransferred(URL));
 	Text=rstrcat(Text, Tempstr);
 	if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Text);
 	else DownloadOSD->Contents=rstrcpy(DownloadOSD->Contents, Text);
@@ -509,8 +509,7 @@ int main(int argc, char **argv)
 
 			if  (! result)
 			{
-				if (Config->state & STATE_DOWNLOADING) DisplayDownloadProgress();
-				else if (
+				if (    (! Config->state & STATE_DOWNLOADING) &&
 								(StringListPos(Config->playlist) >= StringListSize(Config->playlist)) &&
 								(! (Config->flags & (CONFIG_PERSIST))) 
 								) running=0;
@@ -521,7 +520,7 @@ int main(int argc, char **argv)
 
 		ptr=xine_get_meta_info(Config->stream, XINE_STREAM_INFO_VIDEO_FOURCC);
 		if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) sleep_ms=Config->image_ms;
-		else sleep_ms=100;
+		else sleep_ms=200;
 
 		result=WatchFileDescriptors(Config, stdin_fd, control_pipe, sleep_ms);
 		if (result==EVENT_RESIZE) OSDSetup(Config);

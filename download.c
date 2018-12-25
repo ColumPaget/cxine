@@ -5,6 +5,47 @@
 #include <glob.h>
 
 TStringList *Helpers=NULL;
+xine_list_t *Downloads=NULL;
+
+typedef struct
+{
+char *MRL;
+char *Helpers;
+pid_t Pid;
+} TDownload;
+
+
+TDownload *DownloadsFind(const char *MRL)
+{
+xine_list_iterator_t curr;
+TDownload *Download;
+
+curr=xine_list_front(Downloads);
+while (curr)
+{
+Download=(TDownload *) xine_list_get_value(Downloads, curr);
+if (strcmp(Download->MRL, MRL)==0) return(Download);
+
+curr=xine_list_next(Downloads, curr);
+}
+
+
+return(NULL);
+}
+
+
+void DownloadsDelete(TDownload *Download)
+{
+xine_list_iterator_t itr;
+
+itr=xine_list_find(Downloads, Download);
+if (itr) xine_list_remove(Downloads, itr);
+
+destroy(Download->MRL);
+destroy(Download->Helpers);
+destroy(Download);
+}
+
 
 void DownloadCleanCacheDir()
 {
@@ -123,14 +164,19 @@ destroy(Path);
 return(RetStr);
 }
 
-static int DownloadLaunchHelper(const char *Helper, const char *MRL) 
+
+static pid_t DownloadLaunchHelper(TDownload *Download)
 {
 char *Cmd=NULL, *ProgName=NULL, *Tempstr=NULL, *Path=NULL;
 const char *ptr;
-pid_t pid;
-int fd, result=FALSE;
+pid_t pid=0;
+int fd;
 
-Tempstr=DownloadFormatHelperCommand(Tempstr, Helper, MRL);
+ptr=rstrtok(Download->Helpers, ";", &Cmd);
+printf("HELP: %s\n",Cmd);
+Download->Helpers=memmove(Download->Helpers, ptr, StrLen(ptr) +1);
+
+Tempstr=DownloadFormatHelperCommand(Tempstr, Cmd, Download->MRL);
 
 ptr=rstrtok(Tempstr, " 	", &ProgName);
 Cmd=PathSearch(Cmd, ProgName, getenv("PATH"));
@@ -139,13 +185,12 @@ if (StrLen(Cmd))
 Cmd=rstrcat(Cmd, " ");
 Cmd=rstrcat(Cmd, ptr);
 
-Path=DownloadFormatPath(Path, MRL);
+Path=DownloadFormatPath(Path, Download->MRL);
 Tempstr=rstrcpy(Tempstr, Path);
 Tempstr=rstrcat(Tempstr, ".init");
 fd=open(Tempstr, O_WRONLY | O_CREAT, 0600);
 if (fd > -1)
 {
-	result=TRUE;
 	pid=fork();
 	if (pid==0)
 	{
@@ -156,7 +201,8 @@ if (fd > -1)
 		rename(Tempstr, Path);
 		Exec(Cmd);
 	}
- close(fd);
+	else Download->Pid=pid;
+	close(fd);
 }
 
 }
@@ -168,15 +214,15 @@ destroy(Tempstr);
 destroy(Path);
 destroy(Cmd);
 
-return(result);
+return(pid);
 }
 
 
-static int DownloadLaunchTry(const char *HelperInfo, const char *MRL)
+
+char *DownloadConsiderHelper(char *SelectedHelpers, const char *HelperInfo, const char *MRL)
 {
 const char *ptr;
 char *Protocols=NULL, *Cmd=NULL, *Proto=NULL;
-int result=FALSE;
 
 ptr=rstrtok(HelperInfo, " ", &Protocols);
 Cmd=rstrcpy(Cmd, ptr);
@@ -185,49 +231,73 @@ ptr=rstrtok(Protocols, ",", &Proto);
 while (ptr)
 {
 	if (Config->flags & CONFIG_DEBUG) printf("Consider helper: '%s' (%s) for '%s'...",Cmd, Protocols, MRL);
+
 	if (strncasecmp(MRL, Proto, strlen(Proto))==0) 
 	{
-		if (DownloadLaunchHelper(Cmd, MRL)) 
-		{
-			result=TRUE;
-			break;			
-		}
+		SelectedHelpers=rstrcat(SelectedHelpers, Cmd);
+		SelectedHelpers=rstrcat(SelectedHelpers, ";");
+
+	if (Config->flags & CONFIG_DEBUG) printf("YES.\n");
 	}
-	if (Config->flags & CONFIG_DEBUG) 
-	{
-		if (result) printf("YES.\n");
-		else printf("no.\n");
-	}
+	else if (Config->flags & CONFIG_DEBUG) printf("no.\n");
 
 	ptr=rstrtok(ptr, ",", &Proto);
 }
+
 
 destroy(Protocols);
 destroy(Proto);
 destroy(Cmd);
 
-return(result);
+return(SelectedHelpers);
 }
+
+
 
 
 int DownloadLaunch(const char *MRL)
 {
+char *SelectedHelpers=NULL;
+TDownload *download;
 const char *ptr;
 int result=FALSE;
 
 ptr=StringListFirst(Helpers);
 while (ptr)
 {
-	if (DownloadLaunchTry(ptr, MRL)) 
-	{
-		result=TRUE;
-		break;
-	}
-
-	ptr=StringListNext(Helpers);
+SelectedHelpers=DownloadConsiderHelper(SelectedHelpers, ptr, MRL);
+ptr=StringListNext(Helpers);
 }
 
+
+if (StrLen(SelectedHelpers))
+{
+download=(TDownload *) calloc(1, sizeof(TDownload));
+download->Helpers=rstrcpy(download->Helpers, SelectedHelpers);
+download->MRL=rstrcpy(download->MRL, MRL);
+if (! Downloads) Downloads=xine_list_new();
+xine_list_push_back(Downloads, download);
+
+if (DownloadLaunchHelper(download) > 0) result=TRUE;
+}
+
+destroy(SelectedHelpers);
 return(result);
+}
+
+
+size_t DownloadTransferred(const char *MRL)
+{
+char *Tempstr=NULL;
+struct stat Stat;
+size_t size=0;
+
+Tempstr=DownloadFormatPath(Tempstr, MRL);
+if (stat(Tempstr, &Stat) > -1) size=Stat.st_size;
+
+destroy(Tempstr);
+
+return(size);
 }
 
 
@@ -238,6 +308,7 @@ const char *ptr;
 char *FName=NULL;
 int fd, result=FALSE;
 struct flock Lock;
+TDownload *Download;
 
 // if MRL starts with a '/' then it's a file path, not a download, and we declare it done
 if (**MRL=='/') return(TRUE);
@@ -266,30 +337,30 @@ if (access(FName, F_OK) !=0)
 fd=open(FName, O_RDWR);
 if (fd > -1)
 {
-if (flock(fd, LOCK_EX | LOCK_NB)==0)
-{
-	*MRL=rstrcpy(*MRL, FName);
-	result=TRUE;
-}
-
+if (flock(fd, LOCK_EX | LOCK_NB)==0) result=TRUE;
 close(fd);
 }
+
+
+//if it's finished downloading, then check it's size, if it's zero size then we need to 
+//restart download with another helper
+if (result)
+{
+	Download=DownloadsFind(*MRL);
+	if (DownloadTransferred(*MRL)==0)
+	{
+		if (Download && (DownloadLaunchHelper(Download) > 0)) result=FALSE;
+	}
+	else	*MRL=rstrcpy(*MRL, FName);
+
+	if (result && Download) DownloadsDelete(Download);
+}
+
+
 destroy(FName);
 
 return(result);
 }
 
 
-size_t DownloadTransferred(const char *MRL)
-{
-char *Tempstr=NULL;
-struct stat Stat;
-size_t size=0;
 
-Tempstr=DownloadFormatPath(Tempstr, MRL);
-if (stat(Tempstr, &Stat) > -1) size=Stat.st_size;
-
-destroy(Tempstr);
-
-return(size);
-}
