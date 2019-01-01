@@ -189,8 +189,13 @@ const char *ptr;
 pid_t pid=0;
 int fd;
 
+
+Path=DownloadFormatPath(Path, Download->MRL);
+Tempstr=rstrcpy(Tempstr, Path);
+fd=open(Tempstr, O_WRONLY | O_CREAT | O_EXCL, 0600);
+if (fd > -1)
+{	
 ptr=rstrtok(Download->Helpers, ";", &Cmd);
-printf("HELP: %s\n",Cmd);
 Download->Helpers=memmove(Download->Helpers, ptr, StrLen(ptr) +1);
 
 Tempstr=DownloadFormatHelperCommand(Tempstr, Cmd, Download->MRL);
@@ -199,32 +204,29 @@ ptr=rstrtok(Tempstr, " 	", &ProgName);
 Cmd=PathSearch(Cmd, ProgName, getenv("PATH"));
 if (StrLen(Cmd)) 
 {
-Cmd=rstrcat(Cmd, " ");
-Cmd=rstrcat(Cmd, ptr);
+	Cmd=rstrcat(Cmd, " ");
+	Cmd=rstrcat(Cmd, ptr);
 
-Path=DownloadFormatPath(Path, Download->MRL);
-Tempstr=rstrcpy(Tempstr, Path);
-Tempstr=rstrcat(Tempstr, ".init");
-fd=open(Tempstr, O_WRONLY | O_CREAT, 0600);
-if (fd > -1)
-{
 	pid=fork();
 	if (pid==0)
 	{
+		if (flock(fd, LOCK_EX | LOCK_NB)==0)
+		{
 		close(1);
 		dup(fd);
 		close(fd);
-		flock(1, LOCK_EX);
-		rename(Tempstr, Path);
 		Exec(Cmd);
+		}
+
+		_exit(0);
 	}
 	else Download->Pid=pid;
-	close(fd);
-}
+	}
 
+	close(fd);
+	usleep(100);
 }
 else if (Config->flags & CONFIG_DEBUG) printf("Can't find program: '%s'",Cmd);
-
 
 destroy(ProgName);
 destroy(Tempstr);
