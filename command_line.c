@@ -167,6 +167,8 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
       else if ( strcmp(argv[i], "-shuffle")==0 ) Config->flags |= CONFIG_SHUFFLE;
       else if ( strcmp(argv[i], "-loop")==0 ) Config->loop=atoi(argv[++i]);
       else if ( strcmp(argv[i], "-keygrab")==0 ) Config->keygrabs=rstrcpy(Config->keygrabs, argv[++i]);
+     else if ( strcmp(argv[i], "-helpers")==0 ) Config->helpers=rstrcpy(Config->helpers, argv[++i]);
+     else if ( strcmp(argv[i], "+helpers")==0 ) Config->helpers=rstrcat(Config->helpers, argv[++i]);
       else if ( strcmp(argv[i], "-cache")==0 ) CommandLineParseCache(argv[++i]);
       else if ( strcmp(argv[i], "-nowplay")==0 ) 
 			{

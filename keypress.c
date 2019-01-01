@@ -63,18 +63,22 @@ switch (keychar)
 	case KEY_LEFT:
 	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_LEFT);
 	else if (modifier & KEYMOD_SHIFT) CXineSelectStream(Config, PLAY_PREV);
+#ifdef XINE_PARAM_VO_SINGLE_STEP //earlier versions of libxine lack this
 	else if (modifier & KEYMOD_CTRL) 
 	{
 		CXineSetPos(stream, -1);
 		xine_set_param (stream,  XINE_PARAM_VO_SINGLE_STEP, 1);
 	}
+#endif
 	else CXineSetPos(stream, 0-SKIP_SMALL);
 	break;
 
 	case KEY_RIGHT:
 	if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_RIGHT);
 	else if (modifier & KEYMOD_SHIFT) CXineSelectStream(Config, PLAY_NEXT);
+#ifdef XINE_PARAM_VO_SINGLE_STEP //earlier versions of libxine lack this
 	else if (modifier & KEYMOD_CTRL) xine_set_param (stream,  XINE_PARAM_VO_SINGLE_STEP, 1);
+#endif
 	else CXineSetPos(stream, SKIP_SMALL);
 	break;
 

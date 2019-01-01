@@ -103,6 +103,7 @@ char *bottom_osd_text;
 char *keygrabs;
 char *background;
 char *cache_dir;
+char *helpers;
 int cache_maxage;
 int priority;
 int loop;

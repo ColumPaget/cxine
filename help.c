@@ -64,6 +64,34 @@ static void HelpKeygrabs()
 		printf("\nKeynames and keygroups can be prefixed with the modifiers 'alt-', 'shift', and 'cntrl'. If cxine receives a keypress that it doesn't have a binding for, like alt-righ... oh dear... like 'alt-up' for example, it will read it as the unmodified key. Hence keys like the arrow keys can be bound using 'alt' and used as globally bound keystrokes to navigate a stream.\n");
 }
 
+static void HelpHelpers()
+{
+char *Tempstr=NULL, *Helper=NULL, *Protos=NULL;
+const char *ptr;
+
+printf("CXine uses external programs to download remote media. The configuration of known programs can be changed using the -helpers or +helpers command-line switch. Helper entries have the form:\n\n");
+printf("  <protocol>,<protocol>:<helper>\n\n");
+printf("e.g.:\n\n");
+printf("  http,https,ftp:links -source $(mrl)\n\n");
+printf("The string '$(mrl)' is replaced with the media url to download. These helper configs can be strung together using semicolons.\n");
+printf("The default config is:\n\n");
+printf("  %s\n\n", Config->helpers);
+
+
+printf("Protocol helpers config:\n");
+ptr=rstrtok(Config->helpers, ";", &Tempstr);
+while (ptr)
+{
+Helper=rstrcpy(Helper, rstrtok(Tempstr, ":", &Protos));
+printf("%s  %s\n", Protos, Helper);
+ptr=rstrtok(ptr, ";", &Tempstr);
+}
+
+destroy(Tempstr);
+destroy(Helper);
+destroy(Protos);
+}
+
 
 static void HelpOSD()
 {
@@ -188,6 +216,7 @@ void Help(const char *Page)
 {
 	if ( StrLen(Page) && (strcmp(Page, "keys")==0) ) HelpKeys();
 	else if ( StrLen(Page) && (strcmp(Page, "keygrabs")==0) ) HelpKeygrabs();
+  else if ( StrLen(Page) && (strcmp(Page, "helpers")==0) ) HelpHelpers();
 	else if ( StrLen(Page) && (strcmp(Page, "osd")==0) ) HelpOSD();
 	else if ( StrLen(Page) && (strcmp(Page, "slave")==0) ) HelpSlaveMode();
 	else if ( StrLen(Page) && (strcmp(Page, "plugins")==0) ) CXineDisplayPlugins(Config);
@@ -248,6 +277,8 @@ void Help(const char *Page)
 	printf("  -stream                 Don't download remote urls in playlists etc. This currently only works for 'http:' (not https:) urls. This allow streaming internet radio urls.\n");
 	printf("  -prefix                 Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they're in.\n");
 	printf("  -keygrab                Register keygrabs, a comma-separated list of keys. See '-help keygrabs' below.\n");
+	printf("  -helpers <config>       Register list of helper apps.\n");
+	printf("  +helpers <config>       Append to list of helper apps.\n");
 	printf("  -prio <value>           Set process priority in range 0-39 (requires superuser capabilities).\n");
 	printf("  -nice <value>           Set process priority with 'nice' semantics (requires superuser capabilities).\n");
 	printf("  -ac <value>             Set audio compression. This boosts quiet sounds, lessening the volume range. value is a percent > 100 to multiply quiet sounds by.\n");
@@ -302,12 +333,14 @@ void Help(const char *Page)
 	printf("\nData from stdin can be read with a url of the form 'stdin://', and from a pipe with fifo://.\n");
 	printf("\nMedia urls can be cut-and-pasted into cxine to add them to the playlist (drag and drop not implemented yet).\n");
 	printf("\nDownloads\n");
-	printf("CXine downloads media using helper apps. Either Curl, Wget or Twighbright Links need to be in your path for https/http. CXine should also be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested. You can also use 'ssh:' (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your '.ssh/config' to auto-login. So, for example the url 'ssh://myhost/home/music/BinaryFinary.mp3' will log into 'myhost' and use ssh to pull the file '/home/music/BinaryFinary.mp3' provided that 'myhost' has been set up in your .config with an ssh key to log in with.\n");
+  printf("CXine downloads media using helper apps. Default config will use curl, wget or Twighbright links, elinks, lynx, or snarf, depending on which are found in your path your path. Cxine should be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested.\n");
+printf("You can also use 'ssh:' (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your '.ssh/config' to auto-login. So, for example the url 'ssh://myhost/home/music/BinaryFinary.mp3' will log into 'myhost' and use ssh to pull the file '/home/music/BinaryFinary.mp3' provided that 'myhost' has been set up in your .config with an ssh key to log in with.\n");
+	printf("More information about helpers is available with 'cxine --help helpers'\n");
 	printf("\nStreaming\n");
 	printf("The '-stream' option is intended for use with internet radio, and only works for http:// streams. If '-stream' is supplied then http:// urls will be streamed without being downloaded to the cache directory\n");
 	printf("\nSaving config\n");
 	printf("\nIf '-save-config' is given then cxine will remember the following settings if they are supplied:\n");
-	printf("		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -cache, -nowplay,  -dvd-device, -dvd-region, -dvd-lang\n");
+	printf("		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -cache, -nowplay,  -dvd-device, -dvd-region, -dvd-lang, -helpers\n");
 	printf("-defaults resets the config to default. It will also reset any settings prior to it  on the command-line, so it's best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this:\n");
 	printf("		cxine -defaults -background myimage.jpg -ao alsa -keygrab media -save\n");
 	}

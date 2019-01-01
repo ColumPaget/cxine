@@ -101,7 +101,7 @@ destroy(Tempstr);
 return(RetStr);
 }
 
-int DownloadAddHelper(const char *Protocols, const char *Helper)
+void DownloadAddHelper(const char *Protocols, const char *Helper)
 {
 char *Tempstr=NULL;
 
@@ -114,6 +114,23 @@ char *Tempstr=NULL;
 	destroy(Tempstr);
 }
 
+void DownloadAddHelpers(const char *Helpers)
+{
+const char *ptr;
+char *Tempstr=NULL, *Protos=NULL, *Helper=NULL; 
+
+ptr=rstrtok(Helpers, ";", &Tempstr);
+while (ptr)
+{
+Helper=rstrcpy(Helper, rstrtok(Tempstr, ":", &Protos));
+DownloadAddHelper(Protos, Helper);
+ptr=rstrtok(ptr, ";", &Tempstr);
+}
+
+destroy(Tempstr);
+destroy(Helper);
+destroy(Protos);
+}
 
 static char *DownloadFormatHelperCommand(char *RetStr, const char *Cmd, const char *MRL)
 {

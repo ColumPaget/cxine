@@ -4,7 +4,8 @@
 #include "common.h"
 
 void DownloadCleanCacheDir();
-int DownloadAddHelper(const char *Protocols, const char *Helper);
+void DownloadAddHelper(const char *Protocols, const char *Helper);
+void DownloadAddHelpers(const char *Helpers);
 int DownloadLaunch(const char *MRL);
 int DownloadDone(char **MRL);
 size_t DownloadTransferred(const char *MRL);

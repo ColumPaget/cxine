@@ -195,6 +195,39 @@ return(ao_port);
 }
 
 
+
+void DisplayDownloadProgress()
+{
+char *Tempstr=NULL, *Title=NULL, *URL=NULL, *Text=NULL;
+const char *ptr;
+
+  Title=PlaylistCurrTitle(Title);
+	
+	ptr=StringListCurr(Config->playlist);
+	if (ptr)
+	{
+	rstrtok(ptr, " ", &URL);
+	
+
+	Text=rstrcpy(Text, "Downloading: ");
+	Text=rstrcat(Text, Title);
+
+	Tempstr=(char *) calloc(1, 256);
+	snprintf(Tempstr, 255, "\nrx: %lu", (unsigned long) DownloadTransferred(URL));
+	Text=rstrcat(Text, Tempstr);
+	if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Text);
+	else DownloadOSD->Contents=rstrcpy(DownloadOSD->Contents, Text);
+	OSDUpdateSingle(DownloadOSD, TRUE);
+	}
+
+destroy(Tempstr);
+destroy(Title);
+destroy(Text);
+destroy(URL);
+}
+
+
+
 //This to do every so many ms
 void PeriodicProcessing()
 {
@@ -397,36 +430,6 @@ void CXineExit(TConfig *Config)
 
 
 
-void DisplayDownloadProgress()
-{
-char *Tempstr=NULL, *Title=NULL, *URL=NULL, *Text=NULL;
-const char *ptr;
-
-  Title=PlaylistCurrTitle(Title);
-	
-	ptr=StringListCurr(Config->playlist);
-	if (ptr)
-	{
-	rstrtok(ptr, " ", &URL);
-	
-
-	Text=rstrcpy(Text, "Downloading: ");
-	Text=rstrcat(Text, Title);
-
-	Tempstr=(char *) calloc(1, 256);
-	snprintf(Tempstr, 255, "\nrx: %lu", (unsigned long) DownloadTransferred(URL));
-	Text=rstrcat(Text, Tempstr);
-	if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Text);
-	else DownloadOSD->Contents=rstrcpy(DownloadOSD->Contents, Text);
-	OSDUpdateSingle(DownloadOSD, TRUE);
-	}
-
-destroy(Tempstr);
-destroy(Title);
-destroy(Text);
-destroy(URL);
-}
-
 
 int main(int argc, char **argv) 
 {
@@ -440,13 +443,9 @@ int main(int argc, char **argv)
 
 	Config=ConfigInit(xine_new());
   xine_init(Config->xine);
-
-	DownloadAddHelper("http,https,ftp,ftps,sftp,smb,smbs:", "curl -o - $(mrl)");
-	DownloadAddHelper("http,https,ftp,ftps:", "wget -q -O - $(mrl)");
-	DownloadAddHelper("http,https", "links -source $(mrl)");
-	DownloadAddHelper("ssh", "ssh -T $(host) 'cat $(path)'");
 	ParseCommandLine(argc, argv, Config);
 
+	DownloadAddHelpers(Config->helpers);
 	if (Config->flags & CONFIG_SHUFFLE) PlaylistShuffle();
 	if (Config->flags & CONFIG_SAVE) CXineConfigSave(Config);
 	DownloadCleanCacheDir();
@@ -509,7 +508,7 @@ int main(int argc, char **argv)
 
 			if  (! result)
 			{
-				if (    (! Config->state & STATE_DOWNLOADING) &&
+				if (    (! (Config->state & STATE_DOWNLOADING)) &&
 								(StringListPos(Config->playlist) >= StringListSize(Config->playlist)) &&
 								(! (Config->flags & (CONFIG_PERSIST))) 
 								) running=0;

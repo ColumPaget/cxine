@@ -2,7 +2,7 @@
 #include "osd.h"
 #include "pwd.h"
 
-
+#define DEFAULT_HELPERS "http,https,ftp,ftps,sftp,smb,smbs:curl -o - $(mrl);http,https,ftp,ftps:wget -q -O - $(mrl);http,https,ftp,gopher:links -source $(mrl);http,https,ftp,gopher:elinks -source $(mrl);http,https,ftp,gopher:lynx -source $(mrl);http,ftp:snarf $(mrl) -;ssh:ssh -T $(host) 'cat $(path)'"
 
 
 TConfig *ConfigInit(xine_t *xine)
@@ -22,6 +22,8 @@ char *Tempstr=NULL;
   Config->audio_compression=xine_config_register_num(xine, "cxine.audio_compression", 150, "Audio compression level", "", 1, 0, NULL);
 	//Cache media for 48 hours
   Config->cache_maxage=xine_config_register_num(xine, "cxine.cache_maxage", 3600 * 48, "Cache items for this many seconds since last played", "", 1, 0, NULL);
+
+  Config->helpers=rstrcpy(Config->helpers, xine_config_register_string(xine, "cxine.helpers", DEFAULT_HELPERS, "Protocol helper programs", "", 1, 0, NULL));
 
 	xine_config_register_string(xine, "media.dvd.device", "/dev/dvd", "Default DVD device for cxine", "", 1, 0, NULL);
 	xine_config_register_string(xine, "media.dvd.language", "en", "Default DVD language for cxine", "", 1, 0, NULL);
@@ -75,6 +77,8 @@ void ConfigDefaults(TConfig *Config)
 char *Tempstr=NULL; 
 
 
+	Config->helpers=rstrcpy(Config->helpers, DEFAULT_HELPERS);
+	CXineConfigModify(Config->xine, "cxine.helpers", Config->helpers);
 	Config->vo_driver=rstrcpy(Config->vo_driver, "auto");
 	CXineConfigModify(Config->xine, "cxine.vo_driver", Config->vo_driver);
 	Config->ao_driver=rstrcpy(Config->ao_driver, "auto");
@@ -169,6 +173,7 @@ void CXineConfigSave(TConfig *Config)
 {
 char *Tempstr=NULL;
 
+	CXineConfigModify(Config->xine, "cxine.helpers", Config->helpers);
 	CXineConfigModify(Config->xine, "cxine.vo_driver", Config->vo_driver);
 	CXineConfigModify(Config->xine, "cxine.ao_driver", Config->ao_driver);
 	CXineConfigModify(Config->xine, "cxine.keygrabs", Config->keygrabs);

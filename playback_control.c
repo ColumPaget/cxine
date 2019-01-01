@@ -172,6 +172,7 @@ TStringList *NewPlaylist;
 		NewPlaylist=PlaylistExpandCurr(Config->playlist, Tempstr, url);
 		StringListDestroy(Config->playlist);
 		Config->playlist=NewPlaylist;
+		Config->state &= ~STATE_DOWNLOADING;
 	}
   else if (xine_open(Config->stream, url))
 	{
