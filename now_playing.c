@@ -45,80 +45,80 @@ ID_CHAPTERS=0
 
 static const char *CXineGetStringValue(xine_stream_t *stream, int ValID, int Quote)
 {
-const char *ptr;
-char *Tempstr=NULL;
+    const char *ptr;
+    char *Tempstr=NULL;
 
-ptr=xine_get_meta_info(Config->stream, ValID);
-if (! ptr)
-{
-  return("");
-}
-return(ptr);
+    ptr=xine_get_meta_info(Config->stream, ValID);
+    if (! ptr)
+    {
+        return("");
+    }
+    return(ptr);
 }
 
 
 
 void CXineNowPlaying(TConfig *Config)
 {
-const char *ClipInfoTypes[]={"Title","Artist","Album","Year","Comment","Track","Genre",NULL};
-int ClipInfoID[]={XINE_META_INFO_TITLE, XINE_META_INFO_ARTIST, XINE_META_INFO_ALBUM, XINE_META_INFO_YEAR, XINE_META_INFO_COMMENT, XINE_META_INFO_TRACK_NUMBER, XINE_META_INFO_GENRE};
-const char *ptr;
-int i, pos_msecs, len_msecs, pos;
-char *Tempstr=NULL, *Title=NULL, *PipeStr=NULL;
+    const char *ClipInfoTypes[]= {"Title","Artist","Album","Year","Comment","Track","Genre",NULL};
+    int ClipInfoID[]= {XINE_META_INFO_TITLE, XINE_META_INFO_ARTIST, XINE_META_INFO_ALBUM, XINE_META_INFO_YEAR, XINE_META_INFO_COMMENT, XINE_META_INFO_TRACK_NUMBER, XINE_META_INFO_GENRE};
+    const char *ptr;
+    int i, pos_msecs, len_msecs, pos;
+    char *Tempstr=NULL, *Title=NULL, *PipeStr=NULL;
 
 
-X11WindowSetTitle(Config->X11Out, Config->CurrTitle,"cxine");
+    X11WindowSetTitle(Config->X11Out, Config->CurrTitle,"cxine");
 
-printf("\nClip info:\n");
-for (i=0; ClipInfoTypes[i] !=NULL; i++)
-{  
-if (ClipInfoID[i]==XINE_META_INFO_TITLE)
-{
-	Title=PlaylistCurrTitle(Title);
-	ptr=Title;
-}
-else ptr=CXineGetStringValue(Config->stream, ClipInfoID[i], 0);
+    printf("\nClip info:\n");
+    for (i=0; ClipInfoTypes[i] !=NULL; i++)
+    {
+        if (ClipInfoID[i]==XINE_META_INFO_TITLE)
+        {
+            Title=PlaylistCurrTitle(Title);
+            ptr=Title;
+        }
+        else ptr=CXineGetStringValue(Config->stream, ClipInfoID[i], 0);
 
-printf(" %s: %s\n",ClipInfoTypes[i], ptr);
-Tempstr=rstrcpy(Tempstr, "CXINE:");
-Tempstr=rstrcat(Tempstr, ClipInfoTypes[i]);
+        printf(" %s: %s\n",ClipInfoTypes[i], ptr);
+        Tempstr=rstrcpy(Tempstr, "CXINE:");
+        Tempstr=rstrcat(Tempstr, ClipInfoTypes[i]);
 
-X11SetTextProperty(Config->X11Out, Tempstr, ptr);
+        X11SetTextProperty(Config->X11Out, Tempstr, ptr);
 
-PipeStr=rstrcat(PipeStr, ClipInfoTypes[i]);
-PipeStr=rstrcat(PipeStr, "='");
-PipeStr=rstrcat(PipeStr, ptr);
-PipeStr=rstrcat(PipeStr, "' ");
+        PipeStr=rstrcat(PipeStr, ClipInfoTypes[i]);
+        PipeStr=rstrcat(PipeStr, "='");
+        PipeStr=rstrcat(PipeStr, ptr);
+        PipeStr=rstrcat(PipeStr, "' ");
 
-if (Config->flags & CONFIG_IDENTIFY)
-{
-printf("ID_CLIP_INFO_NAME%d=%s\n",i,ClipInfoTypes[i]);
-printf("ID_CLIP_INFO_VALUE%d=%s\n",i,ptr);
-}
-}
+        if (Config->flags & CONFIG_IDENTIFY)
+        {
+            printf("ID_CLIP_INFO_NAME%d=%s\n",i,ClipInfoTypes[i]);
+            printf("ID_CLIP_INFO_VALUE%d=%s\n",i,ptr);
+        }
+    }
 
-PipeStr=rstrcat(PipeStr, "\n");
+    PipeStr=rstrcat(PipeStr, "\n");
 
-if (Config->nowplay_pipe > 0) write(Config->nowplay_pipe, PipeStr, StrLen(PipeStr));
+    if (Config->nowplay_pipe > 0) write(Config->nowplay_pipe, PipeStr, StrLen(PipeStr));
 
-xine_get_pos_length(Config->stream, &pos, &pos_msecs, &len_msecs);
-ptr=StringListCurr(Config->playlist);
+    xine_get_pos_length(Config->stream, &pos, &pos_msecs, &len_msecs);
+    ptr=StringListCurr(Config->playlist);
 
-rstrtok(ptr, " ", &Tempstr);
-X11SetTextProperty(Config->X11Out, "CXINE:Filename", Tempstr);
+    rstrtok(ptr, " ", &Tempstr);
+    X11SetTextProperty(Config->X11Out, "CXINE:Filename", Tempstr);
 
-if (Config->flags & CONFIG_IDENTIFY)
-{
-printf("ID_FILENAME=%s\n", Tempstr);
-printf("ID_AUDIO_BITRATE=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_AUDIO_BITRATE));
-printf("ID_AUDIO_RATE=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_AUDIO_SAMPLERATE));
-printf("ID_SEEKABLE=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE));
-printf("ID_CHAPTERS=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT));
-printf("ID_LENGTH=%0.2f\n", ((float) len_msecs) / 1000.0);
-}
+    if (Config->flags & CONFIG_IDENTIFY)
+    {
+        printf("ID_FILENAME=%s\n", Tempstr);
+        printf("ID_AUDIO_BITRATE=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_AUDIO_BITRATE));
+        printf("ID_AUDIO_RATE=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_AUDIO_SAMPLERATE));
+        printf("ID_SEEKABLE=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE));
+        printf("ID_CHAPTERS=%d\n", xine_get_stream_info(Config->stream, XINE_STREAM_INFO_DVD_CHAPTER_COUNT));
+        printf("ID_LENGTH=%0.2f\n", ((float) len_msecs) / 1000.0);
+    }
 
 
-destroy(Tempstr);
-destroy(PipeStr);
+    destroy(Tempstr);
+    destroy(PipeStr);
 }
 

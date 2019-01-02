@@ -75,6 +75,8 @@ Options
   -stream                 Don't download remote urls in playlists etc. This currently only works for 'http:' (not https:) urls. This allow streaming internet radio urls.
   -prefix                 Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they're in.
   -keygrab                Register keygrabs, a comma-separated list of keys. See '-help keygrabs' below.
+  -helpers <config>       Register list of helper apps.
+  +helpers <config>       Prepend to list of helper apps (these helpers will be tried first).
   -prio <value>           Set process priority in range 0-39 (requires superuser capabilities).
   -nice <value>           Set process priority with 'nice' semantics (requires superuser capabilities).
   -ac <value>             Set audio compression. This boosts quiet sounds, lessening the volume range. value is a percent > 100 to multiply quiet sounds by.
@@ -386,7 +388,7 @@ Saving config
 
 If '-save-config' is given then cxine will remember the following settings if they are supplied:
 ```
-		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -nowplay,  -dvd-device, -dvd-region, -dvd-lang
+		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -nowplay,  -dvd-device, -dvd-region, -dvd-lang, -helpers/+helpers
 ```
 
 `-defaults` resets the config to default. It will also reset any settings prior to it  on the command-line, so it's best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this:

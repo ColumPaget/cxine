@@ -17,31 +17,31 @@ unsigned int fnv_hash(unsigned const char *key, int NoOfItems)
 
 const char *cbasename(const char *Path)
 {
-char *ptr;
+    char *ptr;
 
-if (! Path) return("");
-ptr=strrchr(Path, '/');
-if (ptr) return(ptr+1);
-return(Path);
+    if (! Path) return("");
+    ptr=strrchr(Path, '/');
+    if (ptr) return(ptr+1);
+    return(Path);
 }
 
 char *rstrlcat(char *Dest, const char *Src, int SrcLen)
 {
-int dlen, len;
+    int dlen, len;
 
-dlen=StrLen(Dest);
-len=dlen + SrcLen;
+    dlen=StrLen(Dest);
+    len=dlen + SrcLen;
 
-Dest=realloc(Dest, len + 1);
-strncpy(Dest+dlen, Src, SrcLen);
-Dest[len]='\0';
+    Dest=realloc(Dest, len + 1);
+    strncpy(Dest+dlen, Src, SrcLen);
+    Dest[len]='\0';
 
-return(Dest);
+    return(Dest);
 }
 
 char *rstrcat(char *Dest, const char *Src)
 {
-return(rstrlcat(Dest, Src, StrLen(Src)));
+    return(rstrlcat(Dest, Src, StrLen(Src)));
 }
 
 
@@ -59,95 +59,95 @@ char *rstrcpy(char *Dest, const char *Src)
 
 void strrep(char *Str, char c1, char c2)
 {
-char *ptr;
+    char *ptr;
 
-for (ptr=Str; *ptr != '\0'; ptr++)
-{
-if (*ptr==c1) *ptr=c2;
-}
+    for (ptr=Str; *ptr != '\0'; ptr++)
+    {
+        if (*ptr==c1) *ptr=c2;
+    }
 
 }
 
 const char *advanceto(const char *ptr, char term)
 {
-for (; *ptr!=term; ptr++)
-{
-if (*ptr=='\\') ptr++;
-if (*ptr=='\0') break;
-}
+    for (; *ptr!=term; ptr++)
+    {
+        if (*ptr=='\\') ptr++;
+        if (*ptr=='\0') break;
+    }
 
-return(ptr);
+    return(ptr);
 }
 
 
 const char *rstrtok(const char *Str, const char *Separators, char **Token)
 {
-const char *ptr;
+    const char *ptr;
 
-if ((! Str) || (*Str=='\0')) return(NULL);
+    if ((! Str) || (*Str=='\0')) return(NULL);
 
-for (ptr=Str; *ptr!='\0'; ptr++)
-{
-	if (*ptr=='"') ptr=advanceto(ptr, '"');
-	if (*ptr=='\\') 
-	{
-		ptr++;
-		if (*ptr=='\0') break;
-	}
-	else if (strchr(Separators, *ptr)) break;
-}
+    for (ptr=Str; *ptr!='\0'; ptr++)
+    {
+        if (*ptr=='"') ptr=advanceto(ptr, '"');
+        if (*ptr=='\\')
+        {
+            ptr++;
+            if (*ptr=='\0') break;
+        }
+        else if (strchr(Separators, *ptr)) break;
+    }
 
-*Token=rstrlcpy(*Token, Str, ptr-Str);
+    *Token=rstrlcpy(*Token, Str, ptr-Str);
 
-if (*ptr !='\0') ptr++;
-return(ptr);
+    if (*ptr !='\0') ptr++;
+    return(ptr);
 }
 
 
 char *rstrquot(char *RetStr, const char *Str, const char *QuoteChars)
 {
-const char *ptr;
+    const char *ptr;
 
-RetStr=rstrcpy(RetStr, "");
-ptr=Str;
-while (ptr && (*ptr !='\0'))
-{
-if (strchr(QuoteChars, *ptr)) RetStr=rstrcat(RetStr, "\\");
-RetStr=rstrlcat(RetStr, ptr, 1);
-ptr++;
-}
+    RetStr=rstrcpy(RetStr, "");
+    ptr=Str;
+    while (ptr && (*ptr !='\0'))
+    {
+        if (strchr(QuoteChars, *ptr)) RetStr=rstrcat(RetStr, "\\");
+        RetStr=rstrlcat(RetStr, ptr, 1);
+        ptr++;
+    }
 
-return(RetStr);
+    return(RetStr);
 }
 
 char *rstrunquot(char *RetStr, const char *Str)
 {
-const char *ptr;
+    const char *ptr;
 
-RetStr=rstrcpy(RetStr, "");
-ptr=Str;
-while (ptr && (*ptr !='\0'))
-{
-if (*ptr=='\\') ptr++;
-RetStr=rstrlcat(RetStr, ptr, 1);
-ptr++;
-}
+    RetStr=rstrcpy(RetStr, "");
+    ptr=Str;
+    while (ptr && (*ptr !='\0'))
+    {
+        if (*ptr=='\\') ptr++;
+        RetStr=rstrlcat(RetStr, ptr, 1);
+        ptr++;
+    }
 
-return(RetStr);
+    return(RetStr);
 }
 
 
 void TouchFile(const char *Path)
 {
-struct utimbuf times;
-struct stat Stat;
+    struct utimbuf times;
+    struct stat Stat;
 
-if (stat(Path, &Stat)==0)
-{
-	times.actime=time(NULL);
-	times.modtime=Stat.st_mtime;
-	utime(Path, &times);
-}
+    if (stat(Path, &Stat)==0)
+    {
+        times.actime=time(NULL);
+        times.modtime=Stat.st_mtime;
+        utime(Path, &times);
+    }
 
 }
 
@@ -155,90 +155,90 @@ if (stat(Path, &Stat)==0)
 
 char *PathSearch(char *RetStr, const char *FileName, const char *Path)
 {
-char *Dir=NULL;
-const char *ptr;
+    char *Dir=NULL;
+    const char *ptr;
 
-if (*FileName=='/') return(rstrcpy(RetStr, FileName));
+    if (*FileName=='/') return(rstrcpy(RetStr, FileName));
 
-RetStr=rstrcpy(RetStr, "");
-ptr=rstrtok(Path, ":", &Dir);
-while (ptr)
-{
-RetStr=rstrcpy(RetStr, Dir);
-RetStr=rstrcat(RetStr, "/");
-RetStr=rstrcat(RetStr, FileName);
+    RetStr=rstrcpy(RetStr, "");
+    ptr=rstrtok(Path, ":", &Dir);
+    while (ptr)
+    {
+        RetStr=rstrcpy(RetStr, Dir);
+        RetStr=rstrcat(RetStr, "/");
+        RetStr=rstrcat(RetStr, FileName);
 
-if (access(RetStr, F_OK)==0) break;
+        if (access(RetStr, F_OK)==0) break;
 
-RetStr=rstrcpy(RetStr, "");
-ptr=rstrtok(ptr, ":", &Dir);
+        RetStr=rstrcpy(RetStr, "");
+        ptr=rstrtok(ptr, ":", &Dir);
+    }
+
+    destroy(Dir);
+    return(RetStr);
 }
 
-destroy(Dir);
-return(RetStr);
-}
-								
 
 
 int ParseURL(const char *URL, char **Proto, char **Host, char **Port, char **Path)
 {
-const char *ptr;
-char *Tempstr=NULL;
+    const char *ptr;
+    char *Tempstr=NULL;
 
-ptr=strchr(URL, ':');
-if (! ptr) return(FALSE);
+    ptr=strchr(URL, ':');
+    if (! ptr) return(FALSE);
 
-ptr=rstrtok(URL, ":", Proto);
-while (*ptr=='/') ptr++;
-ptr=rstrtok(ptr, "/", &Tempstr);
-ptr--; /*to get to '/' */
-*Path=rstrcpy(*Path, ptr);
+    ptr=rstrtok(URL, ":", Proto);
+    while (*ptr=='/') ptr++;
+    ptr=rstrtok(ptr, "/", &Tempstr);
+    ptr--; /*to get to '/' */
+    *Path=rstrcpy(*Path, ptr);
 
-ptr=rstrtok(Tempstr, ":", Host);
-*Port=rstrcpy(*Port, ptr);
+    ptr=rstrtok(Tempstr, ":", Host);
+    *Port=rstrcpy(*Port, ptr);
 
-destroy(Tempstr);
-return(TRUE);
+    destroy(Tempstr);
+    return(TRUE);
 }
 
 void MkDirPath(const char *Dir)
 {
-char *Token=NULL, *Path=NULL;
-const char *ptr;
+    char *Token=NULL, *Path=NULL;
+    const char *ptr;
 
-ptr=rstrtok(Dir, "/", &Token);
-while (ptr)
-{
-Path=rstrcat(Path, Token);
-mkdir(Path, 0700);
-Path=rstrcat(Path, "/");
-ptr=rstrtok(ptr, "/", &Token);
-}
+    ptr=rstrtok(Dir, "/", &Token);
+    while (ptr)
+    {
+        Path=rstrcat(Path, Token);
+        mkdir(Path, 0700);
+        Path=rstrcat(Path, "/");
+        ptr=rstrtok(ptr, "/", &Token);
+    }
 
-destroy(Token);
-destroy(Path);
+    destroy(Token);
+    destroy(Path);
 }
 
 
 void Exec(const char *CmdLine)
 {
-const char *ptr;
-char *Token=NULL, **Args=NULL;
-int count=0;
+    const char *ptr;
+    char *Token=NULL, **Args=NULL;
+    int count=0;
 
-ptr=rstrtok(CmdLine, " ", &Token);
-while (ptr)
-{
-	Args=realloc(Args, (count+10) * sizeof(char *));
-	Args[count]=strdup(Token);
-	count++;
-	ptr=rstrtok(ptr, " ", &Token);
-}
-Args[count]=NULL;
+    ptr=rstrtok(CmdLine, " ", &Token);
+    while (ptr)
+    {
+        Args=realloc(Args, (count+10) * sizeof(char *));
+        Args[count]=strdup(Token);
+        count++;
+        ptr=rstrtok(ptr, " ", &Token);
+    }
+    Args[count]=NULL;
 
-destroy(Token);
-execv(Args[0], Args);
+    destroy(Token);
+    execv(Args[0], Args);
 
 //should never reach here
-_exit(1);
+    _exit(1);
 }
