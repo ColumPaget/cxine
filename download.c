@@ -189,13 +189,13 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
     pid_t pid=0;
     int fd;
 
-
     Path=DownloadFormatPath(Path, Download->MRL);
     Tempstr=rstrcpy(Tempstr, Path);
     fd=open(Tempstr, O_WRONLY | O_CREAT | O_EXCL, 0600);
     if (fd > -1)
     {
         ptr=rstrtok(Download->Helpers, ";", &Cmd);
+
         Download->Helpers=memmove(Download->Helpers, ptr, StrLen(ptr) +1);
 
         Tempstr=DownloadFormatHelperCommand(Tempstr, Cmd, Download->MRL);
@@ -361,13 +361,14 @@ int DownloadDone(char **MRL)
     }
 
 
-//if it's finished downloading, then check it's size, if it's zero size then we need to
-//restart download with another helper
+//if it's finished downloading, then check it's size, if it's zero 
+// size then we need to restart download with another helper
     if (result)
     {
         Download=DownloadsFind(*MRL);
         if (DownloadTransferred(*MRL)==0)
         {
+						unlink(FName);
             if (Download && (DownloadLaunchHelper(Download) > 0)) result=FALSE;
         }
         else	*MRL=rstrcpy(*MRL, FName);

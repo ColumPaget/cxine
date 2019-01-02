@@ -88,8 +88,9 @@ const char *rstrtok(const char *Str, const char *Separators, char **Token)
 
     for (ptr=Str; *ptr!='\0'; ptr++)
     {
-        if (*ptr=='"') ptr=advanceto(ptr, '"');
-        if (*ptr=='\\')
+        if (*ptr=='"') ptr=advanceto(ptr+1, '"');
+        else if (*ptr=='\'') ptr=advanceto(ptr+1, '\'');
+        else if (*ptr=='\\')
         {
             ptr++;
             if (*ptr=='\0') break;
@@ -134,6 +135,20 @@ char *rstrunquot(char *RetStr, const char *Str)
     }
 
     return(RetStr);
+}
+
+
+void StripQuotes(char *Str)
+{
+int len;
+
+if ( (*Str=='\'') || (*Str=='\"') )
+{
+	len=strlen(Str);
+	Str[len-1]='\0';
+	memmove(Str, Str+1, len);
+}
+
 }
 
 
@@ -226,9 +241,13 @@ void Exec(const char *CmdLine)
     char *Token=NULL, **Args=NULL;
     int count=0;
 
+		fprintf(stderr, "CMD: %s\n", CmdLine);
+
     ptr=rstrtok(CmdLine, " ", &Token);
     while (ptr)
     {
+		fprintf(stderr,"  %s\n", Token);
+				StripQuotes(Token);
         Args=realloc(Args, (count+10) * sizeof(char *));
         Args[count]=strdup(Token);
         count++;
