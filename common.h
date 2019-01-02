@@ -73,6 +73,9 @@ int arg2;
 #define STATE_STDIN_URL 1024
 #define STATE_BACKGROUND_DISPLAYED 2048
 
+#ifndef VERSION
+#define VERSION                   "3.1"
+#endif
 
 typedef struct
 {

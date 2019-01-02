@@ -38,10 +38,6 @@
 #include <sys/wait.h>
 #include <pwd.h>
 
-#ifndef VERSION
-#define VERSION                   "1.1"
-#endif
-
 #define DEFAULT_CACHE_DIR "~/.cxine/cache"
 
 static CXineOSD *DownloadOSD=NULL;

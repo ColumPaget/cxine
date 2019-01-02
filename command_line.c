@@ -217,6 +217,17 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 //			Config->flags &= ~CONFIG_CONTROL;
         }
         else if ( strcmp(argv[i], "-v")==0 ) Config->debug++;
+        else if ( strcmp(argv[i], "-version")==0 )
+				{
+					printf("cxine %s\n", VERSION);
+					exit(0);
+				}
+        else if ( strcmp(argv[i], "--version")==0 )
+				{
+					printf("cxine %s\n", VERSION);
+					exit(0);
+				}
+
         else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "-help")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "--help")==0 ) Help(argv[++i]);

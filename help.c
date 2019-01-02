@@ -290,6 +290,8 @@ void Help(const char *Page)
         printf("  -no-bookmark            Don't remember where media left-off playing.\n");
         printf("  -save-config            Save current cxine setup.\n");
         printf("  -defaults               Reset to default config (this will wipe any settings prior on the command line).\n");
+        printf("  -version                Show program version.\n");
+        printf("  --version               Show program version.\n");
         printf("  -?                      Show this help.\n");
         printf("  -help                   Show this help.\n");
         printf("  --help                  Show this help.\n");
