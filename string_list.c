@@ -68,8 +68,8 @@ const char *StringListCurr(TStringList *sl)
 const char *StringListPrev(TStringList *sl)
 {
     if (! sl) return(NULL);
-    if (sl->next ==1) return(NULL);
-    sl->next--;
+    if (sl->next ==0) return(NULL);
+    if (sl->next > 1) sl->next--;
     return(sl->list[sl->next-1]);
 }
 
