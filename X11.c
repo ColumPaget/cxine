@@ -91,7 +91,7 @@ void X11HandleSelectionAvailableEvent(Display *XDisplay, Window XWin, int Select
     Data[dlen]='\0';
 
     printf("SELECT: %s\n", Data);
-    PlaylistAdd(Config->playlist, Data, "");
+    PlaylistAdd(Config->playlist, Data, "", "");
     XDeleteProperty(XDisplay,XWin,SelectProp);
 }
 

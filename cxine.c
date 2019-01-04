@@ -227,7 +227,7 @@ void DisplayDownloadProgress()
 //This to do every so many ms
 void PeriodicProcessing()
 {
-    char *URL=NULL;
+    char *URL=NULL, *ID=NULL;
     const char *ptr;
     int pos;
 
@@ -238,8 +238,8 @@ void PeriodicProcessing()
         ptr=StringListFirst(Config->playlist);
         while (ptr)
         {
-            URL=rstrcpy(URL, ptr);
-            if (! DownloadDone(&URL)) break;
+						PlaylistParseEntry(ptr, &URL, &ID, NULL);
+            if (! DownloadDone(&URL, ID)) break;
             ptr=StringListNext(Config->playlist);
         }
         Config->playlist->next=pos;
@@ -259,6 +259,7 @@ void PeriodicProcessing()
     if (Config->state & STATE_DOWNLOADING) DisplayDownloadProgress();
 
     destroy(URL);
+    destroy(ID);
 }
 
 

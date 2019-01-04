@@ -19,7 +19,7 @@ int PLSPlaylistLoad(TStringList *List, const char *MRL)
             ptr=rstrtok(Tempstr, "=", &Token);
             if (strncmp(Token, "File", 4)==0)
             {
-                PlaylistAdd(List, ptr, "");
+                PlaylistAdd(List, ptr, "", "");
             }
         }
         fclose(f);
@@ -48,7 +48,7 @@ int M3UPlaylistLoad(TStringList *List, const char *MRL)
         {
             Tempstr=xine_chomp(Tempstr);
 
-            if ( StrLen(Tempstr) && (*Tempstr != '#') ) PlaylistAdd(List, Tempstr, "");
+            if ( StrLen(Tempstr) && (*Tempstr != '#') ) PlaylistAdd(List, Tempstr, "", "");
         }
         fclose(f);
         result=TRUE;
@@ -100,7 +100,7 @@ void XSPFPlaylistParseItem(TStringList *List, xml_node_t *item)
         else if (strcasecmp(node->name, "location")==0) p_path = node->data;
     }
 
-    if (p_path) PlaylistAdd(List, p_path, p_title);
+    if (p_path) PlaylistAdd(List, p_path, "", p_title);
 
     destroy(Tempstr);
 }
@@ -145,7 +145,7 @@ void ASXPlaylistParseItem(TStringList *List, xml_node_t *item)
         else if (strcasecmp(node->name, "ref")==0) p_path = xml_parser_get_property (node, "href");
     }
 
-    if (p_path) PlaylistAdd(List, p_path, p_title);
+    if (p_path) PlaylistAdd(List, p_path, "", p_title);
 
     destroy(Tempstr);
 }

@@ -29,7 +29,7 @@ int ControlPipeOpen(int mode)
 
 int ControlHandleInput(int fd, xine_stream_t *stream)
 {
-    char *Tempstr=NULL, *Cmd=NULL, *Token=NULL, *URL=NULL;
+    char *Tempstr=NULL, *Cmd=NULL, *Token=NULL, *URL=NULL, *Title=NULL;
     const char *ptr;
     int result, pos_msecs, len_msecs, pos, val;
     int RetVal=EVENT_NONE;
@@ -57,9 +57,9 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
             case 'a':
                 if (strcasecmp(Cmd, "add")==0)
                 {
-                    ptr=rstrtok(ptr, " ", &Token);
-                    URL=rstrunquot(URL, Token);
-                    PlaylistAdd(Config->playlist, URL, ptr);
+										PlaylistParseEntry(ptr, &URL, &Token, &Title);
+										printf("ADD: [%s] [%s] [%s] [%s]\n",Token, Title, URL, ptr);
+                    PlaylistAdd(Config->playlist, URL, Token, Title);
                 }
                 break;
 
@@ -182,6 +182,7 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
 
     destroy(Tempstr);
     destroy(Token);
+    destroy(Title);
     destroy(URL);
     destroy(Cmd);
 

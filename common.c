@@ -241,12 +241,9 @@ void Exec(const char *CmdLine)
     char *Token=NULL, **Args=NULL;
     int count=0;
 
-		fprintf(stderr, "CMD: %s\n", CmdLine);
-
     ptr=rstrtok(CmdLine, " ", &Token);
     while (ptr)
     {
-		fprintf(stderr,"  %s\n", Token);
 				StripQuotes(Token);
         Args=realloc(Args, (count+10) * sizeof(char *));
         Args[count]=strdup(Token);

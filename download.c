@@ -190,8 +190,7 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
     int fd;
 
     Path=DownloadFormatPath(Path, Download->MRL);
-    Tempstr=rstrcpy(Tempstr, Path);
-    fd=open(Tempstr, O_WRONLY | O_CREAT | O_EXCL, 0600);
+    fd=open(Path, O_WRONLY | O_CREAT | O_EXCL, 0600);
     if (fd > -1)
     {
         ptr=rstrtok(Download->Helpers, ";", &Cmd);
@@ -220,11 +219,14 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
 
                 _exit(0);
             }
-            else Download->Pid=pid;
+            else 
+						{
+							Download->Pid=pid;
+        			usleep(100);
+						}
         }
 
         close(fd);
-        usleep(100);
     }
     else if (Config->flags & CONFIG_DEBUG) printf("Can't find program: '%s'",Cmd);
 
@@ -321,7 +323,7 @@ size_t DownloadTransferred(const char *MRL)
 
 
 
-int DownloadDone(char **MRL)
+int DownloadDone(char **MRL, const char *ID)
 {
     const char *ptr;
     char *FName=NULL;

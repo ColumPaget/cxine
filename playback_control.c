@@ -148,22 +148,21 @@ void CXineNewTitle(TConfig *Config)
 
 int CXinePlayStream(TConfig *Config, const char *info)
 {
-    char *url=NULL, *Tempstr=NULL;
-    const char *p_title=NULL;
+    char *url=NULL, *Tempstr=NULL, *Title=NULL, *ID=NULL;
+    const char *ptr=NULL;
     int startms;
     int len, result=0, fd;
     TStringList *NewPlaylist;
 
-    p_title=rstrtok(info, " ", &Tempstr);
-    len=StrLen(Tempstr);
+		PlaylistParseEntry(info, &url, &ID, &Title);
+    len=StrLen(url);
     if (len >0)
     {
-        url=rstrunquot(url, Tempstr);
         //xine interprets anything starting with '-' to mean 'stdin', and sits there trying to read from stdin.
         //so if we get a file path starting with '-' (probably a command-line option that we don't recognize)
         //then we don't want to pass it to xine unless the file really exists
         if ((*url=='-') && (len > 1) && (access(url, F_OK) !=0)) /* do nothing*/ ;
-        else if (! DownloadDone(&url))
+        else if (! DownloadDone(&url, ID))
         {
             Config->state |= STATE_DOWNLOADING;
         }
@@ -178,7 +177,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
         {
             TouchFile(url);
             Config->state &= ~STATE_DOWNLOADING;
-            if (StrLen(p_title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, p_title);
+            if (StrLen(Title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, Title);
             else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(url));
             //do this before calling play..
             CXineStreamInitConfig(Config);

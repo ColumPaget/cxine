@@ -17,51 +17,36 @@ static void ParseCommandLineWindowSize(char *arg, TConfig *Config)
 }
 
 
-static int CXineAddURL(const char *URL, const char *Title)
+static int CXineAddURL(const char *URL, const char *ID, const char *Title)
 {
     int fd, result=-1;
-    char *Tempstr=NULL, *Quoted=NULL;
+    char *Tempstr=NULL, *Msg=NULL;
 
     fd=ControlPipeOpen(O_WRONLY | O_NONBLOCK);
     if ( (fd > -1) && (lockf(fd, F_LOCK, 0)==0) )
     {
-        Tempstr=rstrcpy(Tempstr, "add ");
-        Quoted=rstrquot(Quoted, URL, "\\ 	");
-        Tempstr=rstrcat(Tempstr, Quoted);
-        if (StrLen(Title))
-        {
-            Tempstr=rstrcat(Tempstr, " ");
-            Tempstr=rstrcat(Tempstr, Title);
-        }
-        Tempstr=rstrcat(Tempstr, "\n");
-        result=write(fd, Tempstr, StrLen(Tempstr));
+        Msg=rstrcpy(Msg, "add ");
+				Tempstr=PlaylistFormatEntry(Tempstr, URL, ID, Title);
+        Msg=rstrcat(Msg, Tempstr);
+        Msg=rstrcat(Msg, "\n");
+
+        result=write(fd, Msg, StrLen(Msg));
         close(fd);
         Config->control_pipe=-1;
     }
     destroy(Tempstr);
-    destroy(Quoted);
+    destroy(Msg);
 
     return(result > 0);
 }
 
 
-static int CXineQueueURL(const char *URL, const char *Title)
+static int CXineQueueURL(const char *URL, const char *ID, const char *Title)
 {
-    char *Tempstr=NULL;
-
 //if a cxine is already running, then send it there
-    if (CXineAddURL(URL, Title)) exit(0);
+    if (CXineAddURL(URL, ID, Title)) exit(0);
 
-    Tempstr=rstrquot(Tempstr, URL, " ");
-    if (StrLen(Title))
-    {
-        Tempstr=rstrcat(Tempstr, " ");
-        Tempstr=rstrcat(Tempstr, Title);
-    }
-
-    PlaylistAdd(Config->playlist, URL, Title);
-
-    destroy(Tempstr);
+    PlaylistAdd(Config->playlist, URL, ID, Title);
 }
 
 
@@ -92,24 +77,24 @@ void CommandLineParseCache(const char *Arg)
 int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 {
     int i;
-    char *Token=NULL, *Title=NULL;
+    char *Token=NULL, *Title=NULL, *ID=NULL;
     const char *ptr;
 
     for(i = 1; i < argc; i++)
     {
-        if (strcmp(argv[i], "-add")==0 ) CXineAddURL(argv[++i], "");
+        if (strcmp(argv[i], "-add")==0 ) CXineAddURL(argv[++i], ID, "");
         else if (strcmp(argv[i], "+add")==0 )
         {
             i++;
-            CXineAddURL(argv[i], argv[i+1]);
+            CXineAddURL(argv[i], ID, argv[i+1]);
             i++;
         }
-        else if ( strcmp(argv[i], "-queue")==0 ) CXineQueueURL(argv[++i], "");
-        else if ( strcmp(argv[i], "-enqueue")==0 ) CXineQueueURL(argv[++i], "");
+        else if ( strcmp(argv[i], "-queue")==0 ) CXineQueueURL(argv[++i], ID, "");
+        else if ( strcmp(argv[i], "-enqueue")==0 ) CXineQueueURL(argv[++i], ID, "");
         else if ( strcmp(argv[i], "+queue")==0 )
         {
             i++;
-            CXineQueueURL(argv[i], argv[i+1]);
+            CXineQueueURL(argv[i], ID, argv[i+1]);
             i++;
         }
         else if ( strcmp(argv[i], "-vo")==0 ) Config->vo_driver = rstrcpy(Config->vo_driver, argv[++i]);
@@ -182,6 +167,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
             Config->helpers=rstrcat(Config->helpers, Token);
         }
         else if ( strcmp(argv[i], "-cache")==0 ) CommandLineParseCache(argv[++i]);
+        else if ( strcmp(argv[i], "-id")==0 ) ID=rstrcpy(ID, argv[++i]);
         else if ( strcmp(argv[i], "-nowplay")==0 )
         {
             i++;
@@ -213,7 +199,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
             ( strcmp(argv[i], "-")==0 )
         )
         {
-            PlaylistAdd(Config->playlist, "stdin://", Title);
+            PlaylistAdd(Config->playlist, "stdin://", ID, Title);
 //			Config->flags &= ~CONFIG_CONTROL;
         }
         else if ( strcmp(argv[i], "-v")==0 ) Config->debug++;
@@ -231,7 +217,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "-help")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "--help")==0 ) Help(argv[++i]);
-        else PlaylistAdd(Config->playlist, argv[i], Title);
+        else PlaylistAdd(Config->playlist, argv[i], ID, Title);
     }
 
 
