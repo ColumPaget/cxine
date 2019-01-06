@@ -16,6 +16,7 @@ void X11WindowSetTitle(void *p_Win, const char *MainTitle, const char *IconTitle
 void X11WindowDimensions(void *p_Win, int *width, int *height);
 void X11Fit(void *p_Win, int *x, int *y, int *wid, int *high);
 int X11GrabKey(void *p_Win, const char *keystr);
+int X11UnGrabKey(void *p_Win, const char *keystr);
 void X11ScreenSaver(void *p_Win, int OnOrOff);
 
 #endif

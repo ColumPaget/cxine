@@ -90,7 +90,6 @@ void X11HandleSelectionAvailableEvent(Display *XDisplay, Window XWin, int Select
 
     Data[dlen]='\0';
 
-    printf("SELECT: %s\n", Data);
     PlaylistAdd(Config->playlist, Data, "", "");
     XDeleteProperty(XDisplay,XWin,SelectProp);
 }
@@ -602,6 +601,10 @@ void X11HandleKeyPress(X11Window *Win, XEvent *xevent, TEvent *Event)
     case XK_BackSpace:
         Event->arg1=KEY_BACKSPACE;
         break;
+  case XK_Tab:
+        Event->arg1=KEY_TAB;
+        break;
+
 
 #ifdef XF86XK_AudioMute
     case XF86XK_AudioMute:
@@ -775,7 +778,7 @@ void X11Fit(void *p_Win, int *x, int *y, int *wid, int *high)
 }
 
 
-int X11GrabKey(void *p_Win, const char *keystr)
+int X11KeyGrabsControl(void *p_Win, int Grab, const char *keystr)
 {
     X11Window *Win;
     int keycode, keysym=0, modifiers=0;
@@ -828,6 +831,7 @@ int X11GrabKey(void *p_Win, const char *keystr)
         if (strcmp(ptr,"esc")==0) keysym=XK_Escape;
         if (strcmp(ptr,"escape")==0) keysym=XK_Escape;
         if (strcmp(ptr,"pause")==0) keysym=XK_Pause;
+        if (strcmp(ptr,"tab")==0) keysym=XK_Tab;
 
 #ifdef XF86XK_AudioMute
         if (strcmp(ptr, "mute")==0) keysym=XF86XK_AudioMute;
@@ -866,12 +870,30 @@ int X11GrabKey(void *p_Win, const char *keystr)
     if (keysym > 0)
     {
         keycode = XKeysymToKeycode (Win->display, keysym);
-        XGrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display), False, GrabModeAsync, GrabModeAsync);
-        printf("grab: %s\n",keystr);
+				//keycode 0 will grab everything! But is returned if key doesn't exist on this keyboard
+				if (keycode > 0)
+				{
+				if (Grab) XGrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display), False, GrabModeAsync, GrabModeAsync);
+        else XUngrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display));
+        if (Grab) printf("grab: %s\n",keystr);
+        else printf("ungrab: %s\n",keystr);
+				}
     }
 
 }
 
+
+
+int X11GrabKey(void *p_Win, const char *keystr)
+{
+return(X11KeyGrabsControl(p_Win, TRUE, keystr));
+}
+
+
+int X11UnGrabKey(void *p_Win, const char *keystr)
+{
+return(X11KeyGrabsControl(p_Win, TRUE, keystr));
+}
 
 void X11Close(void *p_Win)
 {

@@ -16,6 +16,12 @@
 
 #include "string_list.h"
 
+
+#ifndef VERSION
+#define VERSION                   "3.2"
+#endif
+
+
 #define StrLen(s) ((s) ? strlen(s) : 0)
 #define destroy(s) ((s) ? free(s) : 0)
 
@@ -72,10 +78,6 @@ int arg2;
 #define STATE_PLAYING 64
 #define STATE_STDIN_URL 1024
 #define STATE_BACKGROUND_DISPLAYED 2048
-
-#ifndef VERSION
-#define VERSION                   "3.1"
-#endif
 
 typedef struct
 {

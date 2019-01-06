@@ -6,6 +6,8 @@ static void HelpKeys()
 {
     printf("Keys:\n");
     printf("<escape>        exit app (requires -esc command-line option)\n");
+    printf("                shift: raise/lower window if window started with 'raised'\n");
+    printf("                ctrl:  shade/unshade window\n");
     printf("<spacebar>      pause playback\n");
     printf("<pause>         pause playback\n");
     printf("<home>          seek to start of playback\n");
@@ -25,8 +27,6 @@ static void HelpKeys()
     printf("o               toggle online display\n");
     printf("f               toggle 'fast' playback (4*speed, no sound)\n");
     printf("s               toggle 'slow' playback (1/4 speed, no sound)\n");
-    printf("<tab>           toggle between 'raised' and 'lowered' window modes\n");
-    printf("                ctrl: toggle 'shaded' window mode (if supported by window-manager)\n");
     printf("<delete>        reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)\n");
     printf(".               reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)\n");
     printf("<               prev item in playlist\n");
