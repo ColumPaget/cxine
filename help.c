@@ -25,6 +25,7 @@ static void HelpKeys()
     printf("-               decrease volume\n");
     printf("m               mute\n");
     printf("o               toggle online display\n");
+    printf("p               display playlist menu\n");
     printf("f               toggle 'fast' playback (4*speed, no sound)\n");
     printf("s               toggle 'slow' playback (1/4 speed, no sound)\n");
     printf("<delete>        reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)\n");

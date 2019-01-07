@@ -1,5 +1,6 @@
 #include "keypress.h"
 #include "playback_control.h"
+#include "playlist_osd.h"
 #include "X11.h"
 
 
@@ -110,8 +111,8 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 {
     int val, pos_msecs, len_msecs;
 
-//if (Config->flags & CONFIG_DEBUG)
-    switch (keychar)
+		if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDKeypress(X11Out, stream, keychar, modifier);
+		else switch (keychar)
     {
     case KEY_ESC:
         if (modifier & KEYMOD_CTRL)
@@ -293,6 +294,11 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
         else if (modifier & KEYMOD_SHIFT) CXineAudioComp(stream, SET_ADD, -25);
         else CXineVolume(stream, SET_ADD, -5);
         break;
+
+		case 'p':
+				if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDHide();
+				else PlaylistOSDShow();
+		break;		
 
     case '0':
     case '1':

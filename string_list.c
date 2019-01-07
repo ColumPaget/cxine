@@ -42,6 +42,14 @@ int StringListSplit(TStringList *sl, const char *str, const char *separators)
     return(sl->size);
 }
 
+
+const char *StringListItem(TStringList *sl, unsigned int pos)
+{
+    if (pos >= sl->size) return(NULL);
+    return(sl->list[pos]);
+}
+
+
 const char *StringListGet(TStringList *sl, unsigned int pos)
 {
     if (pos >= sl->size) return(NULL);

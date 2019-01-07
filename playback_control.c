@@ -8,6 +8,7 @@
 #include "plugins.h"
 #include "xine/xine_internal.h"
 #include "X11.h"
+#include "playlist_osd.h"
 
 static void CXineStreamInitConfig(TConfig *Config)
 {
@@ -203,6 +204,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
                 else Config->state &= ~STATE_STDIN_URL;
                 Config->state |= STATE_NEWTITLE;
                 result=1;
+       			    if (Config->state &  STATE_PLAYLIST_DISPLAYED) PlaylistOSDUpdate();
             }
             else
             {
@@ -246,6 +248,7 @@ int CXineSelectStream(TConfig *Config, int Which)
     {
         ptr=StringListPrev(Config->playlist);
     }
+		else ptr=StringListGet(Config->playlist, Which);
 
     if (ptr)
     {

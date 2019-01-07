@@ -324,11 +324,12 @@ CXine supports the following keys
 <page up>       forward dvd chapter 
 <page down>     back dvd chapter 
 + (or '=')      increase volume
-								shift: increase audio compression
+                shift: increase audio compression
 - (or '_')      decrease volume
-								shift: decrease audio compression
+                shift: decrease audio compression
 m               mute
 o               toggle online display
+p               display playlist menu
 f               toggle 'fast' playback (4*speed, no sound)
 s               toggle 'slow' playback (1/4 speed, no sound)
 <tab>           toggle between 'raised' and 'lowered' window modes

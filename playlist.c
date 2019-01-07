@@ -121,7 +121,7 @@ char *Tempstr=NULL;
 const char *ptr;
 
   ptr=rstrtok(info, " ", &Tempstr);
-  *URL=rstrunquot(*URL, Tempstr);
+  if (URL) *URL=rstrunquot(*URL, Tempstr);
   while (ptr)
   {
     ptr=rstrtok(ptr, " ", &Tempstr);
@@ -149,6 +149,8 @@ const char *ptr;
 			}
     }
   }
+
+if (Title && (! StrLen(*Title))) *Title=rstrcpy(*Title, basename(*URL));
 
 destroy(Tempstr);
 }

@@ -30,6 +30,7 @@
 #include "keypress.h"
 #include "download.h"
 #include "playlist.h"
+#include "playlist_osd.h"
 #include "playback_control.h"
 #include "control_protocol.h"
 #include "now_playing.h"

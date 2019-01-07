@@ -3,7 +3,7 @@ LDFLAGS=@LDFLAGS@
 LIBS=@LIBS@
 prefix=@prefix@
 
-OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o plugins.o X11.o 
+OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o playlist_osd.o plugins.o X11.o 
 
 all: $(OBJ)
 	$(CC) -Wall $(CFLAGS) $(LIBS) $(LDFLAGS) $(OBJ) cxine.c -o cxine
@@ -49,6 +49,9 @@ keypress.o: keypress.h keypress.c common.h
 
 osd.o: osd.h osd.c common.h
 	$(CC) $(CFLAGS) -c osd.c
+
+playlist_osd.o: playlist_osd.h playlist_osd.c common.h
+	$(CC) $(CFLAGS) -c playlist_osd.c
 
 plugins.o: plugins.h plugins.c common.h
 	$(CC) $(CFLAGS) -c plugins.c

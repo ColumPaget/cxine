@@ -392,15 +392,6 @@ void OSDUpdateSingle(CXineOSD *OSD, int show)
     #define TEXTPALETTE_YELLOW_BLACK_TRANSPARENT   3
     */
 
-    xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_WHITE_NONE_TRANSLUCID, XINE_OSD_TEXT1);
-    xine_osd_set_encoding(OSD->osd, "");
-
-    ptr=rstrtok(OSD->Font, ",", &Tempstr);
-    while (ptr)
-    {
-        if (xine_osd_set_font(OSD->osd, Tempstr, 18)) break;
-        ptr=rstrtok(ptr, ",", &Tempstr);
-    }
 
     switch (OSD->type)
     {
@@ -519,6 +510,17 @@ CXineOSD *OSDCreate(void *X11Win, xine_stream_t *stream, const char *config, con
 
     OSD->osd=xine_osd_new(stream, x, y, wid, high);
     xine_osd_show(OSD->osd, 0);
+
+    xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_WHITE_NONE_TRANSLUCID, XINE_OSD_TEXT1);
+    xine_osd_set_encoding(OSD->osd, "");
+
+    ptr=rstrtok(OSD->Font, ",", &Token);
+    while (ptr)
+    {
+        if (xine_osd_set_font(OSD->osd, Token, 18)) break;
+        ptr=rstrtok(ptr, ",", &Token);
+    }
+
 
     destroy(Token);
 

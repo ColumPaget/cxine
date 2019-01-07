@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "3.2"
+#define VERSION                   "3.3"
 #endif
 
 
@@ -78,6 +78,7 @@ int arg2;
 #define STATE_PLAYING 64
 #define STATE_STDIN_URL 1024
 #define STATE_BACKGROUND_DISPLAYED 2048
+#define STATE_PLAYLIST_DISPLAYED 4096
 
 typedef struct
 {
@@ -138,6 +139,7 @@ char *rstrunquot(char *RetStr, const char *Str);
 void TouchFile(const char *Path);
 void MkDirPath(const char *Dir);
 char *PathSearch(char *RetStr, const char *FileName, const char *Path);
+void StripQuotes(char *Str);
 
 
 int ParseURL(const char *URL, char **Proto, char **Host, char **Port, char **Path);
