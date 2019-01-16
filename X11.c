@@ -391,8 +391,14 @@ void *X11Init(const char *ParentID, int xpos, int ypos, int width, int height)
 
     resx = (DisplayWidth(display, Win->screen) * 1000 / DisplayWidthMM(display, Win->screen));
     resy = (DisplayHeight(display, Win->screen) * 1000 / DisplayHeightMM(display, Win->screen));
-    Win->pixel_aspect= resy / resx;
-    if(fabs(Win->pixel_aspect - 1.0) < 0.01) Win->pixel_aspect = 1.0;
+    Win->pixel_aspect= (float) resy / (float) resx;
+		if (Config->flags & CONFIG_DEBUG) printf("pixel aspect: %d/%d = '%f'\n", resy,  resx, Win->pixel_aspect);
+
+    if(Win->pixel_aspect < 0.01) 
+		{
+			Win->pixel_aspect = 1.0;
+			if (Config->flags & CONFIG_DEBUG) printf("adjusted pixel aspect to: '%f'\n", Win->pixel_aspect);
+		}
 
     XSync(display, False);
     XUnlockDisplay(display);
