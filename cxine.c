@@ -450,7 +450,7 @@ int main(int argc, char **argv)
 
     signal(SIGPIPE, SIG_IGN);
 
-    if (Config->flags & CONFIG_PERSIST) stdin_fd=0;
+    if (Config->flags & CONFIG_SLAVE) stdin_fd=0;
     if (Config->priority > 0) setpriority(PRIO_PROCESS, getpid(), Config->priority - 21);
 
     if (Config->debug > 0) xine_engine_set_param(Config->xine, XINE_ENGINE_PARAM_VERBOSITY, Config->debug);

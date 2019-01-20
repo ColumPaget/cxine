@@ -88,12 +88,18 @@ void CXineMute(xine_stream_t *stream, int Setting)
 void CXineSetPos(xine_stream_t *stream, int skip)
 {
     int val, pos_msecs, len_msecs;
+		long speed;
+
+		speed=xine_get_param(Config->stream, XINE_PARAM_FINE_SPEED);
 
     xine_get_pos_length (stream, &val, &pos_msecs, &len_msecs);
     val = pos_msecs + skip;
     if (val > len_msecs) val=len_msecs - SKIP_SMALL;
     if (val < 0) val=0;
     xine_play(stream, 0, val);
+
+		//have to reset speed because xine_play defaults back to normal speed
+		xine_set_param(Config->stream, XINE_PARAM_FINE_SPEED, speed);
 }
 
 

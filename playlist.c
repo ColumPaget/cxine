@@ -27,7 +27,7 @@ void PlaylistShuffle()
 
 char *PlaylistFormatEntry(char *RetStr, const char *URL, const char *ID, const char *Title)
 {
-char *Quoted=NULL;
+char *Quoted=NULL, *Tempstr=NULL;
 
 Quoted=rstrquot(Quoted, URL, "\\  ");
 RetStr=rstrcat(RetStr, Quoted);
@@ -44,12 +44,15 @@ if (StrLen(ID))
 if (StrLen(Title))
 {
 	RetStr=rstrcat(RetStr, " title='");
-	Quoted=rstrcpy(Quoted, Title);
-	StripQuotes(Quoted);
+	Tempstr=rstrcpy(Tempstr, Title);
+	StripQuotes(Tempstr);
+	Quoted=rstrquot(Quoted, Tempstr, "\'");
 	RetStr=rstrcat(RetStr, Quoted);
 	RetStr=rstrcat(RetStr, "'");
+
 }
 
+destroy(Tempstr);
 destroy(Quoted);
 return(RetStr);
 }
@@ -117,8 +120,12 @@ TStringList *PlaylistExpandCurr(TStringList *playlist, const char *URL, const ch
 
 void PlaylistParseEntry(const char *info, char **URL, char **ID, char **Title)
 {
-char *Tempstr=NULL;
+char *Tempstr=NULL, *UnQuote=NULL;
 const char *ptr;
+
+	*URL=rstrcpy(*URL, "");
+	if (ID) *ID=rstrcpy(*ID, "");
+	if (Title) *Title=rstrcpy(*Title, "");
 
   ptr=rstrtok(info, " ", &Tempstr);
   if (URL) *URL=rstrunquot(*URL, Tempstr);
@@ -139,8 +146,9 @@ const char *ptr;
 			{
 				if (Title) 
 				{
-					*Title=rstrcpy(*Title, Tempstr+6);
-					StripQuotes(*Title);
+					UnQuote=rstrcpy(UnQuote, Tempstr+6);
+					StripQuotes(UnQuote);
+					*Title=rstrunquot(*Title, UnQuote);
 				}
 			}
 	    else 
@@ -153,6 +161,7 @@ const char *ptr;
 if (Title && (! StrLen(*Title))) *Title=rstrcpy(*Title, basename(*URL));
 
 destroy(Tempstr);
+destroy(UnQuote);
 }
 
 

@@ -5,7 +5,7 @@
 #include "common.h"
 
 #define DEFAULT_TOPOSD_STRING "%tt %Lp/%Ls %T - %A"
-#define DEFAULT_BOTTOMOSD_STRING "POS: %tP%% %tw  VOL: %v  ac: %aw"
+#define DEFAULT_BOTTOMOSD_STRING "POS: %tP%% %tw  VOL: %v SPD: %f  AC: %aw"
 
 typedef struct
 {

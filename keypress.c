@@ -279,6 +279,19 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
         CXineSelectStream(Config, PLAY_PREV);
         break;
 
+		case '[':
+	      val=xine_get_param (stream, XINE_PARAM_FINE_SPEED);
+				if (val > 0) val-=10000;
+        xine_set_param (stream, XINE_PARAM_FINE_SPEED, val);
+				break;
+
+		case ']':
+	      val=xine_get_param (stream, XINE_PARAM_FINE_SPEED);
+				val+=10000;
+        xine_set_param (stream, XINE_PARAM_FINE_SPEED, val);
+				break;
+
+
     case '+':
     case '=':
     case KEY_VOLUME_UP:
