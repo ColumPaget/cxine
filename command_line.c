@@ -6,7 +6,6 @@
 
 
 
-
 static void ParseCommandLineWindowSize(char *arg, TConfig *Config)
 {
     char *ptr;
@@ -155,6 +154,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-zoom")==0 ) Config->zoom=atoi(argv[++i]);
         else if ( strcmp(argv[i], "-nice")==0 ) Config->priority=atoi(argv[++i])+21;
         else if ( strcmp(argv[i], "-prio")==0 ) Config->priority=atoi(argv[++i])+1;
+        else if ( strcmp(argv[i], "-bcast")==0 ) Config->bcast_port=atoi(argv[++i]);
         else if ( strcmp(argv[i], "-shuffle")==0 ) Config->flags |= CONFIG_SHUFFLE;
         else if ( strcmp(argv[i], "-loop")==0 ) Config->loop=atoi(argv[++i]);
         else if ( strcmp(argv[i], "-keygrab")==0 ) Config->keygrabs=rstrcpy(Config->keygrabs, argv[++i]);

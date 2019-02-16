@@ -50,10 +50,13 @@ void PlaylistOSDUpdate()
 char *Title=NULL;
 const char *ptr;
 int i, y=0, wid, high, osd_high=0, start=0, per_page;
+int playing=-1, val;
 
 if (! OSD) OSD=OSDCreate(Config->X11Out, Config->stream, "0,10,-20,-20 font=mono", "");
 xine_osd_clear(OSD->osd);
+xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_YELLOW_BLACK_TRANSPARENT, XINE_OSD_TEXT2);
 
+playing=StringListPos(Config->playlist);
 
 osd_high=PlaylistOSDGetScreenHeight(OSD);
 xine_osd_get_text_size(OSD->osd, "TEST", &wid, &high);
@@ -67,8 +70,12 @@ for (i=start; i < Config->playlist->size; i++)
 {
 	ptr=StringListItem(Config->playlist, i);
 	PlaylistParseEntry(ptr, NULL, NULL, &Title);
-	if (i == pos) xine_osd_draw_text(OSD->osd, 0, y, ">", XINE_OSD_TEXT1);
-	xine_osd_draw_text(OSD->osd, 10, y, Title, XINE_OSD_TEXT1);
+
+	if (i==playing) val=XINE_OSD_TEXT2;
+	else val=XINE_OSD_TEXT1;
+
+	if (i == pos) xine_osd_draw_text(OSD->osd, 0, y, ">", val);
+	xine_osd_draw_text(OSD->osd, 10, y, Title, val);
 	
 	y+=high;
 }

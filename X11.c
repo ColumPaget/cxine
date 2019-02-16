@@ -253,9 +253,10 @@ X11Window *X11WindowCreate(Display *display, const char *ParentID, int x, int y,
         else if (strcmp(Token, "above")==0) WinSettings |= WIN_SETTING_ONTOP;
         else if (strcmp(Token, "below")==0) WinSettings |= WIN_SETTING_BELOW;
         else if (strcmp(Token, "iconized")==0) WinSettings |= WIN_SETTING_ICONIZED;
+        else if (strcmp(Token, "iconic")==0) WinSettings |= WIN_SETTING_ICONIZED;
+        else if (strcmp(Token, "icon")==0) WinSettings |= WIN_SETTING_ICONIZED;
         else if (strcmp(Token, "minimized")==0) WinSettings |= WIN_SETTING_ICONIZED;
         else if (strcmp(Token, "min")==0) WinSettings |= WIN_SETTING_ICONIZED;
-        else if (strcmp(Token, "iconic")==0) WinSettings |= WIN_SETTING_ICONIZED;
         else if (strcmp(Token, "stickontop")==0) WinSettings |= WIN_SETTING_ONTOP | WIN_SETTING_STICKY;
         else if (strcmp(Token, "stickabove")==0) WinSettings |= WIN_SETTING_ONTOP | WIN_SETTING_STICKY;
         else if (strcmp(Token, "stickbelow")==0) WinSettings |= WIN_SETTING_BELOW | WIN_SETTING_STICKY;

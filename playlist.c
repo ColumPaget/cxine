@@ -123,7 +123,7 @@ void PlaylistParseEntry(const char *info, char **URL, char **ID, char **Title)
 char *Tempstr=NULL, *UnQuote=NULL;
 const char *ptr;
 
-	*URL=rstrcpy(*URL, "");
+	if (URL) *URL=rstrcpy(*URL, "");
 	if (ID) *ID=rstrcpy(*ID, "");
 	if (Title) *Title=rstrcpy(*Title, "");
 
@@ -153,7 +153,7 @@ const char *ptr;
 			}
 	    else 
 			{
-				if (Title) *Title=rstrcpy(*Title, Tempstr);
+				if (Title) *Title=rstrunquot(*Title, Tempstr);
 			}
     }
   }

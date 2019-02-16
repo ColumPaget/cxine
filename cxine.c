@@ -38,6 +38,7 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <pwd.h>
+#include <xine/broadcaster.h>
 
 #define DEFAULT_CACHE_DIR "~/.cxine/cache"
 
@@ -431,8 +432,9 @@ void CXineExit(TConfig *Config)
 
 int main(int argc, char **argv)
 {
-    int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
-    const char *ptr;
+  int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
+  const char *ptr;
+	broadcaster_t *bcast;
 
     //call 'SignalHandler' with a signal it ignores as it will set up
     //handlers for SIGINT and SIGTERM
@@ -473,6 +475,9 @@ int main(int argc, char **argv)
         X11ActivateCXineOutput(Config->X11Out, Config->vo_port);
         OSDSetup(Config);
     }
+
+		if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
+
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);
 
@@ -526,6 +531,8 @@ int main(int argc, char **argv)
 
         waitpid(-1, NULL, WNOHANG);
     }
+
+		if (bcast) _x_close_broadcaster(bcast);
     CXineExit(Config);
 
     return(1);

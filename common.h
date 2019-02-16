@@ -115,6 +115,7 @@ int cache_maxage;
 int priority;
 int loop;
 int image_ms;
+int bcast_port;
 void *X11Out;
 xine_t              *xine;
 xine_stream_t       *stream;
