@@ -41,6 +41,7 @@ Options
   -fs                     Play fullscreen (mplayer style option equivalent to '-win fullscreen').
   -background <path>      Path to background image when not playing anything else. Needed for OSD to mix into.
   -use-stdin              Read media stream from stdin
+  -bcast <port>           Specify port that slave libxine players can connect to to recieve broadcasted stream.
   -pause                  Start paused.
   -mute                   Start muted.
   -shuffle                Shuffle playlist.
@@ -244,6 +245,10 @@ So, for example the url
 
 will log into 'myhost' and use ssh to pull the file '/home/music/BinaryFinary.mp3' provided that 'myhost' has been set up in your .config with an ssh key to log in with.
 
+Broadcast
+---------
+
+Cxine supports libxine-style broadcast. If the '-bcast' option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url "slave://<address>:<port>" and mirror its output.
 
 Streaming
 ---------

@@ -245,6 +245,7 @@ void Help(const char *Page)
         printf("  -fs                     Play fullscreen (mplayer style option equivalent to '-win fullscreen').\n");
         printf("  -background <path>      Path to background image when not playing anything else. Needed for OSD to mix into.\n");
         printf("  -use-stdin              Read media stream from stdin\n");
+        printf("  -bcast <port>           Broadcast to slave libxine players on <port>\n");
         printf("  -pause                  Start paused.\n");
         printf("  -mute                   Start muted.\n");
         printf("  -shuffle                Shuffle playlist.\n");
@@ -341,8 +342,12 @@ void Help(const char *Page)
         printf("More information about helpers is available with 'cxine --help helpers'\n");
         printf("\nStreaming\n");
         printf("The '-stream' option is intended for use with internet radio, and only works for http:// streams. If '-stream' is supplied then http:// urls will be streamed without being downloaded to the cache directory\n");
+
+				printf("\nBroadcast\n");
+				printf("Cxine supports libxine-style broadcast. If the '-bcast' option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url 'slave://<address>:<port>' and mirror it's output.\n");
+	
         printf("\nSaving config\n");
-        printf("\nIf '-save-config' is given then cxine will remember the following settings if they are supplied:\n");
+        printf("If '-save-config' is given then cxine will remember the following settings if they are supplied:\n");
         printf("		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -cache, -nowplay,  -dvd-device, -dvd-region, -dvd-lang, -helpers\n");
         printf("-defaults resets the config to default. It will also reset any settings prior to it  on the command-line, so it's best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this:\n");
         printf("		cxine -defaults -background myimage.jpg -ao alsa -keygrab media -save\n");
