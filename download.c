@@ -20,6 +20,8 @@ TDownload *DownloadsFind(const char *MRL)
     xine_list_iterator_t curr;
     TDownload *Download;
 
+		if (Downloads)
+		{
     curr=xine_list_front(Downloads);
     while (curr)
     {
@@ -28,6 +30,7 @@ TDownload *DownloadsFind(const char *MRL)
 
         curr=xine_list_next(Downloads, curr);
     }
+		}
 
 
     return(NULL);
