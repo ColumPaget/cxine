@@ -13,6 +13,7 @@ char **list;
 #define StringListPos(sl) ((sl)->next -1)
 TStringList *StringListCreate(int argc, char **argv);
 int StringListAdd(TStringList *sl, const char *str);
+int StringListDel(TStringList *sl, int pos);
 int StringListSplit(TStringList *sl, const char *str, const char *separators);
 const char *StringListItem(TStringList *sl, unsigned int pos);
 const char *StringListGet(TStringList *sl, unsigned int pos);

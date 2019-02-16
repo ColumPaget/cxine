@@ -12,12 +12,31 @@ void PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int m
 	switch (keychar)
 	{
 		case KEY_DOWN:
-			if (pos < (Config->playlist->size-1)) pos++;
+			if (pos < (Config->playlist->size-1)) 
+			{
+			if (modifier & KEYMOD_SHIFT) pos=PlaylistMoveItem(Config->playlist, pos, +1);
+			else pos++;
+			}
 		break;
 
 		case KEY_UP:
-			if (pos > 0) pos--;
+			if (pos > 0) 
+			{
+			if (modifier & KEYMOD_SHIFT) pos=PlaylistMoveItem(Config->playlist, pos, -1);
+			else pos--;
+			}
 		break;
+
+		case 'u':
+			//change pos so cursor moves with item
+			pos=PlaylistMoveItem(Config->playlist, pos, -1);
+		break;
+
+		case 'd':
+			//change pos so cursor moves with item
+			pos=PlaylistMoveItem(Config->playlist, pos, +1);
+		break;
+
 
 		case 'p':
 			PlaylistOSDHide();
@@ -27,8 +46,13 @@ void PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int m
 		case KEY_RIGHT:
 			 CXineSelectStream(Config, pos);
 		break;
+
+		case KEY_DELETE:
+		case KEY_BACKSPACE:
+			StringListDel(Config->playlist, pos);
+		break;
 	}
-	if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDUpdate();
+	PlaylistOSDUpdate();
 }
 
 
@@ -49,10 +73,10 @@ void PlaylistOSDUpdate()
 {
 char *Title=NULL;
 const char *ptr;
-int i, y=0, wid, high, osd_high=0, start=0, per_page;
+int i, y=0, wid, high, osd_high=0, start=0, count=0, per_page;
 int playing=-1, val;
 
-if (! OSD) OSD=OSDCreate(Config->X11Out, Config->stream, "0,10,-20,-20 font=mono", "");
+if (! (Config->state & STATE_PLAYLIST_DISPLAYED)) return;
 xine_osd_clear(OSD->osd);
 xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_YELLOW_BLACK_TRANSPARENT, XINE_OSD_TEXT2);
 
@@ -61,7 +85,7 @@ playing=StringListPos(Config->playlist);
 osd_high=PlaylistOSDGetScreenHeight(OSD);
 xine_osd_get_text_size(OSD->osd, "TEST", &wid, &high);
 per_page=osd_high / high;
-per_page-=2;
+per_page-=3;
 
 if ((pos) > per_page) start=pos - per_page;
 if (start < 0) start=0;
@@ -78,8 +102,13 @@ for (i=start; i < Config->playlist->size; i++)
 	xine_osd_draw_text(OSD->osd, 10, y, Title, val);
 	
 	y+=high;
+	count++;
+	if (count > per_page) break;
 }
 
+
+Title=rstrcpy(Title, "arrows: cursor, enter: play, bksp/del: delete, u/d/shift-arrows: move");
+xine_osd_draw_text(OSD->osd, 10, osd_high-high, Title, XINE_OSD_TEXT1);
 xine_osd_show_unscaled(OSD->osd, 0);
 
 destroy(Title);
@@ -88,7 +117,12 @@ destroy(Title);
 
 void PlaylistOSDHide()
 {
-	if (OSD) xine_osd_hide(OSD->osd, 0);
+	if (OSD) 
+	{
+		xine_osd_hide(OSD->osd, 0);
+		OSDDestroy(OSD);
+		OSD=NULL;
+	}
 	Config->state &= ~ STATE_PLAYLIST_DISPLAYED;
 }
 
@@ -96,6 +130,7 @@ void PlaylistOSDHide()
 
 void PlaylistOSDShow()
 {
-	PlaylistOSDUpdate();
+	if (! OSD) OSD=OSDCreate(Config->X11Out, Config->stream, "0,10,-20,-20 font=mono", "");
 	Config->state |= STATE_PLAYLIST_DISPLAYED;
+	PlaylistOSDUpdate();
 }

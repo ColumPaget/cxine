@@ -26,6 +26,28 @@ int StringListAdd(TStringList *sl, const char *str)
     return(sl->size -1);
 }
 
+int StringListDel(TStringList *sl, int pos)
+{
+	if (sl->size > 0)
+	{
+		memmove(sl->list+pos, sl->list+(pos+1), (sl->size - pos) * sizeof(char *));
+    sl->size--;
+	}
+
+  return(sl->size);
+}
+
+void StringListSwap(TStringList *sl, int pos1, int pos2)
+{
+	const char *tmp;
+
+	tmp=sl->list[pos1];
+	sl->list[pos1]=sl->list[pos2];
+	sl->list[pos2]=tmp;
+}
+
+
+
 int StringListSplit(TStringList *sl, const char *str, const char *separators)
 {
     char *Token=NULL;

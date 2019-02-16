@@ -126,6 +126,7 @@ xine_event_queue_t  *event_queue;
 
 extern TConfig *Config;
 extern int running;
+extern time_t Now;
 
 unsigned int fnv_hash(unsigned const char *key, int NoOfItems);
 const char *cbasename(const char *Path);

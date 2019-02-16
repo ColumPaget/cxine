@@ -56,10 +56,9 @@ void DownloadCleanCacheDir()
     char *Tempstr=NULL;
     struct stat Stat;
     glob_t Glob;
-    time_t Now, Then;
+    time_t Then;
     int i;
 
-    time(&Now);
     Tempstr=rstrcpy(Tempstr, Config->cache_dir);
     Tempstr=rstrcat(Tempstr, "/*");
 

@@ -93,6 +93,18 @@ void PlaylistAdd(TStringList *playlist, const char *iURL, const char *ID, const 
 }
 
 
+
+int PlaylistMoveItem(TStringList *playlist, int pos, int move)
+{
+int newpos;
+
+newpos=pos+move;
+StringListSwap(playlist, pos, newpos);
+
+return(newpos);
+}
+
+
 TStringList *PlaylistExpandCurr(TStringList *playlist, const char *URL, const char *LocalPath)
 {
     TStringList *Items;
@@ -127,6 +139,8 @@ const char *ptr;
 	if (ID) *ID=rstrcpy(*ID, "");
 	if (Title) *Title=rstrcpy(*Title, "");
 
+	if (info == NULL) return;
+
   ptr=rstrtok(info, " ", &Tempstr);
   if (URL) *URL=rstrunquot(*URL, Tempstr);
   while (ptr)
@@ -153,7 +167,7 @@ const char *ptr;
 			}
 	    else 
 			{
-				if (Title) *Title=rstrunquot(*Title, Tempstr);
+				if (Title) *Title=rstrunquot(*Title, basename(Tempstr));
 			}
     }
   }

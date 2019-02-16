@@ -3,6 +3,7 @@
 
 TConfig *Config=NULL;
 int  running = 0;
+time_t Now;
 
 #define FNV_INIT_VAL 2166136261
 unsigned int fnv_hash(unsigned const char *key, int NoOfItems)

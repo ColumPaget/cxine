@@ -1,7 +1,6 @@
 #include "X11.h"
 #include "osd.h"
 #include "playlist.h"
-#include <time.h>
 
 #define VALUE_STR_LEN 255
 
@@ -46,10 +45,8 @@ char *OSDFormatMSecs(char *ValueStr, int msecs)
 
 char *OSDFormatTime(char *ValueStr, const char *Format)
 {
-    time_t Now;
     struct tm *tms;
 
-    time(&Now);
     tms=localtime(&Now);
 
     strftime(ValueStr, VALUE_STR_LEN, Format, tms);

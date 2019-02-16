@@ -271,6 +271,7 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sl
     fd_set select_set;
     int high_fd=0, display_fd=-1, result;
     static struct timeval *tv=NULL;
+		time_t Last=0;
     TEvent Event;
 
     Event.type=EVENT_NONE;
@@ -335,6 +336,7 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sl
     if (tv->tv_usec == 0)
     {
         tv->tv_usec=sleep_ms * 1000;
+				time(&Now);
         return(EVENT_TIMEOUT);
     }
 
@@ -434,7 +436,7 @@ int main(int argc, char **argv)
 {
   int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
   const char *ptr;
-	broadcaster_t *bcast;
+	broadcaster_t *bcast=NULL;
 
     //call 'SignalHandler' with a signal it ignores as it will set up
     //handlers for SIGINT and SIGTERM

@@ -210,7 +210,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
                 else Config->state &= ~STATE_STDIN_URL;
                 Config->state |= STATE_NEWTITLE;
                 result=1;
-       			    if (Config->state &  STATE_PLAYLIST_DISPLAYED) PlaylistOSDUpdate();
+       			    PlaylistOSDUpdate();
             }
             else
             {
