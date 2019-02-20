@@ -254,7 +254,7 @@ void PeriodicProcessing()
 
 
 //if there's not a 'nowplaying' pipe, perhaps because a client disconnected, then open one
-    if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK);
+    if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK, 0660);
 
     OSDUpdate(Config->flags & CONFIG_OSD);
 
@@ -383,12 +383,21 @@ void OutputAccellerationTypes()
 void CXineSwitchUser()
 {
     uid_t real, effective, saved;
+		int result=-1;
 
     getresuid(&real, &effective, &saved);
+		//if we are root, or effectively root, then switch to another user
     if (effective==0)
     {
-        if (real != 0) setresuid(real, real, real);
-        else setresuid(saved, saved, saved);
+        if (real != 0) result=setresuid(real, real, real);
+				if ((real==0) || (result != 0)) 
+				{
+					if (saved != 0) result=setresuid(saved, saved, saved);
+					if (result !=0)
+					{
+						printf("WARNING: cannot switch to a saved user, you are running this app as root\n");
+					}
+				}
     }
 
 }

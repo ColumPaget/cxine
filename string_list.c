@@ -39,7 +39,7 @@ int StringListDel(TStringList *sl, int pos)
 
 void StringListSwap(TStringList *sl, int pos1, int pos2)
 {
-	const char *tmp;
+	char *tmp;
 
 	tmp=sl->list[pos1];
 	sl->list[pos1]=sl->list[pos2];
