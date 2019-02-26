@@ -2,12 +2,28 @@
 #include "playlist.h"
 #include "xine/xmlparser.h"
 
+
+typedef struct
+{
+char *Path;
+char *Title;
+int Length;
+} TPlayListItem;
+
+
+//If the file contains a 'NumberOfEntries' line, then we use that to allocate a list of TPlayListItem
+//structures to hold this. If it doesn't contain this entry, then we just add a file when we encounter
+//the 'File[n]=' line. If the number of entries is more than specified, we fall back on the 'just add 
+//a file to the playlist' method, which can result in the files being out of sequence, but the .pls
+//file was screwed up anyways.
 int PLSPlaylistLoad(TStringList *List, const char *MRL)
 {
     FILE *f;
-    char *Tempstr=NULL, *Token=NULL, *Quoted=NULL;
+    char *Tempstr=NULL, *Token=NULL;
     const char *ptr;
     int result=FALSE;
+		int NoOfEntries=0, AddedEntries=0, id;
+		TPlayListItem *Items=NULL;
 
     f=fopen(MRL, "r");
     if (f)
@@ -17,29 +33,69 @@ int PLSPlaylistLoad(TStringList *List, const char *MRL)
         {
             Tempstr=xine_chomp(Tempstr);
             ptr=rstrtok(Tempstr, "=", &Token);
-            if (strncmp(Token, "File", 4)==0)
+            if (strcasecmp(Token, "numberofentries")==0)
+						{
+							NoOfEntries=atoi(ptr);
+							Items=calloc(NoOfEntries, sizeof(TPlayListItem));
+						}
+						else if (strncasecmp(Token, "File", 4)==0)
             {
-                PlaylistAdd(List, ptr, "", "");
+								id=atoi(Token+4)-1;
+							  if (id < NoOfEntries) Items[id].Path=rstrcpy(Items[id].Path, ptr);
+								else 
+								{
+									PlaylistAdd(List, ptr, "", "");
+								  if (Config->flags & CONFIG_WEBCAST) break;
+								}
             }
+						else if (strncasecmp(Token, "Title", 5)==0)
+            {
+								id=atoi(Token+5)-1;
+							  if (id < NoOfEntries) Items[id].Title=rstrcpy(Items[id].Title, ptr);
+            }
+
         }
         fclose(f);
+
+				for (id=0; id < NoOfEntries; id++)
+				{	
+					if (StrLen(Items[id].Path)) 
+					{
+						PlaylistAdd(List, Items[id].Path, "", Items[id].Title);
+						if (Config->flags & CONFIG_WEBCAST) break;
+					}	
+				}
+
         result=TRUE;
     }
 
     destroy(Tempstr);
-    destroy(Quoted);
     destroy(Token);
+    destroy(Items);
 
     return(result);
 }
 
+char *M3UReadTitle(const char *Title, char *Data)
+{
+char *Token=NULL;
+const char *ptr;
+
+//lead token is the track duration
+ptr=rstrtok(Data, ",", &Token);
+Title=rstrcpy(Title, ptr);
+
+destroy(Token);
+return(Title);
+}
 
 int M3UPlaylistLoad(TStringList *List, const char *MRL)
 {
     FILE *f;
-    char *Tempstr=NULL, *Quoted=NULL;
+    char *Tempstr=NULL, *Title=NULL;
     int result=FALSE;
 
+		Title=rstrcpy(Title,"");
     f=fopen(MRL, "r");
     if (f)
     {
@@ -48,14 +104,23 @@ int M3UPlaylistLoad(TStringList *List, const char *MRL)
         {
             Tempstr=xine_chomp(Tempstr);
 
-            if ( StrLen(Tempstr) && (*Tempstr != '#') ) PlaylistAdd(List, Tempstr, "", "");
+            if ( StrLen(Tempstr) ) 
+						{
+							if (strncmp(Tempstr,"#EXTINF:",8)==0) Title=M3UReadTitle(Title, Tempstr+8);
+							else if (*Tempstr != '#') 
+							{
+								PlaylistAdd(List, Tempstr, "", Title);
+								Title=rstrcpy(Title,"");
+						  	if (Config->flags & CONFIG_WEBCAST) break;
+							}
+						}
         }
         fclose(f);
         result=TRUE;
     }
 
     destroy(Tempstr);
-    destroy(Quoted);
+    destroy(Title);
     return(result);
 }
 

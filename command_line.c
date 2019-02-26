@@ -131,6 +131,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-bookmark")==0 ) Config->flags |= CONFIG_BOOKMARK;
         else if ( strcmp(argv[i], "-no-bookmark")==0 ) Config->flags &= ~CONFIG_BOOKMARK;
         else if ( strcmp(argv[i], "-stream")==0 ) Config->flags |= CONFIG_STREAM;
+        else if ( strcmp(argv[i], "-webcast")==0 ) Config->flags |= CONFIG_STREAM | CONFIG_WEBCAST;
         else if ( strcmp(argv[i], "-background")==0 ) Config->background=rstrcpy(Config->background, argv[++i]);
         else if ( strcmp(argv[i], "-persist")==0 ) Config->flags |= CONFIG_PERSIST;
         else if ( strcmp(argv[i], "-quit")==0 ) Config->flags &= ~CONFIG_PERSIST;
@@ -157,6 +158,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-bcast")==0 ) Config->bcast_port=atoi(argv[++i]);
         else if ( strcmp(argv[i], "-shuffle")==0 ) Config->flags |= CONFIG_SHUFFLE;
         else if ( strcmp(argv[i], "-loop")==0 ) Config->loop=atoi(argv[++i]);
+        else if ( strcmp(argv[i], "-show-playlist")==0 ) Config->state |= STATE_PLAYLIST_REQUESTED;
         else if ( strcmp(argv[i], "-keygrab")==0 ) Config->keygrabs=rstrcpy(Config->keygrabs, argv[++i]);
         else if ( strcmp(argv[i], "-helpers")==0 ) Config->helpers=rstrcpy(Config->helpers, argv[++i]);
         else if ( strcmp(argv[i], "+helpers")==0 )

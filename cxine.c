@@ -498,6 +498,11 @@ int main(int argc, char **argv)
     running = 1;
     while(running)
     {
+				if (Config->state & STATE_PLAYLIST_REQUESTED)
+				{
+					PlaylistOSDShow();
+					Config->state &= ~STATE_PLAYLIST_REQUESTED;
+				}
 
         if (Config->state & STATE_PLAYING)
         {

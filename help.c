@@ -250,6 +250,7 @@ void Help(const char *Page)
         printf("  -mute                   Start muted.\n");
         printf("  -shuffle                Shuffle playlist.\n");
         printf("  -loop <n>               Repeat playback <n> times.\n");
+				printf("  -show-playlist          Start with playlist displayed\n");
         printf("  -title <title>          Set title displayed for this track. This argument is positional and must preceede the track it names, so for exampe 'cxine -title 'title 1' track1.mp4 -title 'title 2' track2.mp4.\n");
         printf("  -image-time <ms>        Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
         printf("  -imagems <ms>           Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
@@ -277,6 +278,7 @@ void Help(const char *Page)
         printf("  -loud                   Play with raised volume.\n");
         printf("  -vloud                  Play with maximum volume.\n");
         printf("  -stream                 Don't download remote urls in playlists etc. This currently only works for 'http:' (not https:) urls. This allow streaming internet radio urls.\n");
+        printf("  -webcast                Implies '-stream', treats playlists as webcast announcement files, only containing one item.\n");
         printf("  -prefix                 Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they're in.\n");
         printf("  -keygrab                Register keygrabs, a comma-separated list of keys. See '-help keygrabs' below.\n");
         printf("  -helpers <config>       Register list of helper apps.\n");
