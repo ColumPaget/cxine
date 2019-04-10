@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "4.0"
+#define VERSION                   "4.1"
 #endif
 
 
