@@ -902,6 +902,16 @@ int X11UnGrabKey(void *p_Win, const char *keystr)
 return(X11KeyGrabsControl(p_Win, TRUE, keystr));
 }
 
+void X11Disassociate(void *p_Win)
+{
+    X11Window *Win;
+		int fd;
+
+    Win=(X11Window *) p_Win;
+    fd=XConnectionNumber(Win->display);
+		close(fd);
+}
+
 void X11Close(void *p_Win)
 {
     X11Window *Win;

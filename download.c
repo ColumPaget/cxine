@@ -189,15 +189,25 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
     char *Cmd=NULL, *ProgName=NULL, *Tempstr=NULL, *Path=NULL;
     const char *ptr;
     pid_t pid=0;
-    int fd;
+    int fd=-1;
 
     Path=DownloadFormatPath(Path, Download->MRL);
-    fd=open(Path, O_WRONLY | O_CREAT | O_EXCL, 0600);
-    if (fd > -1)
-    {
-        ptr=rstrtok(Download->Helpers, ";", &Cmd);
 
-        Download->Helpers=memmove(Download->Helpers, ptr, StrLen(ptr) +1);
+		//get next helper. This will gradually consume all the helpers booked
+		//against the download
+    ptr=rstrtok(Download->Helpers, ";", &Cmd);
+		if (! StrLen(ptr)) return(-1);
+
+    Download->Helpers=memmove(Download->Helpers, ptr, StrLen(ptr) +1);
+
+    fd=open(Path, O_WRONLY | O_CREAT | O_EXCL, 0600);
+    if ( (fd > -1) && (flock(fd, LOCK_EX | LOCK_NB)==0) )
+    {
+       pid=fork();
+       if (pid == 0)
+       {
+				 //things can get in a right pickle if child processes have access to X11
+				 X11Disassociate(Config->X11Out);
 
         Tempstr=DownloadFormatHelperCommand(Tempstr, Cmd, Download->MRL);
 
@@ -208,29 +218,27 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
             Cmd=rstrcat(Cmd, " ");
             Cmd=rstrcat(Cmd, ptr);
 
-            pid=fork();
-            if (pid==0)
-            {
-                if (flock(fd, LOCK_EX | LOCK_NB)==0)
-                {
-                    close(1);
-                    dup(fd);
-                    close(fd);
-                    Exec(Cmd);
-                }
+						//set stdout to be fd, then we can close fd
+            close(1);
+            dup(fd);
+            close(fd);
 
-                _exit(0);
-            }
-            else 
-						{
-							Download->Pid=pid;
-        			usleep(100);
-						}
+						//forked program will effectively end here as we exec the helper
+            Exec(Cmd);
         }
+    		else if (Config->flags & CONFIG_DEBUG) printf("Can't find program: '%s'",Cmd);
 
-        close(fd);
-    }
-    else if (Config->flags & CONFIG_DEBUG) printf("Can't find program: '%s'",Cmd);
+				//we can get here if we couldn't find the command to run
+				_exit(0);
+    	}
+     else 
+			{
+					Download->Pid=pid;
+     			usleep(100);
+			}
+		}
+
+		if (fd > -1) close(fd);
 
     destroy(ProgName);
     destroy(Tempstr);

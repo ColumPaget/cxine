@@ -11,6 +11,7 @@ int X11GetFileDescriptor(void *p_Win);
 xine_video_port_t *X11BindCXineOutput(TConfig *Config);
 void X11ActivateCXineOutput(void *p_Win, xine_video_port_t *vo_port);
 int X11NextEvent(void *p_Win, xine_video_port_t *vo_port, TEvent *Event);
+void X11Disassociate(void *p_Win);
 void X11Close(void *Win);
 void X11WindowSetTitle(void *p_Win, const char *MainTitle, const char *IconTitle);
 void X11WindowDimensions(void *p_Win, int *width, int *height);
