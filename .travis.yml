@@ -4,6 +4,9 @@ os:
   - linux
   - osx
 
+before_install:
+  - sudo apt-get install -y libxine-dev
+
 compiler:
   - clang
   - gcc
