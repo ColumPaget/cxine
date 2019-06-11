@@ -370,10 +370,23 @@ void OutputAccellerationTypes()
     if (val & MM_ACCEL_X86_3DNOW) printf("3Dnow, ");
     if (val & MM_ACCEL_X86_SSE) printf("sse, ");
     if (val & MM_ACCEL_X86_SSE2) printf("sse2, ");
+
+//version of libxine in ubuntu trusty seems to lack all the below defines
+#ifdef MM_ACCEL_X86_SSE3
     if (val & MM_ACCEL_X86_SSE3) printf("sse3, ");
+#endif
+
+#ifdef MM_ACCEL_X86_SSE4
     if (val & MM_ACCEL_X86_SSE4) printf("sse4, ");
+#endif
+
+#ifdef MM_ACCEL_X86_SSE42
     if (val & MM_ACCEL_X86_SSE42) printf("sse4.2, ");
+#endif
+
+#ifdef MM_ACCEL_X86_AVX
     if (val & MM_ACCEL_X86_AVX) printf("avx, ");
+#endif
 //if (val & MM_ACCEL_PPC_ALTIVEC) printf("ppc_altivec, ");
 //if (val & MM_ACCEL_PPC_CACHE32) printf("ppc_cache32, ");
 
