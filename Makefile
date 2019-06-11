@@ -66,3 +66,6 @@ clean:
 install:
 	-mkdir -p $(prefix)/bin
 	cp cxine $(prefix)/bin
+
+test:
+	-echo "no tests"

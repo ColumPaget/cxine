@@ -39,6 +39,7 @@
 #include <sys/wait.h>
 #include <pwd.h>
 #include <xine/broadcaster.h>
+#include <xine/xineutils.h>
 
 #define DEFAULT_CACHE_DIR "~/.cxine/cache"
 
