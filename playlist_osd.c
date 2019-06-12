@@ -7,8 +7,10 @@
 CXineOSD *OSD=NULL;
 int pos=0;
 
-void PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
+int PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
 {
+int result=FALSE;
+
 	switch (keychar)
 	{
 		case KEY_DOWN:
@@ -17,6 +19,7 @@ void PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int m
 			if (modifier & KEYMOD_SHIFT) pos=PlaylistMoveItem(Config->playlist, pos, +1);
 			else pos++;
 			}
+			result=TRUE;
 		break;
 
 		case KEY_UP:
@@ -25,34 +28,42 @@ void PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int m
 			if (modifier & KEYMOD_SHIFT) pos=PlaylistMoveItem(Config->playlist, pos, -1);
 			else pos--;
 			}
+			result=TRUE;
 		break;
 
 		case 'u':
 			//change pos so cursor moves with item
 			pos=PlaylistMoveItem(Config->playlist, pos, -1);
+			result=TRUE;
 		break;
 
 		case 'd':
 			//change pos so cursor moves with item
 			pos=PlaylistMoveItem(Config->playlist, pos, +1);
+			result=TRUE;
 		break;
 
 
 		case 'p':
 			PlaylistOSDHide();
+			result=TRUE;
 		break;
 
 		case KEY_ENTER:
 		case KEY_RIGHT:
-			 CXineSelectStream(Config, pos);
+			CXineSelectStream(Config, pos);
+			result=TRUE;
 		break;
 
 		case KEY_DELETE:
 		case KEY_BACKSPACE:
 			StringListDel(Config->playlist, pos);
+			result=TRUE;
 		break;
 	}
 	PlaylistOSDUpdate();
+
+	return(result);
 }
 
 

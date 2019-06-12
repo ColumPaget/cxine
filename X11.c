@@ -882,8 +882,6 @@ int X11KeyGrabsControl(void *p_Win, int Grab, const char *keystr)
 				{
 				if (Grab) XGrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display), False, GrabModeAsync, GrabModeAsync);
         else XUngrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display));
-        if (Grab) printf("grab: %s\n",keystr);
-        else printf("ungrab: %s\n",keystr);
 				}
     }
 

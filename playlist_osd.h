@@ -5,7 +5,7 @@
 #include "osd.h"
 #include "common.h"
 
-void PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int modifier);
+int PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int modifier);
 void PlaylistOSDUpdate();
 void PlaylistOSDShow();
 void PlaylistOSDHide();

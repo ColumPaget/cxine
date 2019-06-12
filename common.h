@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "4.1"
+#define VERSION                   "4.2"
 #endif
 
 
@@ -146,6 +146,7 @@ void MkDirPath(const char *Dir);
 char *PathSearch(char *RetStr, const char *FileName, const char *Path);
 void StripQuotes(char *Str);
 
+void LongFormatMetric(const char *Str, int len, long value);
 
 int ParseURL(const char *URL, char **Proto, char **Host, char **Port, char **Path);
 void Exec(const char *CmdLine);

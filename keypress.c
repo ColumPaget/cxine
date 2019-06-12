@@ -111,7 +111,9 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 {
     int val, pos_msecs, len_msecs;
 
-		if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDKeypress(X11Out, stream, keychar, modifier);
+		//if playlist is displayed, and playlist takes/recognizes keypress, then 
+		//don't handle it in the main keypress code
+		if ( (Config->state & STATE_PLAYLIST_DISPLAYED) && PlaylistOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
 		else switch (keychar)
     {
     case KEY_ESC:

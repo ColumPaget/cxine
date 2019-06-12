@@ -236,6 +236,15 @@ void MkDirPath(const char *Dir)
 }
 
 
+void LongFormatMetric(const char *Str, int len, long value)
+{
+	if (value > 1000000000) snprintf(Str, len, "%0.2fG", ((float) value) / 1000000000.0);
+	else if (value > 1000000) snprintf(Str, len, "%0.2fM", ((float) value) / 1000000.0);
+	else if (value > 1000) snprintf(Str, len, "%0.2fk", ((float) value) / 1000000.0);
+	else snprintf(Str, len, "%lu", value);
+}
+
+
 void Exec(const char *CmdLine)
 {
     const char *ptr;
