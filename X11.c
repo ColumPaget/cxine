@@ -153,9 +153,17 @@ void X11SetWindowState(void *p_Win, const char *StateStr)
     else if (strcmp(StateStr,  "_NET_WM_STATE_BELOW") ==0)
     {
         Config->state &= ~STATE_RAISED;
+        Config->state |= STATE_LOWERED;
         X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_ABOVE");
         X11SendSetStateEvent(p_Win, WINSTATE_ADD, StateStr);
     }
+		else if (strcmp(StateStr, "_NET_WM_STATE_ZORDER")==0)
+		{
+        X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_ABOVE");
+        X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_BELOW");
+        Config->state &= ~STATE_RAISED;
+        Config->state &= ~STATE_LOWERED;
+		}
     else if (strcmp(StateStr,  "_NET_WM_STATE_SHADED") ==0)
     {
         Config->state |= STATE_SHADED;

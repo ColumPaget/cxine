@@ -65,6 +65,25 @@ static void HelpKeygrabs()
     printf("\nKeynames and keygroups can be prefixed with the modifiers 'alt-', 'shift', and 'cntrl'. If cxine receives a keypress that it doesn't have a binding for, like alt-righ... oh dear... like 'alt-up' for example, it will read it as the unmodified key. Hence keys like the arrow keys can be bound using 'alt' and used as globally bound keystrokes to navigate a stream.\n");
 }
 
+
+static void HelpCommandSend()
+{
+printf("The -cmd option sends commands to another, already running, cxine. Many of the commands toggle between two states, like raised/unraised or paused/unpaused. Available commands are:\n");
+printf("		pause     pause/unpause playback\n");
+printf("		stop      stop playback\n");
+printf("		mute      mute/unmute audio\n");
+printf("		next      next track\n");
+printf("		prev      previous track\n");
+printf("		shade     shade/unshade window\n");
+printf("		mini      minimize/restore window\n");
+printf("		icon      minimize/restore window\n");
+printf("		minimize  minimize/restore window\n");
+printf("		lower     lower window below others\n");
+printf("		raise     raise window above others\n");
+printf("		zcycle    cycle between raised, normal, and lowered window\n");
+}
+
+
 static void HelpHelpers()
 {
     char *Tempstr=NULL, *Helper=NULL, *Protos=NULL;
@@ -221,6 +240,7 @@ void Help(const char *Page)
     else if ( StrLen(Page) && (strcmp(Page, "osd")==0) ) HelpOSD();
     else if ( StrLen(Page) && (strcmp(Page, "slave")==0) ) HelpSlaveMode();
     else if ( StrLen(Page) && (strcmp(Page, "plugins")==0) ) CXineDisplayPlugins(Config);
+    else if ( StrLen(Page) && (strcmp(Page, "cmd")==0) ) HelpCommandSend();
     else
     {
         printf("Usage:\n");
@@ -265,6 +285,7 @@ void Help(const char *Page)
         printf("  -slave                  Mplayer compatible flag, equivalent to '-persist -startms 0'.\n");
         printf("  -cache <age>            Max age of items in the download cache. Number is in seconds, but can be postfixed with 'm' for minutes, 'h' for hours and 'd' for days. e.g. '-cache 10h' means 'cache for ten hours'\n");
         printf("  -input <path>           Path to pipe to read commands from (by default cxine creates a pipe in '~/.cxine/cxine.pipe'). This accepts mplayer compatible form '-input file:<path>'.\n");
+        printf("  -cmd <cmd>              Tell cxine to send a command to an already running cxine. Run 'cxine -cmd help' or 'cxine --help cmd' to learn more..\n");
         printf("  -nowplay <path>         Path to pipe to write 'now playing' info to (cxine will create this pipe if it doesn't already exist).\n");
         printf("  -startms <millisecs>    Start playing at <millisecs>'.\n");
         printf("  -dvd-device <path>      Path to DVD device to use (default /dev/dvd)\n");

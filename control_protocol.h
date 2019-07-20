@@ -5,5 +5,6 @@
 
 int ControlPipeOpen(int mode);
 int ControlHandleInput(int fd, xine_stream_t *stream);
+int ControlSendMessage(const char *Msg);
 
 #endif

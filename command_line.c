@@ -21,22 +21,19 @@ static int CXineAddURL(const char *URL, const char *ID, const char *Title)
     int fd, result=-1;
     char *Tempstr=NULL, *Msg=NULL;
 
-    fd=ControlPipeOpen(O_WRONLY | O_NONBLOCK);
-    if ( (fd > -1) && (lockf(fd, F_LOCK, 0)==0) )
-    {
-        Msg=rstrcpy(Msg, "add ");
-				Tempstr=PlaylistFormatEntry(Tempstr, URL, ID, Title);
-        Msg=rstrcat(Msg, Tempstr);
-        Msg=rstrcat(Msg, "\n");
+    Msg=rstrcpy(Msg, "add ");
+		Tempstr=PlaylistFormatEntry(Tempstr, URL, ID, Title);
+    Msg=rstrcat(Msg, Tempstr);
+    Msg=rstrcat(Msg, "\n");
 
-        result=write(fd, Msg, StrLen(Msg));
-        close(fd);
-        Config->control_pipe=-1;
-    }
+		result=ControlSendMessage(Msg);
+    close(Config->control_pipe);
+    Config->control_pipe=-1;
+
     destroy(Tempstr);
     destroy(Msg);
 
-    return(result > 0);
+    return(result);
 }
 
 
@@ -70,6 +67,27 @@ void CommandLineParseCache(const char *Arg)
     }
 
     Config->cache_maxage=val;
+}
+
+
+void CommandLineCmd(const char *Cmd)
+{
+	if (strcmp(Cmd, "pause")==0) ControlSendMessage("pause\n");
+	else if (strcmp(Cmd, "next")==0) ControlSendMessage("next\n");
+	else if (strcmp(Cmd, "prev")==0) ControlSendMessage("prev\n");
+	else if (strcmp(Cmd, "mute")==0) ControlSendMessage("mute\n");
+	else if (strcmp(Cmd, "stop")==0) ControlSendMessage("stop\n");
+	else if (strcmp(Cmd, "raise")==0) ControlSendMessage("raise\n");
+	else if (strcmp(Cmd, "lower")==0) ControlSendMessage("lower\n");
+	else if (strcmp(Cmd, "zcycle")==0) ControlSendMessage("zcycle\n");
+	else if (strcmp(Cmd, "shade")==0) ControlSendMessage("shade\n");
+	else if (strcmp(Cmd, "mini")==0) ControlSendMessage("minimize\n");
+	else if (strcmp(Cmd, "icon")==0) ControlSendMessage("minimize\n");
+	else if (strcmp(Cmd, "minimize")==0) ControlSendMessage("minimize\n");
+  else if (strcmp(Cmd, "help")==0 ) Help("cmd");
+	else printf("ERROR: unknown command '%s'\n", Cmd);
+
+	exit(0);
 }
 
 
@@ -169,6 +187,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
             Config->helpers=rstrcat(Config->helpers, Token);
         }
         else if ( strcmp(argv[i], "-cache")==0 ) CommandLineParseCache(argv[++i]);
+        else if ( strcmp(argv[i], "-cmd")==0 ) CommandLineCmd(argv[++i]);
         else if ( strcmp(argv[i], "-id")==0 ) ID=rstrcpy(ID, argv[++i]);
         else if ( strcmp(argv[i], "-nowplay")==0 )
         {
@@ -215,7 +234,6 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 					printf("cxine %s\n", VERSION);
 					exit(0);
 				}
-
         else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "-help")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "--help")==0 ) Help(argv[++i]);

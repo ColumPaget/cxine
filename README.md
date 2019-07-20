@@ -388,6 +388,26 @@ keypad                      up, down, left, right pgup, pgdn, home, end, +, -
 
 All key and group names can have a modifier prepended. Available modifiers are `shift-`, `cntrl-` and `alt-`. If a key-modifier pair isn`t bound to an action, then cxine will treat the key as though it had no modifier. Thus `alt-o` can be bound to turn OSD display on-and-off without depriving other programs of use of the `o` key.
 
+Command Mode
+------------
+
+The -cmd option sends commands to another, already running, cxine. Many of the commands toggle between two states, like raised/unraised or paused/unpaused. Available commands are:
+
+```
+pause     pause/unpause playback
+stop      stop playback
+mute      mute/unmute audio
+next      next track
+prev      previous track
+shade     shade/unshade window
+mini      minimize/restore window
+icon      minimize/restore window
+minimize  minimize/restore window
+lower     lower window below others
+raise     raise window above others
+zcycle    cycle between raised, normal, and lowered window
+```
+
 
 Saving config
 -------------

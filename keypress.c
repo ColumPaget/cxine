@@ -171,14 +171,12 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
         xine_set_param (stream, XINE_PARAM_SPEED, val);
         break;
 
-
     case 'f':
         val=xine_get_param (stream, XINE_PARAM_SPEED);
         if (val == XINE_SPEED_FAST_4) val=XINE_SPEED_NORMAL;
         else val=XINE_SPEED_FAST_4;
         xine_set_param (stream, XINE_PARAM_SPEED, val);
         break;
-
 
     case KEY_HOME:
         xine_play(stream, 0, 0);

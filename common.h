@@ -74,8 +74,9 @@ int arg2;
 
 #define STATE_NEWTITLE 1
 #define STATE_RAISED   2
-#define STATE_SHADED   4
+#define STATE_LOWERED  4
 #define STATE_ICONIZED 8
+#define STATE_SHADED   16
 #define STATE_DOWNLOADING 32
 #define STATE_PLAYING 64
 #define STATE_STDIN_URL 1024

@@ -58,7 +58,6 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                 if (strcasecmp(Cmd, "add")==0)
                 {
 										PlaylistParseEntry(ptr, &URL, &Token, &Title);
-										printf("ADD: [%s] [%s] [%s] [%s]\n",Token, Title, URL, ptr);
                     PlaylistAdd(Config->playlist, URL, Token, Title);
                 }
                 break;
@@ -122,6 +121,12 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                     val=StringListAdd(Config->playlist, Token);
                     if (strtol(ptr, NULL, 10) == 0) CXinePlayStream(Config, StringListGet(Config->playlist, val));
                 }
+              else if (strcasecmp(Cmd, "lower")==0) 
+							{
+									if (Config->state & STATE_LOWERED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
+									else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_BELOW");
+							}
+
                 break;
 
             case 'm':
@@ -130,19 +135,38 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                     if (StrLen(ptr)==0) CXineMute(stream, TOGGLE);
                     else CXineMute(stream, atoi(ptr));
                 }
+                else if (strcasecmp(Cmd, "minimize")==0)
+								{
+									if (Config->state & STATE_ICONIZED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_RESTORED");
+									else  X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ICONIZED");
+								}
+
                 break;
+
+						case 'n':
+                if (strcasecmp(Cmd, "next")==0) CXineSelectStream(Config, PLAY_PREV);
+						break;
 
             case 'p':
                 if (strcasecmp(Cmd, "pause")==0) CXinePause(Config);
+                if (strcasecmp(Cmd, "prev")==0) CXineSelectStream(Config, PLAY_PREV);
                 break;
 
             case 'q':
                 if (strcasecmp(Cmd, "quit")==0) RetVal=EVENT_EXIT;
                 break;
 
+						case 'r':
+              if (strcasecmp(Cmd, "raise")==0) 
+							{
+									if (Config->state & STATE_RAISED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
+									else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ABOVE");
+							}
+						break;
+
             case 's':
                 if (strcasecmp(Cmd, "stop")==0) xine_stop(stream);
-                if (strcasecmp(Cmd, "seek")==0)
+                else if (strcasecmp(Cmd, "seek")==0)
                 {
 #define CXINE_SEEK_CUR 0
 #define CXINE_SEEK_PER 1
@@ -160,7 +184,13 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                         xine_play(stream, 0, pos);
                     }
                 }
+                else if (strcasecmp(Cmd, "shade")==0) 
+								{
+									if (Config->state & STATE_SHADED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_UNSHADE");
+                	else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_SHADED");
+								}
                 break;
+
 
             case 'v':
                 if (strcasecmp(Cmd, "volume")==0)
@@ -172,13 +202,19 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                 }
                 break;
 
-            }
+						case 'z':
+                if (strcasecmp(Cmd, "zcycle")==0)
+								{
+									if (Config->state & STATE_LOWERED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
+									else if (Config->state & STATE_RAISED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_BELOW");
+									else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ABOVE");
+								}
+						break;
+						}
         }
 
-    }
-    else RetVal=EVENT_CLOSE;
-
     fflush(stdout);
+		}
 
     destroy(Tempstr);
     destroy(Token);
@@ -188,3 +224,19 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
 
     return(RetVal);
 }
+
+
+int ControlSendMessage(const char *Msg)
+{
+    int fd, result=-1;
+
+    fd=ControlPipeOpen(O_WRONLY | O_NONBLOCK);
+    if ( (fd > -1) && (lockf(fd, F_LOCK, 0)==0) )
+    {
+        result=write(fd, Msg, StrLen(Msg));
+    }
+
+    return(result > 0);
+}
+
+
