@@ -1,4 +1,9 @@
 /*
+Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
+* SPDX-License-Identifier: GPL-3.0
+*/
+
+/*
 ** Copyright (C) 2018 Colum Paget <colums.projects@gmail.com>
 ** This program was built upon/influenced by 'muxine.c' https://xine-project.org/samplecode
 **

@@ -1,3 +1,8 @@
+/*
+Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
+* SPDX-License-Identifier: GPL-3.0
+*/
+
 #include "help.h"
 #include "plugins.h"
 

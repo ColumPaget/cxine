@@ -1,3 +1,8 @@
+/*
+Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
+* SPDX-License-Identifier: GPL-3.0
+*/
+
 #include "now_playing.h"
 #include "playlist.h"
 #include "X11.h"
