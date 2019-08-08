@@ -64,8 +64,8 @@ clean:
 	rm -f *.o cxine
 
 install:
-	-mkdir -p $(prefix)/bin
-	cp cxine $(prefix)/bin
+	-mkdir -p $(DESTDIR)/$(prefix)/bin
+	cp cxine $(DESTDIR)/$(prefix)/bin
 
 test:
 	-echo "no tests"
