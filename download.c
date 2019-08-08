@@ -64,6 +64,8 @@ void DownloadCleanCacheDir()
     time_t Then;
     int i;
 
+		time(&Now);
+
     Tempstr=rstrcpy(Tempstr, Config->cache_dir);
     Tempstr=rstrcat(Tempstr, "/*");
 
