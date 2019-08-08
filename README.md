@@ -1,6 +1,8 @@
 CXine - A mostly mplayer compatible libxine media player
 --------------------------------------------------------
 
+[![Build Status](https://travis-ci.com/ColumPaget/cxine.svg?branch=master)](https://travis-ci.com/ColumPaget/cxine)
+
 CXine is a basic, keyboard-driven, X11, lib-xine based media player that is intended to be used as a keyboard-driven standalone app, or embedded in a frontend. It supports a subset of the mplayer 'slave mode' command protocol. It supports user-configurable on screen displays; embedding into another window; sticky, shaded and stayontop windows; drawing on the root window; fullscreen playback, keygrabs and 'bookmarking' (remembering position in a media item). Its only dependancies are libxine, libX11, libc and libm.
 
 At current CXine is completely keyboard-driven, with no mouse control at all. This may change in future.
