@@ -139,19 +139,10 @@ void CXineSetRangeValue(xine_stream_t *stream, int Type, int SetType, int Value)
 }
 
 
-static int CXineAudioOnly(TConfig *Config)
-{
-    if  (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_HAS_AUDIO)) return(FALSE);
-    if (Config->flags & CONFIG_NOVIDEO) return(TRUE);
-    if (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_HAS_VIDEO)) return(TRUE);
-    return(FALSE);
-}
-
 
 void CXineNewTitle(TConfig *Config)
 {
     CXineNowPlaying(Config);
-    if (CXineAudioOnly(Config)) CXineAddAudioPostPlugins(Config);
 
     //if (Config->vo_port) CXineAddVideoPostPlugins(Config->xine, Config->stream, &Config->ao_port, &Config->vo_port);
     Config->state &= ~STATE_NEWTITLE;
@@ -201,6 +192,8 @@ int CXinePlayStream(TConfig *Config, const char *info)
             }
 
             CXineNewTitle(Config);
+						CXineOpenAudio();
+
             if (xine_play(Config->stream, 0, startms))
             {
                 //there is a delay before all this happens, I'm not sure why. It's as though the calling thread allows
@@ -225,7 +218,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
         }
         else
         {
-            //printf("Unable to open url '%s'\n", url);
+            printf("Unable to open url '%s'\n", url);
             result=PLAY_FAIL;
             Config->state &= ~STATE_DOWNLOADING;
         }

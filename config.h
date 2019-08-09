@@ -5,8 +5,9 @@
 
 TConfig *ConfigInit(xine_t *xine);
 void ConfigDefaults(TConfig *Config);
-void CXineConfigModify(xine_t *xine, const char *Key, const char *Value);
-void CXineConfigNumericModify(xine_t *xine, const char *Key, int Value);
+int CXineConfigModify(xine_t *xine, const char *Key, const char *Value);
+int CXineConfigNumericModify(xine_t *xine, const char *Key, int Value);
+void CXineConfigModifyOrCreate(xine_t *xine, const char *Key, const char *Value, const char *Help);
 void CXineConfigSave(TConfig *Config);
 
 

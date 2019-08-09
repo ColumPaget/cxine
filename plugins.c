@@ -85,7 +85,7 @@ void CXineAddAudioPostPlugins(TConfig *Config)
     while (ptr)
     {
         plug=xine_post_init(Config->xine, name, 0, &Config->ao_port, &Config->vo_port);
-        printf("plugin: %d %s\n", plug, name);
+        //printf("audio post-process plugin: %s\n", name);
         if (plug)
         {
             audio_out =xine_get_audio_source(Config->stream);

@@ -98,6 +98,7 @@ int contrast;
 char *parent;
 char *vo_driver;
 char *ao_driver;
+char *ao_curr;
 TStringList *playlist;
 char *CurrTitle;
 double startms;

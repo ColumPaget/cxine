@@ -1,0 +1,144 @@
+#include "audio_drivers.h"
+#include "plugins.h"
+
+
+/*
+# device used for mono output
+# string, default: default
+#audio.device.alsa_default_device:default
+
+# device used for stereo output
+# string, default: plug:front:default
+#audio.device.alsa_front_device:plug:front:default
+
+# sound card can do mmap
+# bool, default: 0
+#audio.device.alsa_mmap_enable:0
+
+# device used for 5.1-channel output
+# string, default: iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2
+#audio.device.alsa_passthrough_device:iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2
+
+# device used for 4-channel output
+# string, default: plug:surround40:0
+#audio.device.alsa_surround40_device:plug:surround40:0
+
+# device used for 5.1-channel output
+# string, default: plug:surround51:0
+#audio.device.alsa_surround51_device:plug:surround51:0
+
+# OSS audio device name
+# { auto  /dev/dsp  /dev/sound/dsp }, default: 0
+#audio.device.oss_device_name:auto
+*/
+
+xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
+{
+    char *Type=NULL, *Tempstr=NULL;
+    xine_audio_port_t *ao_port=NULL, *ao_old=NULL;
+    const char *ptr;
+    static const char * const devname_opts[] = {"auto", "/dev/dsp", "/dev/sound/dsp", NULL};
+
+    ptr=rstrtok(Spec,":",&Type);
+
+    if (StrLen(ptr))
+    {
+        if (strcmp(Type, "oss")==0)
+        {
+            xine_config_register_enum(Config->xine, "audio.device.oss_device_name", 1, (char **)devname_opts, "OSS audio device name","", 10, NULL, NULL);
+            xine_config_register_num(Config->xine, "audio.device.oss_device_number", atoi(ptr), "OSS audio device number, -1 for none","", 10, NULL, NULL);
+        }
+        else if (strcmp(Type, "alsa")==0)
+        {
+            Tempstr=rstrcpy(Tempstr,"plug:default:");
+            Tempstr=rstrcat(Tempstr,ptr);
+            CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_default_device", Tempstr, "ALSA device for mono output");
+            Tempstr=rstrcpy(Tempstr,"plug:front:");
+            Tempstr=rstrcat(Tempstr,ptr);
+            CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_front_device", Tempstr, "ALSA device for stereo output");
+        }
+        else if (strcmp(Type, "jack")==0)
+        {
+            if (StrLen(ptr)) CXineConfigModifyOrCreate(Config->xine, "audio.device.jack_device_name", ptr, "Jack output device");
+        }
+        else if (strcmp(Type, "sun")==0)
+        {
+            xine_config_register_filename(Config->xine, "audio.device.sun_audio_device", ptr, XINE_CONFIG_STRING_IS_DEVICE_NAME, "Sun output device","", XINE_CONFIG_SECURITY, NULL, NULL);
+        }
+        else if (strcmp(Type, "pulse")==0)
+        {
+            if (StrLen(ptr)) CXineConfigModifyOrCreate(Config->xine, "audio.device.pulseaudio_device", ptr, "Pulseaudio output device");
+        }
+
+
+    }
+
+    ao_port=xine_open_audio_driver(Config->xine , Type, NULL);
+		if (! ao_port) fprintf(stderr, "ERROR: unable to open audio driver '%s'\n", Spec);
+		else
+		{					
+		ao_old=Config->ao_port;
+		Config->ao_port=ao_port;
+		if (Config->stream) xine_post_wire_audio_port(xine_get_audio_source(Config->stream), Config->ao_port);
+		if (ao_old) xine_close_audio_driver(Config->xine, ao_old);
+		}
+	
+    destroy(Tempstr);
+    destroy(Type);
+
+    return(ao_port);
+}
+
+
+//returns true of stream is audio only
+static int CXineAudioOnly(TConfig *Config)
+{
+    if  (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_HAS_AUDIO)) return(FALSE);
+    if (Config->flags & CONFIG_NOVIDEO) return(TRUE);
+    if (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_HAS_VIDEO)) return(TRUE);
+    return(FALSE);
+}
+
+
+
+xine_audio_port_t *CXineOpenAudio()
+{
+    xine_audio_port_t *ao_port=NULL;
+    char *Token=NULL;
+    const char *ptr;
+
+		if (Config->ao_curr==NULL) Config->ao_curr=Config->ao_driver;
+    ptr=rstrtok(Config->ao_curr, ",", &Token);
+    while (ptr)
+    {
+        ao_port=CXineOpenAudioDriver(Token);
+        if (ao_port) 
+				{
+					printf("audio out: %s\n", Token);
+					break;
+				}
+
+				//if we get here we failed to open the audio output, so update curr to point to the next one
+				Config->ao_curr=ptr;
+        ptr=rstrtok(Config->ao_curr,",",&Token);
+    }
+
+		if (CXineAudioOnly(Config)) CXineAddAudioPostPlugins(Config);
+
+    destroy(Token);
+    return(ao_port);
+}
+
+xine_audio_port_t *CXineCycleAudio()
+{
+char *Token=NULL;
+
+Config->ao_curr=rstrtok(Config->ao_curr, ",", &Token);
+if (StrLen(Config->ao_curr)==0) Config->ao_curr=Config->ao_driver;
+
+destroy(Token);
+
+return(CXineOpenAudio());
+}
+
+

@@ -134,7 +134,7 @@ void ConfigDefaults(TConfig *Config)
 
 
 
-void CXineConfigModify(xine_t *xine, const char *Key, const char *Value)
+int CXineConfigModify(xine_t *xine, const char *Key, const char *Value)
 {
     xine_cfg_entry_t entry;
 
@@ -157,19 +157,27 @@ void CXineConfigModify(xine_t *xine, const char *Key, const char *Value)
         }
 
         xine_config_update_entry (xine, &entry);
+				return(TRUE);
     }
+return(FALSE);
 }
 
+void CXineConfigModifyOrCreate(xine_t *xine, const char *Key, const char *Value, const char *Help)
+{
+if (! CXineConfigModify(xine, Key, Value)) xine_config_register_string(xine, Key, Value, Help, "", 1, 0, NULL);
+}
 
-void CXineConfigNumericModify(xine_t *xine, const char *Key, int Value)
+int CXineConfigNumericModify(xine_t *xine, const char *Key, int Value)
 {
     char *Tempstr=NULL;
+		int result=FALSE;
 
     Tempstr=realloc(Tempstr, 40);
     snprintf(Tempstr, 40, "%d", Value);
-    CXineConfigModify(xine, Key, Tempstr);
+    result=CXineConfigModify(xine, Key, Tempstr);
 
     destroy(Tempstr);
+		return(result);
 }
 
 

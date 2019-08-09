@@ -159,6 +159,10 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
         if (! (Config->flags & KILL_SCREENSAVER)) X11ScreenSaver(X11Out, (val != XINE_SPEED_PAUSE));
         break;
 
+		case 'a':
+        CXineCycleAudio();
+				break;
+
     case 'm':
     case KEY_MUTE:
         CXineMute(stream, TOGGLE);

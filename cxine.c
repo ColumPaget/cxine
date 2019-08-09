@@ -32,6 +32,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "bookmarks.h"
 #include "osd.h"
 #include "plugins.h"
+#include "audio_drivers.h"
 #include "keypress.h"
 #include "download.h"
 #include "playlist.h"
@@ -92,111 +93,6 @@ static void event_listener(void *user_data, const xine_event_t *event)
 
 }
 
-
-
-
-
-
-
-
-
-/*
-# device used for mono output
-# string, default: default
-#audio.device.alsa_default_device:default
-
-# device used for stereo output
-# string, default: plug:front:default
-#audio.device.alsa_front_device:plug:front:default
-
-# sound card can do mmap
-# bool, default: 0
-#audio.device.alsa_mmap_enable:0
-
-# device used for 5.1-channel output
-# string, default: iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2
-#audio.device.alsa_passthrough_device:iec958:AES0=0x6,AES1=0x82,AES2=0x0,AES3=0x2
-
-# device used for 4-channel output
-# string, default: plug:surround40:0
-#audio.device.alsa_surround40_device:plug:surround40:0
-
-# device used for 5.1-channel output
-# string, default: plug:surround51:0
-#audio.device.alsa_surround51_device:plug:surround51:0
-
-# OSS audio device name
-# { auto  /dev/dsp  /dev/sound/dsp }, default: 0
-#audio.device.oss_device_name:auto
-*/
-
-xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
-{
-    char *Type=NULL, *Tempstr=NULL;
-    xine_audio_port_t *ao_port=NULL;
-    const char *ptr;
-    static const char * const devname_opts[] = {"auto", "/dev/dsp", "/dev/sound/dsp", NULL};
-
-    ptr=rstrtok(Spec,":",&Type);
-
-    if (StrLen(ptr))
-    {
-        if (strcmp(Type, "oss")==0)
-        {
-            xine_config_register_enum(Config->xine, "audio.device.oss_device_name", 1, (char **)devname_opts, "OSS audio device name","", 10, NULL, NULL);
-            xine_config_register_num(Config->xine, "audio.device.oss_device_number", atoi(ptr), "OSS audio device number, -1 for none","", 10, NULL, NULL);
-        }
-        else if (strcmp(Type, "alsa")==0)
-        {
-            Tempstr=rstrcpy(Tempstr,"plug:default:");
-            Tempstr=rstrcat(Tempstr,ptr);
-            xine_config_register_string(Config->xine, "audio.device.alsa_default_device", Tempstr, "ALSA device for mono output","", 10, NULL, NULL);
-            Tempstr=rstrcpy(Tempstr,"plug:front:");
-            Tempstr=rstrcat(Tempstr,ptr);
-            xine_config_register_string(Config->xine, "audio.device.alsa_front_device", Tempstr, "ALSA device for stereo output","", 10, NULL, NULL);
-        }
-        else if (strcmp(Type, "jack")==0)
-        {
-            if (StrLen(ptr)) xine_config_register_string(Config->xine, "audio.device.jack_device_name", ptr, "Jack output device","", 10, NULL, NULL);
-        }
-        else if (strcmp(Type, "sun")==0)
-        {
-            xine_config_register_filename(Config->xine, "audio.device.sun_audio_device", ptr, XINE_CONFIG_STRING_IS_DEVICE_NAME, "Sun output device","", XINE_CONFIG_SECURITY, NULL, NULL);
-        }
-        else if (strcmp(Type, "pulse")==0)
-        {
-            if (StrLen(ptr)) xine_config_register_string(Config->xine, "audio.device.pulseaudio_device", ptr, "Pulseaudio output device","", 10, NULL, NULL);
-        }
-
-
-    }
-
-    ao_port=xine_open_audio_driver(Config->xine , Type, NULL);
-    destroy(Tempstr);
-    destroy(Type);
-
-    return(ao_port);
-}
-
-
-
-xine_audio_port_t *CXineOpenAudio(const char *Audio)
-{
-    xine_audio_port_t *ao_port=NULL;
-    char *Token=NULL;
-    const char *ptr;
-
-    ptr=rstrtok(Audio,",",&Token);
-    while (ptr)
-    {
-        ao_port=CXineOpenAudioDriver(Token);
-        if (ao_port) break;
-        ptr=rstrtok(ptr,",",&Token);
-    }
-
-    destroy(Token);
-    return(ao_port);
-}
 
 
 
@@ -293,7 +189,6 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sl
     fd_set select_set;
     int high_fd=0, display_fd=-1, result;
     static struct timeval *tv=NULL;
-		time_t Last=0;
     TEvent Event;
 
     Event.type=EVENT_NONE;
@@ -473,8 +368,33 @@ void CXineExit(TConfig *Config)
     X11Close(Config->X11Out);
 }
 
+char *CXineFormatXineList(char *RetStr, const char * const *List)
+{
+const char * const *ptr;
 
+RetStr=rstrcpy(RetStr, "");
 
+for (ptr=List; *ptr !=NULL; ptr++) 
+{
+	if (StrLen(RetStr)) RetStr=rstrcat(RetStr, ", ");
+	RetStr=rstrcat(RetStr, *ptr);
+}
+
+return(RetStr);
+}
+
+void CXineOutputSystemSetup()
+{
+char *Tempstr=NULL;
+
+  OutputAccellerationTypes();
+	Tempstr=CXineFormatXineList(Tempstr, xine_list_audio_output_plugins(Config->xine));
+	printf("Audio Drivers:  %s\n", Tempstr); 
+	Tempstr=CXineFormatXineList(Tempstr, xine_list_video_output_plugins(Config->xine));
+	printf("Video Drivers:  %s\n", Tempstr); 
+
+destroy(Tempstr);
+}
 
 int main(int argc, char **argv)
 {
@@ -505,13 +425,13 @@ int main(int argc, char **argv)
     //CXineDisplayPlugins(Config->xine);
     //HelpMimeTypes(Config->xine);
 
-
+		CXineOutputSystemSetup();
 
     control_pipe=ControlPipeOpen(O_RDWR | O_NONBLOCK);
     Config->X11Out=X11Init(Config->parent, 0, 0, Config->width, Config->height);
     Config->vo_port=X11BindCXineOutput(Config);
-    Config->ao_port = CXineOpenAudio(Config->ao_driver);
-    OutputAccellerationTypes();
+    Config->ao_port = CXineOpenAudioDriver("none");
+
     Config->stream=xine_stream_new(Config->xine, Config->ao_port, Config->vo_port);
     Config->event_queue = xine_event_new_queue(Config->stream);
     xine_event_create_listener_thread(Config->event_queue, event_listener, NULL);
