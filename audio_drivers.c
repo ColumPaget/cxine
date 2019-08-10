@@ -46,7 +46,14 @@ xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
         if (strcmp(Type, "oss")==0)
         {
             xine_config_register_enum(Config->xine, "audio.device.oss_device_name", 1, (char **)devname_opts, "OSS audio device name","", 10, NULL, NULL);
-            xine_config_register_num(Config->xine, "audio.device.oss_device_number", atoi(ptr), "OSS audio device number, -1 for none","", 10, NULL, NULL);
+
+						//libxine's handling of oss is rather broken. The device number is just appended to the device name, so a device number of '0' means '/dev/dsp0'. But the kernel tends to call that device '/dev/dsp'. Hence we have to pass -1, that signals 'no device number' to use '/dev/dsp'. But what if /dev/dsp0 really exists? So we have to check for that scenario too.
+						if (strcmp(ptr, "0")==0) 
+						{
+							if (access("/dev/dsp0", F_OK) !=0) ptr="-1";
+						}
+
+            CXineConfigModifyOrCreate(Config->xine, "num:audio.device.oss_device_number", ptr, "OSS audio device number, -1 for none");
         }
         else if (strcmp(Type, "alsa")==0)
         {

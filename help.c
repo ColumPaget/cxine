@@ -29,6 +29,7 @@ static void HelpKeys()
     printf("+               increase volume\n");
     printf("-               decrease volume\n");
     printf("m               mute\n");
+		printf("a               cycle audio outputs. Choice of outputs must have been provided on command-line, e.g. '-ao alsa:0,alsa:1,alsa:2\n");
     printf("o               toggle online display\n");
     printf("f               toggle fullscreen\n");
     printf("T               toggle stay-on-top\n");
@@ -279,7 +280,7 @@ void Help(const char *Page)
         printf("  -parent  <win id>       Window to reparent into (maximum clarity style).\n");
         printf("  -s <wid>x<high>         Window size. Default is 480x360.\n");
         printf("  -esc                    Allow the 'escape' key to exit the app.\n");
-        printf("  -ao <ao name>           Audio output plugin name (default = alsa). For alsa  and oss different output devices can be selected by appending ':0', ':1' to select devices by number. For Jack, Sun and Pulse appending the device path/name instead of a number *may* work.\n");
+        printf("  -ao <ao name>           Audio output plugins list (default = alsa). This is a comma-seperated list of audio outputs to try, cxine will use the first one that works. For alsa  and oss different output devices can be specified by appending ':0', ':1' to select devices by number. For Jack, Sun and Pulse appending the device path/name instead of a number *may* work. If a list of devices is provided, then the 'a' key can be used at runtime to cycle through them.\n");
         printf("  -vo <vo name>           Video output plugin name (default = Xv).\n");
         printf("  -identify               Output machine-readable track information on stdout (mplayer feature).\n");
         printf("  -root                   Draw on root window (equivalent to -win root).\n");

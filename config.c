@@ -164,7 +164,17 @@ return(FALSE);
 
 void CXineConfigModifyOrCreate(xine_t *xine, const char *Key, const char *Value, const char *Help)
 {
-if (! CXineConfigModify(xine, Key, Value)) xine_config_register_string(xine, Key, Value, Help, "", 1, 0, NULL);
+char *Type=NULL;
+const char *ptr;
+
+if (strncmp(Key, "num:", 4)==0) ptr=Key+4;
+else ptr=Key;
+
+if (! CXineConfigModify(xine, ptr, Value)) 
+{
+	if (strncmp(Key, "num:",4)==0) xine_config_register_num(xine, ptr, atoi(Value), Help, "", 1, 0, NULL);
+	else xine_config_register_string(xine, Key, Value, Help, "", 1, 0, NULL);
+}
 }
 
 int CXineConfigNumericModify(xine_t *xine, const char *Key, int Value)
