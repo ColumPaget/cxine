@@ -114,6 +114,8 @@ xine_audio_port_t *CXineOpenAudio()
     char *Token=NULL;
     const char *ptr;
 
+
+		CXineOpenAudioDriver("none");
 		if (Config->ao_curr==NULL) Config->ao_curr=Config->ao_driver;
     ptr=rstrtok(Config->ao_curr, ",", &Token);
     while (ptr)
@@ -134,6 +136,11 @@ xine_audio_port_t *CXineOpenAudio()
 
     destroy(Token);
     return(ao_port);
+}
+
+void CXineCloseAudio()
+{
+	CXineOpenAudioDriver("none");
 }
 
 xine_audio_port_t *CXineCycleAudio()

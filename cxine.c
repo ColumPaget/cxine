@@ -357,13 +357,10 @@ void CXineExit(TConfig *Config)
 {
     if (xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE)) SaveBookmark(StringListCurr(Config->playlist), Config->stream);
 
-    xine_close(Config->stream);
+		CXinePlaybackEnd();
     xine_event_dispose_queue(Config->event_queue);
     xine_dispose(Config->stream);
-    if(Config->ao_port) xine_close_audio_driver(Config->xine, Config->ao_port);
     if (Config->vo_port)  xine_close_video_driver(Config->xine, Config->vo_port);
-
-
     xine_exit(Config->xine);
     X11Close(Config->X11Out);
 }

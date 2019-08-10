@@ -127,6 +127,14 @@ int CXinePause(TConfig *Config)
 }
 
 
+void CXinePlaybackEnd()
+{
+        xine_stop(Config->stream);
+        xine_close(Config->stream);
+				CXineCloseAudio();
+}
+
+
 void CXineSetRangeValue(xine_stream_t *stream, int Type, int SetType, int Value)
 {
     int val;
@@ -256,8 +264,7 @@ int CXineSelectStream(TConfig *Config, int Which)
 
     if (ptr)
     {
-        xine_stop(Config->stream);
-        xine_close(Config->stream);
+				CXinePlaybackEnd();
         return(CXinePlayStream(Config, ptr));
     }
     return(0);

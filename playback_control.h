@@ -27,4 +27,6 @@ int CXinePlayStream(TConfig *Config, const char *url);
 int CXineSelectStream(TConfig *Config, int Which);
 void CXineSetPos(xine_stream_t *stream, int skip);
 
+void CXinePlaybackEnd();
+
 #endif
