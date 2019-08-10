@@ -179,6 +179,11 @@ void X11SetWindowState(void *p_Win, const char *StateStr)
         Config->state &= ~STATE_SHADED;
         X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_SHADED");
     }
+    else if (strcmp(StateStr,  "_NET_WM_STATE_FULLSCREEN") ==0)
+    {
+        Config->state |= STATE_FULLSCREEN;
+        X11SendSetStateEvent(p_Win, WINSTATE_ADD, "_NET_WM_STATE_FULLSCREEN");
+    }
     else if (strcmp(StateStr,  "_NET_WM_STATE_ICONIZED") ==0)
     {
         Config->state |= STATE_ICONIZED;
@@ -187,7 +192,9 @@ void X11SetWindowState(void *p_Win, const char *StateStr)
     else if (strcmp(StateStr,  "_NET_WM_STATE_RESTORED") ==0)
     {
         Config->state &= ~STATE_ICONIZED;
+        Config->state &= ~STATE_FULLSCREEN;
         X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_HIDDEN");
+        X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_FULLSCREEN");
     }
     else if (strcmp(StateStr,  "_NET_WM_STATE_NORMAL") ==0)
     {

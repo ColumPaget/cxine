@@ -173,19 +173,16 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
         break;
 
 
-    case 's':
-        val=xine_get_param (stream, XINE_PARAM_SPEED);
-        if (val == XINE_SPEED_SLOW_4) val=XINE_SPEED_NORMAL;
-        else val=XINE_SPEED_SLOW_4;
-        xine_set_param (stream, XINE_PARAM_SPEED, val);
+    case 'f':
+        if (Config->state & STATE_FULLSCREEN) X11SetWindowState(X11Out,  "_NET_WM_STATE_RESTORED");
+				else X11SetWindowState(X11Out,  "_NET_WM_STATE_FULLSCREEN");
         break;
 
-    case 'f':
-        val=xine_get_param (stream, XINE_PARAM_SPEED);
-        if (val == XINE_SPEED_FAST_4) val=XINE_SPEED_NORMAL;
-        else val=XINE_SPEED_FAST_4;
-        xine_set_param (stream, XINE_PARAM_SPEED, val);
+    case 'T':
+        if (Config->state & STATE_RAISED) X11SetWindowState(X11Out,  "_NET_WM_STATE_ZORDER");
+				else X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
         break;
+
 
     case KEY_HOME:
         xine_play(stream, 0, 0);
@@ -300,6 +297,23 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
         xine_set_param (stream, XINE_PARAM_FINE_SPEED, val);
 				break;
 
+    case '{':
+        val=xine_get_param (stream, XINE_PARAM_SPEED);
+        if (val == XINE_SPEED_SLOW_4) val=XINE_SPEED_NORMAL;
+        else val=XINE_SPEED_SLOW_4;
+        xine_set_param (stream, XINE_PARAM_SPEED, val);
+        break;
+
+		case '}':
+        val=xine_get_param (stream, XINE_PARAM_SPEED);
+        if (val == XINE_SPEED_FAST_4) val=XINE_SPEED_NORMAL;
+        else val=XINE_SPEED_FAST_4;
+        xine_set_param (stream, XINE_PARAM_SPEED, val);
+		break;
+
+		case KEY_BACKSPACE:
+        xine_set_param (stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
+		break;
 
     case '+':
     case '=':

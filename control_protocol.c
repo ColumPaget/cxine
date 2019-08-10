@@ -31,6 +31,38 @@ int ControlPipeOpen(int mode)
     return(Config->control_pipe);
 }
 
+int ControlCommandSetOrToggle(const char *Arg, int CurrValue)
+{
+	if (Arg)
+	{
+		switch (*Arg)
+		{
+			case '1':
+			case 'y':
+			case 'Y':
+				return(TRUE);
+			break;
+
+			case '0':
+			case 'n':
+			case 'N':
+				return(FALSE);
+			break;
+
+			case 'o':
+			case 'O':
+				if (strcmp(Arg, "on")==0) return(TRUE);
+				return(FALSE);
+			break;
+		}
+
+	}
+
+	//Toggle
+	if (CurrValue) return(FALSE);
+	return(TRUE);
+}
+
 
 int ControlHandleInput(int fd, xine_stream_t *stream)
 {
@@ -83,7 +115,6 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
             case 'g':
                 if (strcasecmp(Cmd, "get_audio_bitrate")==0)
                 {
-
                     val=xine_get_stream_info(stream, XINE_STREAM_INFO_BITRATE);
                     if (val==0) val=xine_get_stream_info(stream, XINE_STREAM_INFO_AUDIO_BITRATE);
                     printf("ANS_AUDIO_BITRATE='%d kbps'\n", val / 1000);
@@ -117,6 +148,20 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                     xine_get_pos_length(stream, &pos, &pos_msecs, &len_msecs);
                     printf("ANS_LENGTH=%0.1f\n", ((float) len_msecs) / 1000.0);
                 }
+                else if (strcasecmp(Cmd, "get_time_length")==0)
+								{
+                    printf("ANS_PERCENT_POSITION=%d\n", pos * 100 / 65535);
+								}
+                else if (strcasecmp(Cmd, "get_vo_fullscreen")==0)
+								{
+                    if (Config->state & STATE_FULLSCREEN) printf("ANS_VO_FULLSCREEN=1\n");
+										else printf("ANS_VO_FULLSCREEN=0\n");
+								}
+                else if (strcasecmp(Cmd, "get_vo_ontop")==0)
+								{
+                    if (Config->state & STATE_RAISED) printf("ANS_VO_ONTOP=1\n");
+										else printf("ANS_VO_ONTOP=0\n");
+								}
                 break;
 
             case 'l':
@@ -128,7 +173,7 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                 }
               else if (strcasecmp(Cmd, "lower")==0) 
 							{
-									if (Config->state & STATE_LOWERED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
+									if (ControlCommandSetOrToggle(ptr, Config->state & STATE_LOWERED)) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
 									else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_BELOW");
 							}
 
@@ -138,11 +183,11 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                 if (strcasecmp(Cmd, "mute")==0)
                 {
                     if (StrLen(ptr)==0) CXineMute(stream, TOGGLE);
-                    else CXineMute(stream, atoi(ptr));
+                    else CXineMute(stream, ControlCommandSetOrToggle(ptr, 0));
                 }
                 else if (strcasecmp(Cmd, "minimize")==0)
 								{
-									if (Config->state & STATE_ICONIZED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_RESTORED");
+									if (ControlCommandSetOrToggle(ptr, Config->state & STATE_ICONIZED)) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_RESTORED");
 									else  X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ICONIZED");
 								}
 
@@ -164,7 +209,7 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
 						case 'r':
               if (strcasecmp(Cmd, "raise")==0) 
 							{
-									if (Config->state & STATE_RAISED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
+									if (ControlCommandSetOrToggle(ptr, Config->state & STATE_RAISED)) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
 									else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ABOVE");
 							}
 						break;
@@ -191,7 +236,7 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                 }
                 else if (strcasecmp(Cmd, "shade")==0) 
 								{
-									if (Config->state & STATE_SHADED) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_UNSHADE");
+									if (ControlCommandSetOrToggle(ptr, Config->state & STATE_SHADED)) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_UNSHADE");
                 	else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_SHADED");
 								}
                 break;
@@ -205,6 +250,16 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                     if (atoi(ptr) !=0) CXineVolume(stream, SET_ADD, val);
                     CXineVolume(stream, 0, val);
                 }
+								else if (strcasecmp(Cmd, "vo_fullscreen")==0)
+								{
+									if (ControlCommandSetOrToggle(ptr, Config->state & STATE_FULLSCREEN)) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_RESTORED");
+									else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_FULLSCREEN");
+								}
+								else if (strcasecmp(Cmd, "vo_ontop")==0)
+								{
+									if (ControlCommandSetOrToggle(ptr, Config->state & STATE_RAISED)) X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ABOVE");
+									else X11SetWindowState(Config->X11Out,  "_NET_WM_STATE_ZORDER");
+								}
                 break;
 
 						case 'z':
