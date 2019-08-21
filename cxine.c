@@ -174,7 +174,7 @@ void PeriodicProcessing()
 //if there's not a 'nowplaying' pipe, perhaps because a client disconnected, then open one
     if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK, 0660);
 
-    OSDUpdate(Config->flags & CONFIG_OSD);
+    OSDUpdate((Config->flags & CONFIG_OSD) && (! (Config->state & STATE_PLAYLIST_DISPLAYED)));
 
     if (Config->state & STATE_DOWNLOADING) DisplayDownloadProgress();
 

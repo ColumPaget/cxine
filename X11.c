@@ -375,7 +375,7 @@ X11Window *X11WindowCreate(Display *display, const char *ParentID, int x, int y,
 void X11ScreenSaver(void *p_Win, int OnOrOff)
 {
 #ifdef HAVE_XSCREENSAVER
-    XScreenSaverSuspend(((X11Window *) Win)->display, OnOrOff);
+    XScreenSaverSuspend(((X11Window *) p_Win)->display, OnOrOff);
 #endif
 }
 
