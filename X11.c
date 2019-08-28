@@ -402,7 +402,6 @@ void *X11Init(const char *ParentID, int xpos, int ypos, int width, int height)
     }
 
     XLockDisplay(display);
-    if (Config->flags & DISABLE_SCREENSAVER) X11ScreenSaver(Win, False);
 
     XA_UTF8_STRING=XInternAtom(display,"UTF8_STRING",False);
     WMProtocols=XInternAtom(display,"WM_PROTOCOLS",False);
@@ -421,6 +420,7 @@ void *X11Init(const char *ParentID, int xpos, int ypos, int width, int height)
 			if (Config->flags & CONFIG_DEBUG) printf("adjusted pixel aspect to: '%f'\n", Win->pixel_aspect);
 		}
 
+    if (Config->flags & DISABLE_SCREENSAVER) X11ScreenSaver(Win, False);
     XSync(display, False);
     XUnlockDisplay(display);
 
@@ -942,7 +942,7 @@ void X11Close(void *p_Win)
         XDestroyWindow(Win->display, Win->drawable);
     }
 #ifdef HAVE_XSCREENSAVER
-    if (Config->flags & DISABLE_SCREENSAVER) X11ScreenSaver(p_Win, True);
+    if (Config->flags & DISABLE_SCREENSAVER) X11ScreenSaver(Win, True);
 #endif
     XUnlockDisplay(Win->display);
     XCloseDisplay (Win->display);
