@@ -480,8 +480,8 @@ int main(int argc, char **argv)
             if  (! result)
             {
                 if (    (! (Config->state & STATE_DOWNLOADING)) &&
-                        (StringListPos(Config->playlist) >= StringListSize(Config->playlist)) &&
-                        (! (Config->flags & (CONFIG_PERSIST)))
+                        ((StringListPos(Config->playlist)+1) >= StringListSize(Config->playlist)) &&
+                        (! (Config->flags & CONFIG_PERSIST))
                    ) running=0;
             }
         }
