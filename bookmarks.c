@@ -15,7 +15,7 @@ int LoadBookmark(const char *url)
     int RetVal=0;
 
     Tempstr=rstrcpy(Tempstr, xine_get_homedir());
-    Tempstr=rstrcat(Tempstr, "/.xine/cxine.bookmarks");
+    Tempstr=rstrcat(Tempstr, "/.cxine/cxine.bookmarks");
     inf=fopen(Tempstr, "r");
     if (inf)
     {
@@ -47,12 +47,12 @@ void SaveBookmark(const char *url, xine_stream_t *stream)
 
     if (! url) return;
     OutPath=rstrcpy(OutPath, xine_get_homedir());
-    OutPath=rstrcat(OutPath, "/.xine/cxine.bookmarks+");
+    OutPath=rstrcat(OutPath, "/.cxine/cxine.bookmarks+");
     outf=fopen(OutPath, "w");
     if (outf)
     {
         InPath=rstrcpy(InPath, xine_get_homedir());
-        InPath=rstrcat(InPath, "/.xine/cxine.bookmarks");
+        InPath=rstrcat(InPath, "/.cxine/cxine.bookmarks");
         inf=fopen(InPath, "r");
         if (inf)
         {

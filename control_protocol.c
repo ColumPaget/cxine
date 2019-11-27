@@ -18,7 +18,7 @@ int ControlPipeOpen(int mode)
     else
     {
         Tempstr=rstrcpy(Tempstr, xine_get_homedir());
-        Tempstr=rstrcat(Tempstr, "/.xine/cxine.pipe");
+        Tempstr=rstrcat(Tempstr, "/.cxine/cxine.pipe");
     }
 
     if ( (access(Tempstr, F_OK)==0) || (mkfifo(Tempstr, 0700)==0) )

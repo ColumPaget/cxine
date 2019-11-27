@@ -261,17 +261,6 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sl
 }
 
 
-void LoadConfigFile()
-{
-    /*
-      char              configfile[2048];
-
-      sprintf(configfile, "%s%s", xine_get_homedir(), "/.xine/config");
-      xine_config_load(Config->xine, configfile);
-    */
-
-}
-
 
 
 void OutputAccellerationTypes()
