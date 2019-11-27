@@ -7,7 +7,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playback_control.h"
 #include "playlist_osd.h"
 #include "X11.h"
-
+#include "audio_drivers.h"
 
 void KeyGrabAdd(void *X11Out, const char *Mod, const char *KeyStr)
 {

@@ -101,7 +101,6 @@ void DisplayDownloadProgress()
     char *Tempstr=NULL, *Title=NULL, *URL=NULL, *Text=NULL;
 		static char *PrevSizeStr=NULL;
     const char *ptr;
-		int val;
 
     Title=PlaylistCurrTitle(Title);
 

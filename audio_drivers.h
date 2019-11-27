@@ -5,6 +5,7 @@
 
 xine_audio_port_t *CXineOpenAudioDriver(const char *Spec);
 xine_audio_port_t *CXineOpenAudio();
+void CXineCloseAudio();
 xine_audio_port_t *CXineCycleAudio();
 
 #endif

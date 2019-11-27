@@ -5,6 +5,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 #include "download.h"
 #include "playlist_files.h"
+#include "X11.h"
 #include <fcntl.h>
 #include <sys/file.h>
 #include <glob.h>

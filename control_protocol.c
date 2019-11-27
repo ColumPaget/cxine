@@ -6,6 +6,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "control_protocol.h"
 #include "playback_control.h"
 #include "playlist.h"
+#include "X11.h"
 
 int ControlPipeOpen(int mode)
 {

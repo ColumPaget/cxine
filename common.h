@@ -99,7 +99,7 @@ int contrast;
 char *parent;
 char *vo_driver;
 char *ao_driver;
-char *ao_curr;
+const char *ao_curr;
 TStringList *playlist;
 char *CurrTitle;
 double startms;
@@ -149,7 +149,7 @@ void MkDirPath(const char *Dir);
 char *PathSearch(char *RetStr, const char *FileName, const char *Path);
 void StripQuotes(char *Str);
 
-void LongFormatMetric(const char *Str, int len, long value);
+void LongFormatMetric(char *Str, int len, long value);
 
 int ParseURL(const char *URL, char **Proto, char **Host, char **Port, char **Path);
 void Exec(const char *CmdLine);

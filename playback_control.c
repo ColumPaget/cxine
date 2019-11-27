@@ -12,8 +12,9 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playlist_files.h"
 #include "plugins.h"
 #include "xine/xine_internal.h"
-#include "X11.h"
 #include "playlist_osd.h"
+#include "audio_drivers.h"
+#include "X11.h"
 
 static void CXineStreamInitConfig(TConfig *Config)
 {

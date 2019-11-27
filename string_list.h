@@ -18,6 +18,7 @@ int StringListSplit(TStringList *sl, const char *str, const char *separators);
 const char *StringListItem(TStringList *sl, unsigned int pos);
 const char *StringListGet(TStringList *sl, unsigned int pos);
 void StringListSet(TStringList *sl, unsigned int pos, const char *Str);
+void StringListSwap(TStringList *sl, int pos1, int pos2);
 
 #define StringListFirst(sl) StringListGet((sl), 0)
 const char *StringListCurr(TStringList *sl);

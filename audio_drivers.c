@@ -1,6 +1,6 @@
 #include "audio_drivers.h"
 #include "plugins.h"
-
+#include "config.h"
 
 /*
 # device used for mono output

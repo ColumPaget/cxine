@@ -81,7 +81,7 @@ int PLSPlaylistLoad(TStringList *List, const char *MRL)
     return(result);
 }
 
-char *M3UReadTitle(const char *Title, char *Data)
+char *M3UReadTitle(char *Title, char *Data)
 {
 char *Token=NULL;
 const char *ptr;
