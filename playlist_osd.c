@@ -64,10 +64,6 @@ int result=FALSE;
 			StringListDel(Config->playlist, pos);
 			result=TRUE;
 		break;
-
-		default:
-			HandleKeyPress(X11Out, stream, keychar, modifier);
-		break;
 	}
 	PlaylistOSDUpdate();
 

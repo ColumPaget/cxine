@@ -112,14 +112,11 @@ void KeyGrabsSetup(void *X11Out)
 }
 
 
-void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
+void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
 {
     int val, pos_msecs, len_msecs;
 
-		//if playlist is displayed, and playlist takes/recognizes keypress, then 
-		//don't handle it in the main keypress code
-		if ( (Config->state & STATE_PLAYLIST_DISPLAYED) && PlaylistOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
-		else switch (keychar)
+		switch (keychar)
     {
     case KEY_ESC:
         if (modifier & KEYMOD_CTRL)
@@ -356,3 +353,10 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 
 
 
+void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
+{
+		//if playlist is displayed, and playlist takes/recognizes keypress, then 
+		//don't handle it in the main keypress code
+	if ( (Config->state & STATE_PLAYLIST_DISPLAYED) && PlaylistOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
+	else MainScreenHandleKeyPress(X11Out, stream, keychar, modifier);
+}
