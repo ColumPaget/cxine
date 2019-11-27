@@ -465,12 +465,13 @@ int main(int argc, char **argv)
 
             result=CXineSelectStream(Config, PLAY_NEXT);
 
-            if  (! result)
+            if  ((! result) && (! (Config->state & STATE_DOWNLOADING))) 
             {
-                if (    (! (Config->state & STATE_DOWNLOADING)) &&
-                        ((StringListPos(Config->playlist)+1) >= StringListSize(Config->playlist)) &&
-                        (! (Config->flags & CONFIG_PERSIST))
-                   ) running=0;
+									//we are at the end
+									if ((StringListPos(Config->playlist)+1) >= StringListSize(Config->playlist))
+									{
+										if (! (Config->flags & CONFIG_PERSIST)) running=0;
+									}
             }
         }
 

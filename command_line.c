@@ -98,7 +98,7 @@ void CommandLineCmd(const char *Cmd)
 
 int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 {
-    int i;
+    int i, val;
     char *Token=NULL, *Title=NULL, *ID=NULL;
     const char *ptr;
 
@@ -180,7 +180,12 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-prio")==0 ) Config->priority=atoi(argv[++i])+1;
         else if ( strcmp(argv[i], "-bcast")==0 ) Config->bcast_port=atoi(argv[++i]);
         else if ( strcmp(argv[i], "-shuffle")==0 ) Config->flags |= CONFIG_SHUFFLE;
-        else if ( strcmp(argv[i], "-loop")==0 ) Config->loop=atoi(argv[++i]);
+        else if ( strcmp(argv[i], "-loop")==0 ) 
+				{
+					val=atoi(argv[++i]);
+					if (val==0) Config->loop=-1;
+					else Config->loop=atoi(argv[++i]);
+				}
         else if ( strcmp(argv[i], "-show-playlist")==0 ) Config->state |= STATE_PLAYLIST_REQUESTED;
         else if ( strcmp(argv[i], "-keygrab")==0 ) Config->keygrabs=rstrcpy(Config->keygrabs, argv[++i]);
         else if ( strcmp(argv[i], "-helpers")==0 ) Config->helpers=rstrcpy(Config->helpers, argv[++i]);

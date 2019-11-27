@@ -253,7 +253,8 @@ int CXineSelectStream(TConfig *Config, int Which)
         ptr=StringListNext(Config->playlist);
         if ( (ptr==NULL)  )
         {
-            if (Config->loop != 0) Config->loop--;
+						//if it's -1 then this won't happen. -1 means 'loop forever'
+            if (Config->loop > 0) Config->loop--;
             if (Config->loop !=0) ptr=StringListGet(Config->playlist, 0);
         }
     }
