@@ -55,7 +55,6 @@ int result=FALSE;
 		break;
 
 		case KEY_ENTER:
-		case KEY_RIGHT:
 			CXineSelectStream(Config, pos);
 			result=TRUE;
 		break;
@@ -64,6 +63,10 @@ int result=FALSE;
 		case KEY_BACKSPACE:
 			StringListDel(Config->playlist, pos);
 			result=TRUE;
+		break;
+
+		default:
+			HandleKeyPress(X11Out, stream, keychar, modifier);
 		break;
 	}
 	PlaylistOSDUpdate();
