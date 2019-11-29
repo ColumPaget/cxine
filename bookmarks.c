@@ -18,12 +18,15 @@ void SaveBookmark(const char *url, xine_stream_t *stream)
 		//if no url get the hell out of here!
     if (! url) return;
 
+		if (stream)
+		{
 		//if it's not currently playing then we either got to the end, or haven't started
 		//either way there's no point saving a bookmark
     if (! (Config->state & STATE_PLAYING)) return;
 
 		//if it's not a seekable stream, don't save a bookmark
-    if (stream && (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE))) return;
+    if (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE)) return;
+		}
 
     OutPath=rstrcpy(OutPath, xine_get_homedir());
     OutPath=rstrcat(OutPath, "/.cxine/cxine.bookmarks+");
