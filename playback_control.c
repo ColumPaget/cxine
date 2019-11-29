@@ -248,6 +248,9 @@ int CXineSelectStream(TConfig *Config, int Which)
         return(CXinePlayStream(Config, StringListCurr(Config->playlist)));
     }
 
+		//bookmark current stream
+    SaveBookmark(StringListCurr(Config->playlist), Config->stream);
+
     if (Which==PLAY_NEXT)
     {
         ptr=StringListNext(Config->playlist);

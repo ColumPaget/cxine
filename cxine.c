@@ -343,7 +343,8 @@ void CXineOutputs(xine_t *xine, xine_stream_t *stream)
 
 void CXineExit(TConfig *Config)
 {
-    if (xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE)) SaveBookmark(StringListCurr(Config->playlist), Config->stream);
+		//will only save bookmark if stream is still playing
+		SaveBookmark(StringListCurr(Config->playlist), Config->stream);
 
 		CXinePlaybackEnd();
     xine_event_dispose_queue(Config->event_queue);
