@@ -195,7 +195,7 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
                 break;
 
 						case 'n':
-                if (strcasecmp(Cmd, "next")==0) CXineSelectStream(Config, PLAY_PREV);
+                if (strcasecmp(Cmd, "next")==0) CXineSelectStream(Config, PLAY_NEXT);
 						break;
 
             case 'p':
