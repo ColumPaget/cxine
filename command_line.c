@@ -184,7 +184,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
 				{
 					val=atoi(argv[++i]);
 					if (val==0) Config->loop=-1;
-					else Config->loop=atoi(argv[++i]);
+					else Config->loop=val;
 				}
         else if ( strcmp(argv[i], "-show-playlist")==0 ) Config->state |= STATE_PLAYLIST_REQUESTED;
         else if ( strcmp(argv[i], "-keygrab")==0 ) Config->keygrabs=rstrcpy(Config->keygrabs, argv[++i]);
