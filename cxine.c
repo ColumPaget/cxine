@@ -222,11 +222,20 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sl
     {
         if ((stdin_fd > -1) && FD_ISSET(stdin_fd, &select_set))
         {
+						//if in slave mode we read strings from StdIn with 'ControlHandleInput'
+    				if (Config->flags & CONFIG_SLAVE)
+						{
             if (ControlHandleInput(stdin_fd, Config->stream) ==EVENT_CLOSE)
             {
                 close(stdin_fd);
                 stdin_fd=-1;
             }
+						}
+						//if NOT in slave mode, we read keypresses from stdin
+						else
+						{
+							KeypressHandleStdIn(stdin_fd, Config->stream);
+						}
         }
 
         if ((control_pipe > -1) && FD_ISSET(control_pipe, &select_set))
@@ -341,7 +350,7 @@ void CXineOutputs(xine_t *xine, xine_stream_t *stream)
 
 
 
-void CXineExit(TConfig *Config)
+void CXineExit(TConfig *Config, int stdin_fd)
 {
 		//will only save bookmark if stream is still playing
 		SaveBookmark(StringListCurr(Config->playlist), Config->stream);
@@ -352,7 +361,9 @@ void CXineExit(TConfig *Config)
     if (Config->vo_port)  xine_close_video_driver(Config->xine, Config->vo_port);
     xine_exit(Config->xine);
     X11Close(Config->X11Out);
+		KeypressResetStdIn(stdin_fd);
 }
+
 
 char *CXineFormatXineList(char *RetStr, const char * const *List)
 {
@@ -369,7 +380,7 @@ for (ptr=List; *ptr !=NULL; ptr++)
 return(RetStr);
 }
 
-void CXineOutputSystemSetup()
+void CXineShowSystemSetup()
 {
 char *Tempstr=NULL;
 
@@ -382,6 +393,7 @@ char *Tempstr=NULL;
 destroy(Tempstr);
 }
 
+
 int main(int argc, char **argv)
 {
   int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
@@ -391,7 +403,6 @@ int main(int argc, char **argv)
     //call 'SignalHandler' with a signal it ignores as it will set up
     //handlers for SIGINT and SIGTERM
     SignalHandler(SIGCONT);
-
 
     Config=ConfigInit(xine_new());
     xine_init(Config->xine);
@@ -404,20 +415,30 @@ int main(int argc, char **argv)
 
     signal(SIGPIPE, SIG_IGN);
 
-    if (Config->flags & CONFIG_SLAVE) stdin_fd=0;
+		stdin_fd=0;
+		if (isatty(stdin_fd) && (! (Config->flags & CONFIG_SLAVE))) KeypressSetupStdIn(stdin_fd);
+
     if (Config->priority > 0) setpriority(PRIO_PROCESS, getpid(), Config->priority - 21);
 
     if (Config->debug > 0) xine_engine_set_param(Config->xine, XINE_ENGINE_PARAM_VERBOSITY, Config->debug);
     //CXineDisplayPlugins(Config->xine);
     //HelpMimeTypes(Config->xine);
 
-		CXineOutputSystemSetup();
+		CXineShowSystemSetup();
 
     control_pipe=ControlPipeOpen(O_RDWR | O_NONBLOCK);
+
+		if (strcmp(Config->vo_driver, "none")==0)
+		{
+			printf("vo_driver: none. No video output\n");
+		}
+		else
+		{
     Config->X11Out=X11Init(Config->parent, 0, 0, Config->width, Config->height);
     Config->vo_port=X11BindCXineOutput(Config);
-    Config->ao_port = CXineOpenAudioDriver("none");
+		}
 
+    Config->ao_port = CXineOpenAudioDriver("none");
     Config->stream=xine_stream_new(Config->xine, Config->ao_port, Config->vo_port);
     Config->event_queue = xine_event_new_queue(Config->stream);
     xine_event_create_listener_thread(Config->event_queue, event_listener, NULL);
@@ -491,7 +512,7 @@ int main(int argc, char **argv)
     }
 
 		if (bcast) _x_close_broadcaster(bcast);
-    CXineExit(Config);
+    CXineExit(Config, stdin_fd);
 
     return(1);
 }

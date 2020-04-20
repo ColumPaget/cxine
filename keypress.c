@@ -8,6 +8,9 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playlist_osd.h"
 #include "X11.h"
 #include "audio_drivers.h"
+#include <termios.h>
+
+struct termios tty_old;
 
 void KeyGrabAdd(void *X11Out, const char *Mod, const char *KeyStr)
 {
@@ -234,6 +237,7 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         break;
 
     case KEY_ENTER:
+		case KEY_RETURN:
         if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_SELECT);
         else CXineSelectStream(Config, PLAY_NEXT);
         break;
@@ -359,4 +363,136 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 		//don't handle it in the main keypress code
 	if ( (Config->state & STATE_PLAYLIST_DISPLAYED) && PlaylistOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
 	else MainScreenHandleKeyPress(X11Out, stream, keychar, modifier);
+}
+
+
+
+
+
+const char *KeypressHandleEscapeSequence(const char *Sequence, xine_stream_t *stream)
+{
+if (strcmp(Sequence, "\x1b[A")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_UP, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[B")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_DOWN, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[C")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_RIGHT, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[D")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_LEFT, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[a")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_UP, KEYMOD_SHIFT);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[b")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_DOWN, KEYMOD_SHIFT);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[c")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_RIGHT, KEYMOD_SHIFT);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[d")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_LEFT, KEYMOD_SHIFT);
+	return(Sequence+3);
+}
+
+else if (strcmp(Sequence, "\x1b[H")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_HOME, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[F")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_END, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[Z")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_END, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[P")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_PAUSE, 0);
+	return(Sequence+3);
+}
+else if (strcmp(Sequence, "\x1b[5~")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_PGUP, 0);
+	return(Sequence+4);
+}
+else if (strcmp(Sequence, "\x1b[6~")==0) 
+{
+	HandleKeyPress(Config->X11Out, stream, KEY_PGDN, 0);
+	return(Sequence+4);
+}
+
+
+
+return(Sequence);
+}
+
+
+int KeypressHandleStdIn(int fd, xine_stream_t *stream)
+{
+char *Token=NULL;
+int result, i;
+
+Token=(char *) calloc(1, 256);
+result=read(fd, Token, 255);
+if (result > 0)
+{
+  Token[result]='\0';
+	if (Token[0]=='\x1b')
+	{
+		//escape key pressed, this is likely an escape sequence for keys like the arrow keys
+		//or pageup/pagedown
+		KeypressHandleEscapeSequence(Token, stream);
+	}
+	else for (i=0; i < result; i++)
+	{
+		HandleKeyPress(Config->X11Out, stream, Token[i], 0);
+	}
+}
+
+destroy(Token);
+}
+
+
+//if we are not in slave mode, then we read keypresses from stdin 
+//to do this we have to switch the terminal out of 'canonical' (line editing) mode
+void KeypressSetupStdIn(int stdin_fd)
+{
+struct termios tty_new;
+
+tcgetattr(stdin_fd, &tty_old);
+tcgetattr(stdin_fd, &tty_new);
+tty_new.c_lflag ^= ICANON;
+tty_new.c_lflag ^= ECHO;
+tty_new.c_lflag |= ISIG;
+tty_new.c_cc[VMIN]=1;
+tty_new.c_cc[VTIME]=0;
+tcsetattr(stdin_fd, TCSANOW, &tty_new);
+}
+
+//reset StdIn back to whatever it was at program startup
+void KeypressResetStdIn(int stdin_fd)
+{
+		tcsetattr(stdin_fd, TCSANOW, &tty_old);
 }

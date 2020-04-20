@@ -6,6 +6,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "control_protocol.h"
 #include "playback_control.h"
 #include "playlist.h"
+#include "keypress.h"
 #include "X11.h"
 
 int ControlPipeOpen(int mode)
@@ -31,6 +32,7 @@ int ControlPipeOpen(int mode)
 
     return(Config->control_pipe);
 }
+
 
 int ControlCommandSetOrToggle(const char *Arg, int CurrValue)
 {
@@ -63,6 +65,8 @@ int ControlCommandSetOrToggle(const char *Arg, int CurrValue)
 	if (CurrValue) return(FALSE);
 	return(TRUE);
 }
+
+
 
 
 int ControlHandleInput(int fd, xine_stream_t *stream)

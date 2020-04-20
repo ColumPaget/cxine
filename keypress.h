@@ -15,9 +15,8 @@
 #define KEY_RIGHT 5
 #define KEY_PGUP 6
 #define KEY_PGDN 7
-#define KEY_HOME 8
 #define KEY_TAB  9
-#define KEY_END 10
+#define KEY_RETURN 10
 
 #define KEY_F1 11
 #define KEY_F2 12
@@ -40,10 +39,12 @@
 #define KEY_INSERT 28
 #define KEY_PAUSE  30
 #define KEY_BACKSPACE 31
-//from 36 to 127 is taken up by ascii characters
+//from 32 to 127 is taken up by ascii characters
 
 #define KEY_DELETE 127
 #define KEY_ESC  128
+#define KEY_HOME 129
+#define KEY_END  130
 
 //internet-enabled and media-enabled keyboards 
 #define KEY_MUTE 200
@@ -58,5 +59,13 @@
 void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifier);
 void KeyGrabsSetup(void *X11Out);
 
+int KeypressHandleStdIn(int fd, xine_stream_t *stream);
+
+//if we are not in slave mode, then we read keypresses from stdin 
+//to do this we have to switch the terminal out of 'canonical' (line editing) mode
+void KeypressSetupStdIn(int stdin_fd);
+
+//reset StdIn back to whatever it was at program startup
+void KeypressResetStdIn(int stdin_fd);
 #endif
 

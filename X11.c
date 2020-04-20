@@ -44,6 +44,7 @@ int X11GetFileDescriptor(void *p_Win)
 {
     X11Window *Win;
 
+		if (! p_Win) return(-1);
     Win=(X11Window *) p_Win;
     return(XConnectionNumber(Win->display));
 }
@@ -105,6 +106,7 @@ void X11SetTextProperty(void *p_Win, const char *Name, const char *Str)
 {
     X11Window *Win;
 
+		if (p_Win==NULL) return;
     Win=(X11Window *) p_Win;
     X11SetProperty(Win->display,  Win->drawable, XA_STRING, Name, (const unsigned char *) Str, StrLen(Str));
 }
@@ -375,7 +377,7 @@ X11Window *X11WindowCreate(Display *display, const char *ParentID, int x, int y,
 void X11ScreenSaver(void *p_Win, int OnOrOff)
 {
 #ifdef HAVE_XSCREENSAVER
-    XScreenSaverSuspend(((X11Window *) p_Win)->display, OnOrOff);
+    if (p_Win) XScreenSaverSuspend(((X11Window *) p_Win)->display, OnOrOff);
 #endif
 }
 
@@ -473,6 +475,7 @@ xine_video_port_t *X11BindCXineOutput(TConfig *Config)
     x11_visual_t vis;
 
     Win=(X11Window *) Config->X11Out;
+		if (! Win) return(NULL);
     if (!Win->drawable) return(NULL);
 
     vis.display           = Win->display;
@@ -775,6 +778,7 @@ void X11WindowSetTitle(void *p_Win, const char *MainTitle, const char *IconTitle
 {
     X11Window *Win;
 
+		if (! p_Win) return;
     Win=(X11Window *) p_Win;
     if (! IconTitle) IconTitle="";
     if (! MainTitle) MainTitle=IconTitle;
@@ -911,12 +915,14 @@ int X11KeyGrabsControl(void *p_Win, int Grab, const char *keystr)
 
 int X11GrabKey(void *p_Win, const char *keystr)
 {
+if (! p_Win) return(-1);
 return(X11KeyGrabsControl(p_Win, TRUE, keystr));
 }
 
 
 int X11UnGrabKey(void *p_Win, const char *keystr)
 {
+if (! p_Win) return(-1);
 return(X11KeyGrabsControl(p_Win, TRUE, keystr));
 }
 
@@ -925,6 +931,7 @@ void X11Disassociate(void *p_Win)
     X11Window *Win;
 		int fd;
 
+		if (! p_Win) return;
     Win=(X11Window *) p_Win;
     fd=XConnectionNumber(Win->display);
 		close(fd);
@@ -934,6 +941,7 @@ void X11Close(void *p_Win)
 {
     X11Window *Win;
 
+		if (! p_Win) return;
     Win=(X11Window *) p_Win;
     XLockDisplay(Win->display);
     if (Win->drawable)
