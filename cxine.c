@@ -415,12 +415,6 @@ int main(int argc, char **argv)
 
     signal(SIGPIPE, SIG_IGN);
 
-		if (Config->flags & CONFIG_SLAVE) stdin_fd=0;
-		else if (Config->flags & CONFIG_CONTROL) 
-		{
-			stdin_fd=0;
-			KeypressSetupStdIn(stdin_fd);
-		}
 
     if (Config->priority > 0) setpriority(PRIO_PROCESS, getpid(), Config->priority - 21);
 
@@ -439,6 +433,9 @@ int main(int argc, char **argv)
 		else
 		{
     Config->X11Out=X11Init(Config->parent, 0, 0, Config->width, Config->height);
+		//if we opened an X11 window, then get keypresses through that, not from stdin
+		//this prevents us 'stealing' keypresses from X11
+		if (Config->X11Out) Config->flags &= ~ CONFIG_CONTROL;
     Config->vo_port=X11BindCXineOutput(Config);
 		}
 
@@ -454,6 +451,14 @@ int main(int argc, char **argv)
     }
 
 		if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
+
+		//open stdin late, as X11 setup above can override its use
+		if (Config->flags & CONFIG_SLAVE) stdin_fd=0;
+		else if (Config->flags & CONFIG_CONTROL) 
+		{
+			stdin_fd=0;
+			KeypressSetupStdIn(stdin_fd);
+		}
 
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);
