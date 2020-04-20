@@ -86,7 +86,7 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
         result=read(fd, Token, 255);
     }
 
-//fd is closed at the other end. close it our end,
+		//if result < 1 fd is closed at the other end. close it our end,
     if (result > 0)
     {
         xine_chomp(Tempstr);

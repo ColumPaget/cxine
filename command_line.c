@@ -166,7 +166,8 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "+ss")==0 ) Config->flags &= ~ (DISABLE_SCREENSAVER | KILL_SCREENSAVER);
         else if ( strcmp(argv[i], "-slave")==0 )
         {
-            Config->flags |= CONFIG_SLAVE;
+            Config->flags &= ~CONFIG_CONTROL;
+            Config->flags |= CONFIG_SLAVE | CONFIG_PERSIST;
             Config->startms=1;
         }
         else if ( strcmp(argv[i], "-input")==0 )

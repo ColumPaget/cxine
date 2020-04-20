@@ -197,7 +197,7 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sl
 
     FD_ZERO(&select_set);
 
-    if ((stdin_fd > -1) && (! (Config->state & STATE_STDIN_URL)) && (Config->flags & CONFIG_CONTROL) && (fcntl(stdin_fd, F_GETFD) > -1))
+    if ((stdin_fd > -1) && (! (Config->state & STATE_STDIN_URL)) && (fcntl(stdin_fd, F_GETFD) > -1))
     {
         FD_SET(stdin_fd, &select_set);
         if (stdin_fd > high_fd) high_fd=stdin_fd;
@@ -232,7 +232,7 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sl
             }
 						}
 						//if NOT in slave mode, we read keypresses from stdin
-						else
+						else if (Config->flags & CONFIG_CONTROL)
 						{
 							KeypressHandleStdIn(stdin_fd, Config->stream);
 						}
@@ -361,7 +361,7 @@ void CXineExit(TConfig *Config, int stdin_fd)
     if (Config->vo_port)  xine_close_video_driver(Config->xine, Config->vo_port);
     xine_exit(Config->xine);
     X11Close(Config->X11Out);
-		KeypressResetStdIn(stdin_fd);
+		if (Config->flags & CONFIG_CONTROL) KeypressResetStdIn(stdin_fd);
 }
 
 
@@ -415,8 +415,12 @@ int main(int argc, char **argv)
 
     signal(SIGPIPE, SIG_IGN);
 
-		stdin_fd=0;
-		if (isatty(stdin_fd) && (! (Config->flags & CONFIG_SLAVE))) KeypressSetupStdIn(stdin_fd);
+		if (Config->flags & CONFIG_SLAVE) stdin_fd=0;
+		else if (Config->flags & CONFIG_CONTROL) 
+		{
+			stdin_fd=0;
+			KeypressSetupStdIn(stdin_fd);
+		}
 
     if (Config->priority > 0) setpriority(PRIO_PROCESS, getpid(), Config->priority - 21);
 

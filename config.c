@@ -40,7 +40,7 @@ TConfig *ConfigInit(xine_t *xine)
     Config->top_osd_text=rstrcpy(Config->top_osd_text, xine_config_register_string (xine, "cxine.top_osd", DEFAULT_TOPOSD_STRING, "Default text for top OSD", "", 1, 0, NULL));
     Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, xine_config_register_string (xine, "cxine.bottom_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for bottom OSD", "", 1, 0, NULL));
 
-    Config->flags |= CONFIG_CONTROL;
+    if (isatty(0)) Config->flags |= CONFIG_CONTROL;
     Config->control_pipe=-1;
     Config->nowplay_pipe=-1;
 
