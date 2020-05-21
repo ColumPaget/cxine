@@ -14,7 +14,7 @@ int pos=0;
 
 int PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
 {
-int result=FALSE;
+int result=FALSE, old;
 
 	switch (keychar)
 	{
@@ -61,7 +61,10 @@ int result=FALSE;
 
 		case KEY_DELETE:
 		case KEY_BACKSPACE:
-			StringListDel(Config->playlist, pos);
+			//if we delete an item and now 'pos' is beyond the end of the playlist
+			//them we must move 'pos' up to the previous item
+			if (StringListDel(Config->playlist, pos) < pos) pos--;
+			if (pos < 0) pos=0;
 			result=TRUE;
 		break;
 	}

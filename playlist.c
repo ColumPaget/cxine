@@ -7,6 +7,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playlist_files.h"
 #include "download.h"
 #include "osd.h"
+#include <glob.h>
 
 void PlaylistShuffle()
 {
@@ -63,13 +64,40 @@ return(RetStr);
 }
 
 
+static int IsDir(const char *URL)
+{
+struct stat Stat;
+
+if (stat(URL, &Stat) !=0) return(FALSE);
+if (S_ISDIR(Stat.st_mode)) return(TRUE);
+return(FALSE);
+}
+
+
 void PlaylistAdd(TStringList *playlist, const char *iURL, const char *ID, const char *Title)
 {
     char *Tempstr=NULL, *URL=NULL;
     CXineOSD *OSD=NULL;
+		glob_t Glob;
+		int i;
 
     URL=rstrcpy(URL, iURL);
-    if (IsPlaylist(URL))
+		
+		if (IsDir(URL))
+		{
+			if (Config->flags & CONFIG_RECURSIVE)
+			{
+				Tempstr=rstrcpy(Tempstr, iURL);
+				Tempstr=rstrcat(Tempstr, "/*");
+				glob(Tempstr, 0, 0, &Glob);
+				for (i=0; i < Glob.gl_pathc; i++)
+				{
+					PlaylistAdd(playlist, Glob.gl_pathv[i], ID, Title);
+				}
+				globfree(&Glob);
+			}
+		}
+		else if (IsPlaylist(URL))
     {
         if ( ! PlaylistLoad(playlist, URL) ) StringListAdd(playlist, URL);
     }

@@ -279,6 +279,7 @@ void Help(const char *Page)
         printf("  -wid     <win id>       Window to reparent into (mplayer style option).\n");
         printf("  -parent  <win id>       Window to reparent into (maximum clarity style).\n");
         printf("  -s <wid>x<high>         Window size. Default is 480x360.\n");
+        printf("  -r                      Load directories recursively, adding their contents to the playlist.\n");
         printf("  -esc                    Allow the 'escape' key to exit the app.\n");
         printf("  -ao <ao name>           Audio output plugins list (default = alsa). This is a comma-seperated list of audio outputs to try, cxine will use the first one that works. For alsa  and oss different output devices can be specified by appending ':0', ':1' to select devices by number. For Jack, Sun and Pulse appending the device path/name instead of a number *may* work. If a list of devices is provided, then the 'a' key can be used at runtime to cycle through them.\n");
         printf("  -vo <vo name>           Video output plugin name (default = Xv).\n");
@@ -338,6 +339,8 @@ void Help(const char *Page)
         printf("  -no-bookmark            Don't remember where media left-off playing.\n");
         printf("  -save-config            Save current cxine setup.\n");
         printf("  -defaults               Reset to default config (this will wipe any settings prior on the command line).\n");
+        printf("  -list-extn              Print to stdout a list of file extensions supported by this player.\n");
+        printf("  -list-mime              Print to stdout a list of mime-types supported by this player.\n");
         printf("  -version                Show program version.\n");
         printf("  --version               Show program version.\n");
         printf("  -?                      Show this help.\n");

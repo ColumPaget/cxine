@@ -183,14 +183,21 @@ void PeriodicProcessing()
 
 
 
-int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe, int sleep_ms)
+int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
 {
     fd_set select_set;
-    int high_fd=0, display_fd=-1, result;
+    int high_fd=0, display_fd=-1, result, sleep_ms;
     static struct timeval *tv=NULL;
+		const char *ptr;
     TEvent Event;
 
     Event.type=EVENT_NONE;
+
+		//decide how log we will wait in 'select' for
+    ptr=xine_get_meta_info(Config->stream, XINE_STREAM_INFO_VIDEO_FOURCC);
+    if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) sleep_ms=Config->image_ms;
+    else sleep_ms=200;
+
 
 //first time around we will sleep for 0 ms, but tv is a static, so from then on we will sleep for SLEEP_TIME
     if (! tv) tv=(struct timeval *) calloc(1,sizeof(struct timeval));
@@ -387,6 +394,7 @@ char *Tempstr=NULL;
   OutputAccellerationTypes();
 	Tempstr=CXineFormatXineList(Tempstr, xine_list_audio_output_plugins(Config->xine));
 	printf("Audio Drivers:  %s\n", Tempstr); 
+
 	Tempstr=CXineFormatXineList(Tempstr, xine_list_video_output_plugins(Config->xine));
 	printf("Video Drivers:  %s\n", Tempstr); 
 
@@ -396,8 +404,7 @@ destroy(Tempstr);
 
 int main(int argc, char **argv)
 {
-  int control_pipe=-1, stdin_fd=-1, result, sleep_ms;
-  const char *ptr;
+  int control_pipe=-1, stdin_fd=-1, result;
 	broadcaster_t *bcast=NULL;
 
     //call 'SignalHandler' with a signal it ignores as it will set up
@@ -508,14 +515,12 @@ int main(int argc, char **argv)
 
 //		if (Config->state & STATE_NEWTITLE) CXineNewTitle(Config);
 
-        ptr=xine_get_meta_info(Config->stream, XINE_STREAM_INFO_VIDEO_FOURCC);
-        if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) sleep_ms=Config->image_ms;
-        else sleep_ms=200;
-
-        result=WatchFileDescriptors(Config, stdin_fd, control_pipe, sleep_ms);
-        if (result==EVENT_RESIZE) OSDSetup(Config);
-
-        if (result==EVENT_TIMEOUT) PeriodicProcessing();
+        result=WatchFileDescriptors(Config, stdin_fd, control_pipe);
+				switch (result)
+				{
+					case EVENT_RESIZE: OSDSetup(Config); break;
+					case EVENT_TIMEOUT: PeriodicProcessing(); break;
+				}
 
         waitpid(-1, NULL, WNOHANG);
     }

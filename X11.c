@@ -17,8 +17,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 
 #define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
-                      ButtonMotionMask | StructureNotifyMask |        \
-                      PropertyChangeMask | PointerMotionMask)
+                      StructureNotifyMask | PropertyChangeMask)
 
 
 typedef struct
@@ -714,6 +713,7 @@ int X11NextEvent(void *p_Win, xine_video_port_t *vo_port, TEvent *Event)
 
     while (got_event)
     {
+				memset(&xevent, 0, sizeof(XEvent));
         XLockDisplay(Win->display);
         XNextEvent(Win->display, &xevent);
         XUnlockDisplay(Win->display);

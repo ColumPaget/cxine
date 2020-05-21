@@ -42,12 +42,12 @@ static int CXineAddURL(const char *URL, const char *ID, const char *Title)
 }
 
 
-static int CXineQueueURL(const char *URL, const char *ID, const char *Title)
+static void CXineQueueURL(const char *URL, const char *ID, const char *Title)
 {
-//if a cxine is already running, then send it there
-    if (CXineAddURL(URL, ID, Title)) exit(0);
+	//if a cxine is already running, then send it there
+	if (CXineAddURL(URL, ID, Title)) exit(0);
 
-    PlaylistAdd(Config->playlist, URL, ID, Title);
+	PlaylistAdd(Config->playlist, URL, ID, Title);
 }
 
 
@@ -122,6 +122,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-vo")==0 ) Config->vo_driver = rstrcpy(Config->vo_driver, argv[++i]);
         else if ( strcmp(argv[i], "-ao")==0 ) Config->ao_driver = rstrcpy(Config->ao_driver, argv[++i]);
         else if ( strcmp(argv[i], "-esc")==0 ) Config->flags |= CONFIG_ALLOW_KEY_EXIT;
+        else if ( strcmp(argv[i], "-r")==0 ) Config->flags |= CONFIG_RECURSIVE; 
         else if ( strcmp(argv[i], "-s")==0 ) ParseCommandLineWindowSize(argv[++i], Config);
         else if ( strcmp(argv[i], "-into")==0 ) Config->parent=rstrcpy(Config->parent, argv[++i]);
         else if ( strcmp(argv[i], "-win")==0 ) Config->parent=rstrcpy(Config->parent,argv[++i]);
@@ -243,6 +244,20 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "--version")==0 )
 				{
 					printf("cxine %s\n", VERSION);
+					exit(0);
+				}
+        else if ( strcmp(argv[i], "-list-extn")==0 )
+				{
+					ptr=xine_get_file_extensions(Config->xine);
+					printf("File Types Supported:  %s\n", ptr); 
+					exit(0);
+				}
+        else if ( strcmp(argv[i], "-list-mime")==0 )
+				{
+					ptr=xine_get_mime_types(Config->xine);
+					Token=rstrcpy(Token, ptr);
+					strrep(Token, ';', '\n');
+					printf("Mime Types Supported:\n%s\n", Token); 
 					exit(0);
 				}
         else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);

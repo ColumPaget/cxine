@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "4.9"
+#define VERSION                   "4.10"
 #endif
 
 
@@ -71,6 +71,7 @@ int arg2;
 #define CONFIG_DEBUG 1048576
 #define CONFIG_SAVE  2097152
 #define CONFIG_SLAVE 4194304
+#define CONFIG_RECURSIVE 8388608
 
 #define STATE_NEWTITLE 1
 #define STATE_RAISED   2

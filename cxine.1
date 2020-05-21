@@ -1,0 +1,244 @@
+.TH  cxine  1 " 2020/05/21"
+.SH NAME
+
+.P
+cxine - a broadly mplayer-compatible libxine based media player.
+.SH DESCRIPTION
+
+.P
+Cxine is a lib-xine based media player that emulates some aspects of mplayer, and adds a number of features of its own. Cxine displays video on a single window and any control output is overlaid over that.
+.SH SYNOPSIS
+
+
+.nf
+cxine [options] [url]
+.fi
+.ad b
+
+.SH OPTIONS
+
+
+.TP
+.B -queue <url>
+ If no cxine is currently running, then start up and play <url>, else add it to the playlist of an existing cxine.
+.TP
+.B -enqueue <url>
+ MPlayer compatible equivalent of \(aq-queue\(aq
+.TP
+.B -win
+ <win id>       Window settings (see below)
+.TP
+.B -wid
+ <win id>       Window to reparent into (mplayer style option).
+.TP
+.B -s <wid>x<high>
+ Window size. Default is 480x360.
+.TP
+.B -esc
+ Allow the \(aqescape\(aq key to exit the app.
+.TP
+.B -vo <vo name>
+ Video output plugin name (default = Xv).
+.TP
+.B -root
+ Draw on root window (equivalent to -win root).
+.TP
+.B -fs
+ Play fullscreen (mplayer style option equivalent to \(aq-win fullscreen\(aq).
+.TP
+.B -use-stdin
+ Read media stream from stdin
+.TP
+.B -pause
+ Start paused.
+.TP
+.B -shuffle
+ Shuffle playlist.
+.TP
+.B -show-playlist
+ Start with playlist displayed
+.TP
+.B -image-time <ms>
+ Number of milliseconds to pause on an image for, until starting to play/display the next track.
+.TP
+.B -stop_xscreensaver
+ Disable screensaver during playing, re-enable it on exit, or if playback paused.
+.TP
+.B +screensaver
+ Enable screensaver during playing (use this to turn off \(aqdisable screensaver\(aq if you saved the config).
+.TP
+.B -SS
+ Disable screensaver during playing, re-enable it on exit BUT NOT IF PLAYBACK PAUSED.
+.TP
+.B -persist
+ Don\(aqt exit when nothing left to do, wait for commands on stdin.
+.TP
+.B -slave
+ Mplayer compatible flag, equivalent to \(aq-persist -startms 0\(aq.
+.TP
+.B -input <path>
+ Path to pipe to read commands from (by default cxine creates a pipe in \(aq\*(ti/.cxine/cxine.pipe\(aq). This accepts mplayer compatible form \(aq-input file:<path>\(aq.
+.TP
+.B -nowplay <path>
+ Path to pipe to write \(aqnow playing\(aq info to (cxine will create this pipe if it doesn\(aqt already exist).
+.TP
+.B -dvd-device <path>
+ Path to DVD device to use (default /dev/dvd)
+.TP
+.B -dvd-lang <lang>
+ Default language for DVDs
+.TP
+.B -osd-hide
+ Hide On Screen Display\(aq.
+.TP
+.B -slow
+ Play halfspeed.
+.TP
+.B -loud
+ Play with raised volume.
+.TP
+.B -stream
+ Don\(aqt download remote urls in playlists etc. This currently only works for \(aqhttp:\(aq (not https:) urls. This allow streaming internet radio urls.
+.TP
+.B -prefix
+ Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they\(aqre in.
+.TP
+.B -helpers <config>
+ Register list of helper apps.
+.TP
+.B -prio <value>
+ Set process priority in range 0-39 (requires superuser capabilities).
+.TP
+.B -ac <value>
+ Set audio compression. This boosts quiet sounds, lessening the volume range. value is a percent > 100 to multiply quiet sounds by.
+.TP
+.B -aplug <plugins>
+ Comma separated list of audio post processing plugins.
+.TP
+.B -novideo
+ Don\(aqt output video (for use in combination with -ap for visualization plugins).
+.TP
+.B -no-bookmark
+ Don\(aqt remember where media left-off playing.
+.TP
+.B -defaults
+ Reset to default config (this will wipe any settings prior on the command line).
+.TP
+.B -list-mime
+ Print to stdout a list of mime-types supported by this player.
+.TP
+.B \(hyversion
+ Show program version.
+.TP
+.B -help
+ Show this help.
+.TP
+.B \(hyhelp keys
+ Show keybindings.
+.TP
+.B \(hyhelp osd
+ Show help for OSD config.
+.TP
+.B \(hyhelp plugins
+ List available plugins.
+
+.SH WINDOW SETTINGS 
+
+.P
+The -win argument accepts a window-type and an optional comma-separated list of extra settings. Window types are:
+
+.TP
+.B normal
+ normal X11 window (is the default if no type specified)
+.TP
+.B fullscreen
+ fullscreen window
+.TP
+.B 
+.na
+0x<win id>
+.ad
+
+ the hexidecimal (starting with 0x) id of a window to embed/reparent into
+
+.P
+
+
+.P
+Additional window settings are:
+
+.TP
+.B iconized
+ start with iconized/minimized window
+.TP
+.B minimized
+ start with iconized/minimized window
+.TP
+.B shaded
+ start with \(aqshaded\(aq window (if supported by window manager)
+.TP
+.B above
+ keep above all other windows
+.TP
+.B stickontop
+ shorthand for sticky,ontop
+.TP
+.B stickbelow
+ shorthand for sticky,below
+
+.P
+Examples:
+
+.nf
+
+  \-win fullscreen,min         fullscreen window that\(aqs minimized at startup
+  \-win sticky                 normal window that appears on all desktops
+  \-win normal,shaded,below    normal window starts shaded and below other windows
+  \-win 0x1f2bc                embed into window with hexadecimal id 1f2bc
+.fi
+.ad b
+
+.P
+When embedding cxine into another application (e.g. a frontend) window ids can be given to \(aq-win\(aq either in hex (with a leading 0x) or in decimal.
+.SH BOOKMARKS
+
+.P
+By default cxine \(aqbookmarks\(aq the position in a video if exit is requested, and restarts from that position if the media is played again. This can be disabled with \(aq-no-bookmark\(aq or  \(aq-startms 0\(aq. 
+.SH DVD PLAYBACK
+
+.P
+DVDs can be played using the urls \(aqdvd://0\(aq to use dvdnav menu screen, or \(aqdvd://1\(aq, \(aqdvd://2\(aq, etc to play a particular track on disk. The particular dvd device to read from can be set with \(aq-dvd-device\(aq.
+.SH DOWNLOADS AND REMOTE MEDIA STREAMS
+
+.P
+CXine downloads media using helper apps. Default config will use curl, wget or Twighbright links, elinks, lynx, or snarf, depending on which are found in your path your path. Cxine should be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested.
+.P
+You can also use \(aqssh:\(aq (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your \(aq.ssh/config\(aq to auto-login. So, for example the url \(aqssh://myhost/home/music/BinaryFinary.mp3\(aq will log into \(aqmyhost\(aq and use ssh to pull the file \(aq/home/music/BinaryFinary.mp3\(aq provided that \(aqmyhost\(aq has been set up in your .config with an ssh key to log in with.
+.P
+More information about helpers is available with \(aqcxine \(hyhelp helpers\(aq
+.P
+The \(aq-stream\(aq option is intended for use with internet radio, and only works for http:// streams. If \(aq-stream\(aq is supplied then http:// urls will be streamed without being downloaded to the cache directory
+.SH XINE BROADCAST
+
+.P
+Cxine supports libxine-style broadcast. If the \(aq-bcast\(aq option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url \(aqslave://<address>:<port> and mirror it\(aqs output.
+.SH SAVE CONFIGURATION
+
+.P
+If \(aq-save-config\(aq is given then cxine will remember the following settings if they are supplied:
+
+.nf
+
+		\-vo, \-ao, \-ac, \-ap, \-prefix, \-keygrab, \-persist/\-quit, \-bookmark/\-no\-bookmark, \-screensaver/+screensaver, \-show\-osd/\-hide\-osd, \-background, \-input, \-cache, \-nowplay,  \-dvd\-device, \-dvd\-region, \-dvd\-lang, \-helpers
+.fi
+.ad b
+
+.P
+-defaults resets the config to default. It will also reset any settings prior to it  on the command-line, so it\(aqs best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this:
+
+.nf
+
+		cxine \-defaults \-background myimage.jpg \-ao alsa \-keygrab media \-save
+.fi
+.ad b
+
