@@ -7,7 +7,6 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
-#include <X11/extensions/scrnsaver.h>
 #include <X11/XF86keysym.h>
 #include "X11.h"
 #include "common.h"
@@ -15,6 +14,9 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playlist.h"
 #include <ctype.h>
 
+#ifdef HAVE_XSCREENSAVER
+#include <X11/extensions/scrnsaver.h>
+#endif
 
 #define INPUT_MOTION (ExposureMask | ButtonPressMask | KeyPressMask | \
                       StructureNotifyMask | PropertyChangeMask)
