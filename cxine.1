@@ -385,6 +385,11 @@ s               toggle \(aqslow\(aq playback (1/4 speed, no sound)
 The \(aq+\(aq and \(aq\-\(aq keys represent a departure from mplayer. On the keypad they work as expected, with the \(aqshift\(aq modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get \(aq+\(aq on the non\-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard \(aq=\(aq and \(aq\-\(aq change volume up and down, and their shifted versions \(aq_\(aq and \(aq+\(aq alter audio compression.
 
 The following keys on \(aqinternet\(aq or \(aqmedia\(aq keyboards are supported
+
+.fi
+.ad b
+
+.P
 <play>
 <stop>
 <pause playback>
@@ -393,69 +398,47 @@ The following keys on \(aqinternet\(aq or \(aqmedia\(aq keyboards are supported
 <volume up>     with \(aqshift\(aq causes a larger increase
 <volume down>   with \(aqshift\(aq causes a larger decrease
 <volume mute>
+.nf
+
+
+
+Keygrabs
+\-\-\-\-\-\-\-\-
+
+CXine can grab keys for its exclusive use, meaning that that those keystrokes will be sent to it regardless of what window currently has input focus. Keygrabs are supplied to the program in a comma\-seperated list after the `\-keygrab` option. Recognized key names are either alphanumeric characters and punctuation, or the following names:
 
 .fi
 .ad b
 
-.SS Keygrabs
-
 .P
-CXine can grab keys for its exclusive use, meaning that that those keystrokes will be sent to it regardless of what window currently has input focus. Keygrabs are supplied to the program in a comma-seperated list after the 
-.na
-\-keygrab
-.ad
-option. Recognized key names are either alphanumeric characters and punctuation, or the following names:
-
-.nf
-
 up, down, left, right       arrow keys
-pgup, pgdn, home, end       page\-up, page\-down, home and end keys
-pgup, pgdn, home, end       page\-up, page\-down, home and end keys
+pgup, pgdn, home, end       page-up, page-down, home and end keys
+pgup, pgdn, home, end       page-up, page-down, home and end keys
 ins, del                    insert and delete keys
 vup, vdown, mute            volume up, down and mute keys found on \(aqinternet\(aq keyboards
 stop, play, next, prev      playback keys found on \(aqinternet\(aq keyboards
 vpause                      media pause key found on \(aqinternet\(aq keyboards
+
+.nf
+
+
+CXine also supports the following \(aqgroup\(aq names that grab groups of keys:
 .fi
 .ad b
 
-.P
-CXine also supports the following \(aqgroup\(aq names that grab groups of keys:
-
-.nf
 
 arrow                       left right up down
 volume                      vup, vdown, mute
 page                        pgup, pgdn
 nav                         left, right, up, down, pgup, pgdn, home, end
 media                       vup, vdown, mute, stop, play, prev, next, vpause
-keypad                      up, down, left, right pgup, pgdn, home, end, +, \-
+keypad                      up, down, left, right pgup, pgdn, home, end, +, -
+
+.nf
+
+
+All key and group names can have a modifier prepended. Available modifiers are `shift\-`, `cntrl\-` and `alt\-`. If a key\-modifier pair isn`t bound to an action, then cxine will treat the key as though it had no modifier. Thus `alt\-o` can be bound to turn OSD display on\-and\-off without depriving other programs of use of the `o` key.
+
 .fi
 .ad b
 
-
-All key and group names can have a modifier prepended. Available modifiers are 
-.na
-shift\-
-.ad
-, 
-.na
-cntrl\-
-.ad
-and 
-.na
-alt\-
-.ad
-. If a key-modifier pair isn
-.na
-t bound to an action, then cxine will treat the key as though it had no modifier. Thus 
-.ad
-alt-o
-.na
- can be bound to turn OSD display on\-and\-off without depriving other programs of use of the 
-.ad
-o
-.na
- key.\\pp\-
-\\pp\-
-
-.ad
