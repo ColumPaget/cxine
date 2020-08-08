@@ -41,6 +41,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "control_protocol.h"
 #include "now_playing.h"
 #include "command_line.h"
+#include "splashscreen.h"
 #include "stdin_fd.h"
 #include <sys/resource.h>
 #include <sys/wait.h>

@@ -3,7 +3,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 * SPDX-License-Identifier: GPL-3.0
 */
 
-#include "playlist_osd.h"
+#include "load_files_osd.h"
 #include "playlist.h"
 #include "playback_control.h"
 #include "keypress.h"
@@ -64,7 +64,8 @@ char *ptr;
 int LoadFilesOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
 {
 int result=FALSE, old;
-char *ptr, *item;
+const char *item;
+char *ptr;
 
 	switch (keychar)
 	{
