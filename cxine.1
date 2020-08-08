@@ -384,48 +384,112 @@ s               toggle \(aqslow\(aq playback (1/4 speed, no sound)
 .ad b
 
 .P
-The \(aq+\(aq and \(aq-\(aq keys represent a departure from mplayer. On the keypad they work as expected, with the \(aqshift\(aq modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get \(aq+\(aq on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard \(aq=\(aq and \(aq-\(aq change volume up and down, and their shifted versions \(aq\fI\(') and \(')+\(') alter audio compression.
-\pp-
-\pp+
-The following keys on \(')internet\(') or \(')media\(') keyboards are supported:
-\pp-
-\bc+
-\(<)play\(>)
-\(<)stop\(>)
-\(<)pause playback\(>)
-\(<)next\(>)
-\(<)previous\(>)
-\(<)volume up\(>)     with \(')shift\(') causes a larger increase
-\(<)volume down\(>)   with \(')shift\(') causes a larger decrease
-\(<)volume mute\(>)
+The 
+.na
++
+.ad
+and 
+.na
+\-
+.ad
+keys represent a departure from mplayer. On the keypad they work as expected, with the \(aqshift\(aq modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get 
+.na
++
+.ad
+on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard 
+.na
+=
+.ad
+and 
+.na
+\-
+.ad
+change volume up and down, and their shifted versions 
+.na
+_
+.ad
+and 
+.na
++
+.ad
+alter audio compression.
+.P
+The following keys on \(aqinternet\(aq or \(aqmedia\(aq keyboards are supported:
 
-\bc-
-\h2+Keygrabs\h2-
-\pp+
-CXine can grab keys for its exclusive use, meaning that that those keystrokes will be sent to it regardless of what window currently has input focus. Keygrabs are supplied to the program in a comma-seperated list after the \cdi-keygrab\end option. Recognized key names are either alphanumeric characters and punctuation, or the following names:
-\pp-
-\bc+
+.nf
+
+<play>
+<stop>
+<pause playback>
+<next>
+<previous>
+<volume up>     with \(aqshift\(aq causes a larger increase
+<volume down>   with \(aqshift\(aq causes a larger decrease
+<volume mute>
+
+.fi
+.ad b
+
+.SS Keygrabs
+
+.P
+CXine can grab keys for its exclusive use, meaning that that those keystrokes will be sent to it regardless of what window currently has input focus. Keygrabs are supplied to the program in a comma-seperated list after the 
+.na
+\-keygrab
+.ad
+option. Recognized key names are either alphanumeric characters and punctuation, or the following names:
+
+.nf
+
 up, down, left, right       arrow keys
-pgup, pgdn, home, end       page-up, page-down, home and end keys
-pgup, pgdn, home, end       page-up, page-down, home and end keys
+pgup, pgdn, home, end       page\-up, page\-down, home and end keys
+pgup, pgdn, home, end       page\-up, page\-down, home and end keys
 ins, del                    insert and delete keys
-vup, vdown, mute            volume up, down and mute keys found on \(')internet\(') keyboards
-stop, play, next, prev      playback keys found on \(')internet\(') keyboards
-vpause                      media pause key found on \(')internet\(') keyboards
-\bc-
-\pp+
-CXine also supports the following \(')group\(') names that grab groups of keys:
-\pp-
-\bc+
+vup, vdown, mute            volume up, down and mute keys found on \(aqinternet\(aq keyboards
+stop, play, next, prev      playback keys found on \(aqinternet\(aq keyboards
+vpause                      media pause key found on \(aqinternet\(aq keyboards
+.fi
+.ad b
+
+.P
+CXine also supports the following \(aqgroup\(aq names that grab groups of keys:
+
+.nf
+
 arrow                       left right up down
 volume                      vup, vdown, mute
 page                        pgup, pgdn
 nav                         left, right, up, down, pgup, pgdn, home, end
 media                       vup, vdown, mute, stop, play, prev, next, vpause
-keypad                      up, down, left, right pgup, pgdn, home, end, +, -
-\bc-
-\pp+
-All key and group names can have a modifier prepended. Available modifiers are \cdishift-\end, \cdicntrl-\end and \cdialt-\end. If a key-modifier pair isn\cdit bound to an action, then cxine will treat the key as though it had no modifier. Thus \endalt-o\cdi can be bound to turn OSD display on-and-off without depriving other programs of use of the \endo\cdi key.
-\pp-
-\pp-
-\end\fP
+keypad                      up, down, left, right pgup, pgdn, home, end, +, \-
+.fi
+.ad b
+
+.P
+All key and group names can have a modifier prepended. Available modifiers are 
+.na
+shift\-
+.ad
+, 
+.na
+cntrl\-
+.ad
+and 
+.na
+alt\-
+.ad
+. If a key-modifier pair isn
+.na
+t bound to an action, then cxine will treat the key as though it had no modifier. Thus 
+.ad
+alt-o
+.na
+ can be bound to turn OSD display on\-and\-off without depriving other programs of use of the 
+.ad
+o
+.na
+ key.
+\\pp\-
+\\pp\-
+
+.ad

@@ -398,7 +398,7 @@ s               toggle 'slow' playback (1/4 speed, no sound)
 1,2,3...        seek to n*10 percent (so 5 seeks to 50% of stream)
 ```
 
-The '+' and '-' keys represent a departure from mplayer. On the keypad they work as expected, with the 'shift' modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get '+' on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard '=' and '-' change volume up and down, and their shifted versions '_' and '+' alter audio compression.
+The `+` and `-` keys represent a departure from mplayer. On the keypad they work as expected, with the 'shift' modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get `+` on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard `=` and `-` change volume up and down, and their shifted versions `_` and `+` alter audio compression.
 
 The following keys on 'internet' or 'media' keyboards are supported:
 
