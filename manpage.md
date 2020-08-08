@@ -354,7 +354,7 @@ Playlist OSD
 Pressing 'p' brings up the Playlist On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will switch playback to that item. Pressing 'u' or 'd' when an item has the cursor on it will move the item up and down in the playlist. Pressing 'delete' or 'backspace' will delete an item from the playlist. Finally pressing 'p' again will dismiss the Playlist OSD.
 
 Load Files OSD
-------------
+--------------
 
 Pressing 'l' brings up the Load Files On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will either enter a directory, or add a file to the playlist. Pressing 'delete' or 'backspace' go up one directory level. Pressing 'l' again will dismiss this menu.
 
@@ -362,7 +362,7 @@ Pressing 'l' brings up the Load Files On Screen Display. This is a simple menu w
 Keybindings
 -----------
 
-CXine supports the following keys
+CXine supports the following keys:
 
 ```
 <escape>        exit app (requires -esc command-line option)
@@ -396,11 +396,11 @@ s               toggle 'slow' playback (1/4 speed, no sound)
 <               prev item in playlist
 >               next item in playlist
 1,2,3...        seek to n*10 percent (so 5 seeks to 50% of stream)
-
+```
 
 The '+' and '-' keys represent a departure from mplayer. On the keypad they work as expected, with the 'shift' modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get '+' on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard '=' and '-' change volume up and down, and their shifted versions '_' and '+' alter audio compression.
 
-The following keys on 'internet' or 'media' keyboards are supported
+The following keys on 'internet' or 'media' keyboards are supported:
 
 ```
 <play>
@@ -431,6 +431,7 @@ vpause                      media pause key found on 'internet' keyboards
 ```
 
 CXine also supports the following 'group' names that grab groups of keys:
+
 ```
 arrow                       left right up down
 volume                      vup, vdown, mute
