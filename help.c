@@ -33,6 +33,7 @@ static void HelpKeys()
     printf("o               toggle online display\n");
     printf("f               toggle fullscreen\n");
     printf("T               toggle stay-on-top\n");
+    printf("l               display file load menu\n");
     printf("p               display playlist menu\n");
 		printf("[               slower playback (no sound)\n");
 		printf("]               faster playback (no sound)\n");

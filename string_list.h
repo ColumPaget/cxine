@@ -25,5 +25,6 @@ const char *StringListCurr(TStringList *sl);
 const char *StringListPrev(TStringList *sl);
 const char *StringListNext(TStringList *sl);
 void StringListDestroy(TStringList *sl);
+void StringListClear(TStringList *sl);
 
 #endif

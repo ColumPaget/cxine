@@ -20,6 +20,7 @@ TStringList *StringListCreate(int argc, char **argv)
     return(sl);
 }
 
+
 int StringListAdd(TStringList *sl, const char *str)
 {
     if (str)
@@ -117,17 +118,24 @@ const char *StringListNext(TStringList *sl)
     return(sl->list[sl->next-1]);
 }
 
-
-void StringListDestroy(TStringList *sl)
+void StringListClear(TStringList *sl)
 {
     int i;
 
     for (i=0; i < sl->size; i++)
     {
-        if (sl->list[i]) free(sl->list[i]);
+       if (sl->list[i]) free(sl->list[i]);
     }
 
     free(sl->list);
-    free(sl);
+		sl->list=NULL;
+		sl->size=0;
+}
+
+
+void StringListDestroy(TStringList *sl)
+{
+	StringListClear(sl);
+  free(sl);
 }
 

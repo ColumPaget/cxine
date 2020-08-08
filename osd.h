@@ -30,4 +30,6 @@ void OSDUpdateSingle(CXineOSD *OSD, int show);
 void OSDUpdate(int Show);
 void OSDDestroy(CXineOSD *OSD);
 
+int OSDGetScreenHeight(CXineOSD *OSD);
+
 #endif

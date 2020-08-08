@@ -3,7 +3,7 @@ LDFLAGS= -L/usr/X11R7/lib
 LIBS=-lXss -lX11 -lxine -lm 
 prefix=/usr/local
 
-OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o playlist_osd.o plugins.o audio_drivers.o X11.o 
+OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o playlist_osd.o load_files_osd.o plugins.o audio_drivers.o splashscreen.o stdin_fd.o X11.o 
 
 all: $(OBJ)
 	$(CC) -o cxine -Wall $(CFLAGS) $(LDFLAGS) $(OBJ) cxine.c $(LIBS) 
@@ -44,6 +44,10 @@ playlist_files.o: playlist_files.h playlist_files.c common.h
 download.o: download.h download.c common.h
 	$(CC) $(CFLAGS) -c download.c
 
+
+stdin_fd.o: stdin_fd.h stdin_fd.c common.h
+	$(CC) $(CFLAGS) -c stdin_fd.c
+
 keypress.o: keypress.h keypress.c common.h
 	$(CC) $(CFLAGS) -c keypress.c
 
@@ -53,11 +57,18 @@ osd.o: osd.h osd.c common.h
 playlist_osd.o: playlist_osd.h playlist_osd.c common.h
 	$(CC) $(CFLAGS) -c playlist_osd.c
 
+load_files_osd.o: load_files_osd.h load_files_osd.c common.h
+	$(CC) $(CFLAGS) -c load_files_osd.c
+
+
 plugins.o: plugins.h plugins.c common.h
 	$(CC) $(CFLAGS) -c plugins.c
 
 audio_drivers.o: audio_drivers.h audio_drivers.c common.h
 	$(CC) $(CFLAGS) -c audio_drivers.c
+
+splashscreen.o: splashscreen.h splashscreen.c common.h
+	$(CC) $(CFLAGS) -c splashscreen.c
 
 X11.o: X11.h X11.c common.h
 	$(CC) $(CFLAGS)  -c X11.c

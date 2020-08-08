@@ -6,11 +6,9 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "keypress.h"
 #include "playback_control.h"
 #include "playlist_osd.h"
+#include "load_files_osd.h"
 #include "X11.h"
 #include "audio_drivers.h"
-#include <termios.h>
-
-struct termios tty_old;
 
 void KeyGrabAdd(void *X11Out, const char *Mod, const char *KeyStr)
 {
@@ -332,6 +330,11 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         else CXineVolume(stream, SET_ADD, -5);
         break;
 
+		case 'l':
+				if (Config->state & STATE_LOADFILES_DISPLAYED) LoadFilesOSDHide();
+				else LoadFilesOSDShow();
+		break;		
+
 		case 'p':
 				if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDHide();
 				else PlaylistOSDShow();
@@ -362,6 +365,7 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 		//if playlist is displayed, and playlist takes/recognizes keypress, then 
 		//don't handle it in the main keypress code
 	if ( (Config->state & STATE_PLAYLIST_DISPLAYED) && PlaylistOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
+	else if ( (Config->state & STATE_LOADFILES_DISPLAYED) && LoadFilesOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
 	else MainScreenHandleKeyPress(X11Out, stream, keychar, modifier);
 }
 
@@ -475,24 +479,3 @@ destroy(Token);
 }
 
 
-//if we are not in slave mode, then we read keypresses from stdin 
-//to do this we have to switch the terminal out of 'canonical' (line editing) mode
-void KeypressSetupStdIn(int stdin_fd)
-{
-struct termios tty_new;
-
-tcgetattr(stdin_fd, &tty_old);
-tcgetattr(stdin_fd, &tty_new);
-tty_new.c_lflag ^= ICANON;
-tty_new.c_lflag ^= ECHO;
-tty_new.c_lflag |= ISIG;
-tty_new.c_cc[VMIN]=1;
-tty_new.c_cc[VTIME]=0;
-tcsetattr(stdin_fd, TCSANOW, &tty_new);
-}
-
-//reset StdIn back to whatever it was at program startup
-void KeypressResetStdIn(int stdin_fd)
-{
-		tcsetattr(stdin_fd, TCSANOW, &tty_old);
-}

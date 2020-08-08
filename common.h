@@ -85,6 +85,9 @@ int arg2;
 #define STATE_PLAYLIST_REQUESTED 8192
 #define STATE_DOWNLOADING 16384
 #define STATE_PLAYING 32768
+#define STATE_LOADFILES_DISPLAYED 65536
+
+
 
 typedef struct
 {
@@ -94,6 +97,15 @@ int width;
 int height;
 int zoom;
 int debug;
+// file descriptors. stdin is a file descriptor for stdin after we've moved it from fd0
+// 'to_cxine' is the new fd0 which the cxine player process considers to be stdin, and
+// down which we can pipe media. 'control_pipe' is the file descriptor for mplayer-style
+// control commands, and 'nowplay_pipe' is a pipe down which we send our 'now playing'
+// status
+int stdin;
+int to_xine;
+int control_pipe;
+int nowplay_pipe;
 int audio_compression;
 int brightness;
 int contrast;
@@ -104,9 +116,6 @@ const char *ao_curr;
 TStringList *playlist;
 char *CurrTitle;
 double startms;
-int DVDNavButtons;
-int control_pipe;
-int nowplay_pipe;
 char *path_prefix;
 char *audio_plugins;
 char *control_pipe_path;
@@ -123,6 +132,7 @@ int loop;
 int image_ms;
 int bcast_port;
 void *X11Out;
+int DVDNavButtons;
 xine_t              *xine;
 xine_stream_t       *stream;
 xine_video_port_t   *vo_port;

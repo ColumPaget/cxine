@@ -41,6 +41,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "control_protocol.h"
 #include "now_playing.h"
 #include "command_line.h"
+#include "stdin_fd.h"
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <pwd.h>
@@ -50,6 +51,8 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #define DEFAULT_CACHE_DIR "~/.cxine/cache"
 
 static CXineOSD *DownloadOSD=NULL;
+
+
 
 
 void SignalHandler(int sig)
@@ -175,12 +178,25 @@ void PeriodicProcessing()
 
     OSDUpdate((Config->flags & CONFIG_OSD) && (! (Config->state & STATE_PLAYLIST_DISPLAYED)));
 
-    if (Config->state & STATE_DOWNLOADING) DisplayDownloadProgress();
+    if (
+				(Config->state & STATE_DOWNLOADING) &&
+				(! (Config->state & (STATE_PLAYLIST_DISPLAYED | STATE_LOADFILES_DISPLAYED)) )
+			) DisplayDownloadProgress();
 
     destroy(URL);
     destroy(ID);
 }
 
+
+int FDCopyBytes(int in, int out)
+{
+char Buffer[1024];
+int result;
+
+result=read(in, Buffer, 1024);
+write(out, Buffer, result);
+return(result);
+}
 
 
 int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
@@ -243,6 +259,17 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
 						{
 							KeypressHandleStdIn(stdin_fd, Config->stream);
 						}
+						/*
+						else 
+						{
+							result=FDCopyBytes(stdin_fd, Config->to_xine);
+							if (result < 1)
+							{
+								close(stdin_fd);
+								stdin_fd=-1;
+							}
+						}
+						*/
         }
 
         if ((control_pipe > -1) && FD_ISSET(control_pipe, &select_set))
@@ -357,7 +384,7 @@ void CXineOutputs(xine_t *xine, xine_stream_t *stream)
 
 
 
-void CXineExit(TConfig *Config, int stdin_fd)
+void CXineExit(TConfig *Config)
 {
 		//will only save bookmark if stream is still playing
 		SaveBookmark(StringListCurr(Config->playlist), Config->stream);
@@ -368,7 +395,7 @@ void CXineExit(TConfig *Config, int stdin_fd)
     if (Config->vo_port)  xine_close_video_driver(Config->xine, Config->vo_port);
     xine_exit(Config->xine);
     X11Close(Config->X11Out);
-		if (Config->flags & CONFIG_CONTROL) KeypressResetStdIn(stdin_fd);
+		StdinReset();
 }
 
 
@@ -404,7 +431,7 @@ destroy(Tempstr);
 
 int main(int argc, char **argv)
 {
-  int control_pipe=-1, stdin_fd=-1, result;
+  int control_pipe=-1, result;
 	broadcaster_t *bcast=NULL;
 
     //call 'SignalHandler' with a signal it ignores as it will set up
@@ -460,18 +487,16 @@ int main(int argc, char **argv)
 		if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
 
 		//open stdin late, as X11 setup above can override its use
-		if (Config->flags & CONFIG_SLAVE) stdin_fd=0;
-		else if (Config->flags & CONFIG_CONTROL) 
-		{
-			stdin_fd=0;
-			KeypressSetupStdIn(stdin_fd);
-		}
+		Config->stdin=dup(0);
+		//StdinSetup(Config->flags);
 
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);
 
     CXineOutputs(Config->xine, Config->stream);
 //	xine_set_param (Config->stream, XINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
+
+		CxineInjectSplashScreen(Config->xine);
 
     running = 1;
     while(running)
@@ -515,7 +540,7 @@ int main(int argc, char **argv)
 
 //		if (Config->state & STATE_NEWTITLE) CXineNewTitle(Config);
 
-        result=WatchFileDescriptors(Config, stdin_fd, control_pipe);
+        result=WatchFileDescriptors(Config, Config->stdin, control_pipe);
 				switch (result)
 				{
 					case EVENT_RESIZE: OSDSetup(Config); break;
@@ -526,7 +551,7 @@ int main(int argc, char **argv)
     }
 
 		if (bcast) _x_close_broadcaster(bcast);
-    CXineExit(Config, stdin_fd);
+    CXineExit(Config);
 
     return(1);
 }

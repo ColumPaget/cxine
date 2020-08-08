@@ -165,7 +165,7 @@ TStringList *PlaylistExpandCurr(TStringList *playlist, const char *URL, const ch
 
 void PlaylistParseEntry(const char *info, char **URL, char **ID, char **Title)
 {
-char *Tempstr=NULL, *UnQuote=NULL;
+char *Path=NULL, *Tempstr=NULL, *UnQuote=NULL;
 const char *ptr;
 
 	if (URL) *URL=rstrcpy(*URL, "");
@@ -174,8 +174,9 @@ const char *ptr;
 
 	if (info == NULL) return;
 
-  ptr=rstrtok(info, " ", &Tempstr);
-  if (URL) *URL=rstrunquot(*URL, Tempstr);
+  ptr=rstrtok(info, " ", &Path);
+  if (URL) *URL=rstrunquot(*URL, Path);
+
   while (ptr)
   {
     ptr=rstrtok(ptr, " ", &Tempstr);
@@ -200,12 +201,12 @@ const char *ptr;
 			}
 	    else 
 			{
-				if (Title) *Title=rstrunquot(*Title, basename(Tempstr));
+				if (Title) *Title=rstrunquot(*Title, cbasename(Tempstr));
 			}
     }
   }
 
-if (Title && (! StrLen(*Title))) *Title=rstrcpy(*Title, basename(*URL));
+	if (Title && (StrLen(*Title)==0)) *Title=rstrunquot(*Title, cbasename(Path));
 
 destroy(Tempstr);
 destroy(UnQuote);

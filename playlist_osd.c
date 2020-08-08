@@ -9,8 +9,8 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "keypress.h"
 #include "X11.h"
 
-CXineOSD *OSD=NULL;
-int pos=0;
+static CXineOSD *OSD=NULL;
+static int pos=0;
 
 int PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
 {
@@ -74,17 +74,6 @@ int result=FALSE, old;
 }
 
 
-int PlaylistOSDGetScreenHeight(CXineOSD *OSD)
-{
-int x=0, y=0, wid, high;
-
-wid=OSD->wid;
-high=OSD->high;
-
-X11Fit(Config->X11Out, &x, &y, &wid, &high);
-
-return(high);
-}
 
 
 void PlaylistOSDUpdate()
@@ -100,7 +89,7 @@ xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_YELLOW_BLACK_TRANSPARENT, X
 
 playing=StringListPos(Config->playlist);
 
-osd_high=PlaylistOSDGetScreenHeight(OSD);
+osd_high=OSDGetScreenHeight(OSD);
 xine_osd_get_text_size(OSD->osd, "TEST", &wid, &high);
 per_page=osd_high / high;
 per_page-=3;
@@ -148,6 +137,7 @@ void PlaylistOSDHide()
 
 void PlaylistOSDShow()
 {
+	if (Config->state & STATE_LOADFILES_DISPLAYED) return;
 	if (! OSD) OSD=OSDCreate(Config->X11Out, Config->stream, "0,10,-20,-20 font=mono", "");
 	Config->state |= STATE_PLAYLIST_DISPLAYED;
 	PlaylistOSDUpdate();

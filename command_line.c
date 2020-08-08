@@ -233,7 +233,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         )
         {
             PlaylistAdd(Config->playlist, "stdin://", ID, Title);
-//			Config->flags &= ~CONFIG_CONTROL;
+						Config->flags &= ~CONFIG_CONTROL;
         }
         else if ( strcmp(argv[i], "-v")==0 ) Config->debug++;
         else if ( strcmp(argv[i], "-version")==0 )

@@ -556,6 +556,19 @@ void OSDDestroy(CXineOSD *OSD)
 
 
 
+int OSDGetScreenHeight(CXineOSD *OSD)
+{
+int x=0, y=0, wid, high;
+
+wid=OSD->wid;
+high=OSD->high;
+
+X11Fit(Config->X11Out, &x, &y, &wid, &high);
+
+return(high);
+}
+
+
 void OSDSetup(TConfig *Config)
 {
     if (StrLen(Config->top_osd_text))

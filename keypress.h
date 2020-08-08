@@ -60,12 +60,5 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 void KeyGrabsSetup(void *X11Out);
 
 int KeypressHandleStdIn(int fd, xine_stream_t *stream);
-
-//if we are not in slave mode, then we read keypresses from stdin 
-//to do this we have to switch the terminal out of 'canonical' (line editing) mode
-void KeypressSetupStdIn(int stdin_fd);
-
-//reset StdIn back to whatever it was at program startup
-void KeypressResetStdIn(int stdin_fd);
 #endif
 

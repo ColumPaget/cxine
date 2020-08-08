@@ -27,7 +27,16 @@ const char *cbasename(const char *Path)
 
     if (! Path) return("");
     ptr=strrchr(Path, '/');
-    if (ptr) return(ptr+1);
+    if (ptr) 
+		{
+			if (*(ptr+1)=='\0')
+			{
+				ptr--;
+				while ((ptr > Path) && (*ptr !='/')) ptr--;
+			}
+			if (*ptr=='/') return(ptr+1);
+			return(ptr);
+		}
     return(Path);
 }
 

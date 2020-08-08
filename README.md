@@ -310,6 +310,17 @@ The argument of the -osd option is a pair of comma-seperated strings. The first 
 Onscreen displays only work if there`s a video stream for them to mix into. Thus, to have an OSD when playing audio files you should either use the -background option to set a default background image, or use one of the audio post-processing visualizations, or else supply cxine with a .jpeg or .png image as the first `track` to play, and use the `-image-time` or `-imagems` options to cause the next track to start playing after the image is displayed. The image will persist and be the `video` stream for the OSD to mix into.
 
 
+Playlist OSD
+------------
+
+Pressing 'p' brings up the Playlist On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will switch playback to that item. Pressing 'u' or 'd' when an item has the cursor on it will move the item up and down in the playlist. Pressing 'delete' or 'backspace' will delete an item from the playlist. Finally pressing 'p' again will dismiss the Playlist OSD.
+
+Load Files OSD
+------------
+
+Pressing 'l' brings up the Load Files On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will either enter a directory, or add a file to the playlist. Pressing 'delete' or 'backspace' go up one directory level. Pressing 'l' again will dismiss this menu.
+
+
 Keybindings
 -----------
 
@@ -334,6 +345,7 @@ CXine supports the following keys
                 shift: increase audio compression
 - (or '_')      decrease volume
                 shift: decrease audio compression
+l               display 'load files' menu
 m               mute
 o               toggle online display
 p               display playlist menu
@@ -357,7 +369,7 @@ The following keys on 'internet' or 'media' keyboards are supported
 <next>
 <previous>
 <volume up>     with 'shift' causes a larger increase
-<volume down>   with 'shift' casues a larger decrease
+<volume down>   with 'shift' causes a larger decrease
 <volume mute>
 
 ```
