@@ -294,3 +294,149 @@ If '-save-config' is given then cxine will remember the following settings if th
 ```
 		cxine -defaults -background myimage.jpg -ao alsa -keygrab media -save
 ```
+
+
+On Screen Displays
+------------------
+
+CXine supports on-screen-displays at the top and bottom of the screen. These are defined using the `-osd` switch like so:
+
+cxine -osd `top,%t now playing: %T` -osd `bottom,%tP%% %ts/%tl`
+
+The argument of the -osd option is a pair of comma-seperated strings. The first is `top` or `bottom` indicating which area of the screen the OSD should be displayed in. The second is the string to display, with the following printf-style `%` substitutions supported:
+
+```
+%%     output '%'
+%B      output current stream bitrate
+%w      output current stream video width
+%h      output current stream video height
+%o      output current stream AV offset
+%A      output artist of current track
+%T      output title of current track
+%C      output comment of current track
+%v      output audio volume (0-100)
+%av     output audio volume (0-100)
+%ac     output audio file FourCC
+%ab     output audio bitrate
+%as     output audio samplerate
+%aw     output audio width (compression level)
+%Ls     output size of playlist (number of queued tracks)
+%Ls     output curr track in playlist being played
+%ma     output artist for current track
+%mA     output album for current track
+%mt     output title of current track
+%mT     output title of current track
+%mY     output year for current track
+%mG     output genre for current track
+%mR     output copyright for current track
+%mc     output DVD chapter number
+%mC     output number of chapters on DVD
+%ts     output number of seconds into track
+%tS     output seconds into and duration of track as <position>/<track length>
+%tl     output length of current track in seconds
+%tP     output percent into current track
+%tt     output current time in form HH:MM
+%tT     output current time in form HH:MM:SS
+%td     output current date in form YY/mm/dd
+%tD     output current date in form YYYY/mm/dd
+%tN     output current date and time in form YYYY/mm/dd HH:MM:SS
+%tw     output position in track as HH:MM:SS
+%tW     output length of track as HH:MM:SS
+
+```
+
+Onscreen displays only work if there`s a video stream for them to mix into. Thus, to have an OSD when playing audio files you should either use the -background option to set a default background image, or use one of the audio post-processing visualizations, or else supply cxine with a .jpeg or .png image as the first `track` to play, and use the `-image-time` or `-imagems` options to cause the next track to start playing after the image is displayed. The image will persist and be the `video` stream for the OSD to mix into.
+
+
+Playlist OSD
+------------
+
+Pressing 'p' brings up the Playlist On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will switch playback to that item. Pressing 'u' or 'd' when an item has the cursor on it will move the item up and down in the playlist. Pressing 'delete' or 'backspace' will delete an item from the playlist. Finally pressing 'p' again will dismiss the Playlist OSD.
+
+Load Files OSD
+------------
+
+Pressing 'l' brings up the Load Files On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will either enter a directory, or add a file to the playlist. Pressing 'delete' or 'backspace' go up one directory level. Pressing 'l' again will dismiss this menu.
+
+
+Keybindings
+-----------
+
+CXine supports the following keys
+
+```
+<escape>        exit app (requires -esc command-line option)
+<spacebar>      pause playback
+<pause>         pause playback
+<home>          seek to start of playback
+<end>           seek to near end of playback
+<enter>         next item in playlist
+<left arrow>    seek back 10 seconds
+                shift: previous item in playlist
+                ctrl: step back (not frame accurate like ctrl-right)
+<right arrow>   seek forward 10 seconds
+                shift: next item in playlist
+                ctrl: single-step 1-frame forwards
+<page up>       forward dvd chapter 
+<page down>     back dvd chapter 
++ (or '=')      increase volume
+                shift: increase audio compression
+- (or '_')      decrease volume
+                shift: decrease audio compression
+l               display 'load files' menu
+m               mute
+o               toggle online display
+p               display playlist menu
+f               toggle 'fast' playback (4*speed, no sound)
+s               toggle 'slow' playback (1/4 speed, no sound)
+<tab>           toggle between 'raised' and 'lowered' window modes
+                ctrl: toggle 'shaded' window mode (if supported by window-manager)
+<delete>        reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)
+.               reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)
+<               prev item in playlist
+>               next item in playlist
+1,2,3...        seek to n*10 percent (so 5 seeks to 50% of stream)
+
+
+The '+' and '-' keys represent a departure from mplayer. On the keypad they work as expected, with the 'shift' modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get '+' on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard '=' and '-' change volume up and down, and their shifted versions '_' and '+' alter audio compression.
+
+The following keys on 'internet' or 'media' keyboards are supported
+<play>
+<stop>
+<pause playback>
+<next>
+<previous>
+<volume up>     with 'shift' causes a larger increase
+<volume down>   with 'shift' causes a larger decrease
+<volume mute>
+
+```
+
+
+Keygrabs
+--------
+
+CXine can grab keys for its exclusive use, meaning that that those keystrokes will be sent to it regardless of what window currently has input focus. Keygrabs are supplied to the program in a comma-seperated list after the `-keygrab` option. Recognized key names are either alphanumeric characters and punctuation, or the following names:
+
+```
+up, down, left, right       arrow keys
+pgup, pgdn, home, end       page-up, page-down, home and end keys
+pgup, pgdn, home, end       page-up, page-down, home and end keys
+ins, del                    insert and delete keys
+vup, vdown, mute            volume up, down and mute keys found on 'internet' keyboards
+stop, play, next, prev      playback keys found on 'internet' keyboards
+vpause                      media pause key found on 'internet' keyboards
+```
+
+CXine also supports the following 'group' names that grab groups of keys:
+```
+arrow                       left right up down
+volume                      vup, vdown, mute
+page                        pgup, pgdn
+nav                         left, right, up, down, pgup, pgdn, home, end
+media                       vup, vdown, mute, stop, play, prev, next, vpause
+keypad                      up, down, left, right pgup, pgdn, home, end, +, -
+```
+
+All key and group names can have a modifier prepended. Available modifiers are `shift-`, `cntrl-` and `alt-`. If a key-modifier pair isn`t bound to an action, then cxine will treat the key as though it had no modifier. Thus `alt-o` can be bound to turn OSD display on-and-off without depriving other programs of use of the `o` key.
+
