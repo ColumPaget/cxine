@@ -345,7 +345,7 @@ The argument of the -osd option is a pair of comma-seperated strings. The first 
 
 ```
 
-Onscreen displays only work if there`s a video stream for them to mix into. Thus, to have an OSD when playing audio files you should either use the -background option to set a default background image, or use one of the audio post-processing visualizations, or else supply cxine with a .jpeg or .png image as the first `track` to play, and use the `-image-time` or `-imagems` options to cause the next track to start playing after the image is displayed. The image will persist and be the `video` stream for the OSD to mix into.
+Onscreen displays only work if there's a video stream for them to mix into. Thus, to have an OSD when playing audio files you should either use the -background option to set a default background image, or use one of the audio post-processing visualizations, or else supply cxine with a .jpeg or .png image as the first `track` to play, and use the `-image-time` or `-imagems` options to cause the next track to start playing after the image is displayed. The image will persist and be the `video` stream for the OSD to mix into.
 
 
 Playlist OSD
