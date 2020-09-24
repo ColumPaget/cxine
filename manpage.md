@@ -49,7 +49,7 @@ OPTIONS
 -esc
  : Allow the 'escape' key to exit the app.
 -ao <ao name>
- : Audio output plugins list (default = alsa). This is a comma-seperated list of audio outputs to try, cxine will use the first one that works. For alsa  and oss different output devices can be specified by appending ':0', ':1' to select devices by number. For Jack, Sun and Pulse appending the device path/name instead of a number *may* work. If a list of devices is provided, then the 'a' key can be used at runtime to cycle through them.
+ : Audio output plugins list (default = alsa). This is a comma-seperated list of audio outputs to try, cxine will use the first one that works. For alsa and oss different output devices can be specified by appending ':0', ':1' to select devices by number. For alsa you can also use a device name like 'alsa:hw:0,0' or 'alsa:dmix0'. For Jack, Sun and Pulse appending the device path/name instead of a number *may* work. If a list of devices is provided, then the 'a' key can be used at runtime to cycle through them.
 -vo <vo name>
  : Video output plugin name (default = Xv).
 -identify
