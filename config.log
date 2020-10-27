@@ -27,6 +27,7 @@ uname -v = #6 SMP Sun Apr 19 22:31:45 BST 2020
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
+PATH: /home/colum/bin
 PATH: /usr/prebin
 PATH: /usr/local/bin
 PATH: /usr/bin
