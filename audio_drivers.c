@@ -57,22 +57,15 @@ xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
         }
         else if (strcmp(Type, "alsa")==0)
         {
+						if (! StrLen(ptr)) Tempstr=rstrcpy(Tempstr, "plug:default");
 						if (isdigit(*ptr))
 						{
-            Tempstr=rstrcpy(Tempstr,"plug:default:");
+            Tempstr=rstrcpy(Tempstr,"hw:");
             Tempstr=rstrcat(Tempstr,ptr);
 						}
 						else Tempstr=rstrcpy(Tempstr, ptr);
 
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_default_device", Tempstr, "ALSA device for mono output");
-
-						if (isdigit(*ptr))
-						{
-            Tempstr=rstrcpy(Tempstr,"plug:default:");
-            Tempstr=rstrcat(Tempstr,ptr);
-						}
-						else Tempstr=rstrcpy(Tempstr, ptr);
-
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_front_device", Tempstr, "ALSA device for stereo output");
         }
         else if (strcmp(Type, "jack")==0)
