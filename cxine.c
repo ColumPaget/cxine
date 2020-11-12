@@ -260,7 +260,6 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
 						{
 							KeypressHandleStdIn(stdin_fd, Config->stream);
 						}
-						/*
 						else 
 						{
 							result=FDCopyBytes(stdin_fd, Config->to_xine);
@@ -270,7 +269,6 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
 								stdin_fd=-1;
 							}
 						}
-						*/
         }
 
         if ((control_pipe > -1) && FD_ISSET(control_pipe, &select_set))
