@@ -135,11 +135,29 @@ char *OSDFormatParam(char *ValueStr, xine_stream_t *stream, int Type)
 
 char *OSDFormatValue(char *ValueStr, xine_stream_t *stream, int Type)
 {
+uint32_t val;
+const char *ptr;
 
+		val=xine_get_stream_info(stream, Type);
     switch (Type)
     {
+			case XINE_STREAM_INFO_AUDIO_CHANNELS:
+				switch (val)
+				{
+					case 1:  snprintf(ValueStr, VALUE_STR_LEN, "%s", "mono"); break;
+					case 2:  snprintf(ValueStr, VALUE_STR_LEN, "%s", "stereo"); break;
+					default: snprintf(ValueStr, VALUE_STR_LEN, "%dchan", val); break;
+				}
+			break;
+
+			case XINE_STREAM_INFO_VIDEO_FOURCC:
+			case XINE_STREAM_INFO_AUDIO_FOURCC:
+				ptr=(const char *) &val;
+        snprintf(ValueStr, VALUE_STR_LEN, "%c%c%c%c", ptr[0], ptr[1], ptr[2], ptr[3]);
+				break;
+
     default:
-        snprintf(ValueStr, VALUE_STR_LEN, "%d", xine_get_stream_info(stream, Type));
+        snprintf(ValueStr, VALUE_STR_LEN, "%d", val);
         break;
     }
 
@@ -230,7 +248,7 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
         case 'o':
             RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AV_OFFSET));
             break;
-        case 'v':
+        case 'V':
             RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_PARAM_AUDIO_VOLUME));
             break;
         case 'f':
@@ -248,9 +266,14 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
             ptr++;
             switch (*ptr)
             {
-            case 'c':
+            case '4':
                 RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_FOURCC));
                 break;
+            case 'c':
+                RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_CHANNELS));
+                break;
+						case 'C':
+                RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_AUDIOCODEC));
             case 'b':
                 RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_BITRATE));
                 break;
@@ -325,16 +348,53 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
 
             case 't':
             case 'T':
-                Tempstr=PlaylistCurrTitle(Tempstr);
+                Tempstr=rstrcat(Tempstr, xine_get_meta_info(stream, XINE_META_INFO_TITLE));
+                if (! StrLen(Tempstr)) Tempstr=PlaylistCurrTitle(Tempstr);
                 RetStr=rstrcat(RetStr, Tempstr);
                 break;
             }
             break;
 
+				case 'P':
+                RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_INPUT_PLUGIN));
+				break;
+
         case 'T':
             Tempstr=PlaylistCurrTitle(Tempstr);
             RetStr=rstrcat(RetStr, Tempstr);
             break;
+
+				//video info
+				case 'v':
+            ptr++;
+            switch (*ptr)
+            {
+            case '4':
+                RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_FOURCC));
+                break;
+            case 'c':
+                RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_CHANNELS));
+                break;
+						case 'C':
+                RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_VIDEOCODEC));
+								break;
+            case 'b':
+                RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_BITRATE));
+                break;
+            case 's':
+                RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_STREAMS));
+                break;
+            case 'r':
+                RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_STREAM_INFO_VIDEO_RATIO));
+                break;
+		        case 'w':
+            	RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_WIDTH));
+      		      break;
+  		      case 'h':
+            	RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_HEIGHT));
+          		  break;
+						} 
+				break;
         }
         if (*ptr != '\0') ptr++;
         prev=ptr;

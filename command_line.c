@@ -132,6 +132,10 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-fs")==0 ) Config->parent=rstrcpy(Config->parent,"fullscreen");
         else if ( strcmp(argv[i], "-raise")==0 ) Config->parent=rstrcpy(Config->parent,"raised");
         else if ( strcmp(argv[i], "-rootwin")==0 ) Config->parent=rstrcpy(Config->parent,"root");
+        else if ( strcmp(argv[i], "+stdin-ctrl")==0 ) Config->flags |= CONFIG_CONTROL;
+        else if ( strcmp(argv[i], "-stdin-ctrl")==0 ) Config->flags &= ~CONFIG_CONTROL;
+        else if ( strcmp(argv[i], "-C")==0 ) Config->flags |= CONFIG_CONTROL;
+        else if ( strcmp(argv[i], "+C")==0 ) Config->flags &= ~CONFIG_CONTROL;
         else if ( strcmp(argv[i], "-startms")==0 )
         {
             Config->startms=strtof(argv[++i], NULL);
@@ -158,6 +162,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-webcast")==0 ) Config->flags |= CONFIG_STREAM | CONFIG_WEBCAST;
         else if ( strcmp(argv[i], "-background")==0 ) Config->background=rstrcpy(Config->background, argv[++i]);
         else if ( strcmp(argv[i], "-persist")==0 ) Config->flags |= CONFIG_PERSIST;
+        else if ( strcmp(argv[i], "-idle")==0 ) Config->flags |= CONFIG_PERSIST;
         else if ( strcmp(argv[i], "-quit")==0 ) Config->flags &= ~CONFIG_PERSIST;
         else if ( strcmp(argv[i], "-stop_xscreensaver")==0 ) Config->flags |= DISABLE_SCREENSAVER;
         else if ( strcmp(argv[i], "-screensaver")==0 ) Config->flags |= DISABLE_SCREENSAVER;
@@ -234,6 +239,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         {
             PlaylistAdd(Config->playlist, "stdin://", ID, Title);
 						Config->flags &= ~CONFIG_CONTROL;
+						Config->flags |= CONFIG_READ_STDIN;
         }
         else if ( strcmp(argv[i], "-v")==0 ) Config->debug++;
         else if ( strcmp(argv[i], "-version")==0 )

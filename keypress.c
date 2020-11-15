@@ -7,6 +7,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playback_control.h"
 #include "playlist_osd.h"
 #include "load_files_osd.h"
+#include "media_info_osd.h"
 #include "X11.h"
 #include "audio_drivers.h"
 
@@ -160,15 +161,6 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
 		case 'a':
         CXineCycleAudio();
 				break;
-
-    case 'm':
-    case KEY_MUTE:
-        CXineMute(stream, TOGGLE);
-        break;
-
-    case 'o':
-        Config->flags ^= CONFIG_OSD;
-        break;
 
 
     case 'f':
@@ -328,12 +320,26 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         if (modifier & KEYMOD_SHIFT) CXineSwitchAudioChannel(stream, -1);
         else if (modifier & KEYMOD_SHIFT) CXineAudioComp(stream, SET_ADD, -25);
         else CXineVolume(stream, SET_ADD, -5);
-        break;
+    break;
+
+		case 'i':
+				if (Config->state & STATE_INFO_DISPLAYED) InfoOSDHide();
+				else InfoOSDShow();
+		break;
 
 		case 'l':
 				if (Config->state & STATE_LOADFILES_DISPLAYED) LoadFilesOSDHide();
 				else LoadFilesOSDShow();
-		break;		
+		break;
+
+    case 'm':
+    case KEY_MUTE:
+        CXineMute(stream, TOGGLE);
+        break;
+
+    case 'o':
+        Config->flags ^= CONFIG_OSD;
+        break;
 
 		case 'p':
 				if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDHide();

@@ -43,6 +43,10 @@ Options
   -fs                     Play fullscreen (mplayer style option equivalent to '-win fullscreen').
   -background <path>      Path to background image when not playing anything else. Needed for OSD to mix into.
   -use-stdin              Read media stream from stdin
+  +stdin-ctrl             Read keypresses from stdin
+  -stdin-ctrl             Dont read keypresses from stdin
+  -C                      Read keypresses from stdin
+  +C                      Dont read keypresses from stdin
   -bcast <port>           Specify port that slave libxine players can connect to to recieve broadcasted stream.
   -pause                  Start paused.
   -mute                   Start muted.
@@ -57,6 +61,7 @@ Options
   -ss                     Disable screensaver during playing, re-enable it on exit, or if playback paused.
   -SS                     Disable screensaver during playing, re-enable it on exit BUT NOT IF PLAYBACK PAUSED.
   +ss                     Enable screensaver during playing.
+  -idle                   Don't exit when nothing left to do, wait for commands on stdin.
   -persist                Don't exit when nothing left to do, wait for commands on stdin.
   -quit                   Exit when nothing left to do (use this if you saved -persist config and want to turn it off)
   -slave                  Mplayer compatible flag, equivalent to '-persist -startms 0'.
@@ -278,7 +283,8 @@ The argument of the -osd option is a pair of comma-seperated strings. The first 
 %C      output comment of current track
 %v      output audio volume (0-100)
 %av     output audio volume (0-100)
-%ac     output audio file FourCC
+%a4     output audio file FourCC
+%ac     output audio channels (mono, stereo, etc)
 %ab     output audio bitrate
 %as     output audio samplerate
 %aw     output audio width (compression level)
@@ -304,6 +310,13 @@ The argument of the -osd option is a pair of comma-seperated strings. The first 
 %tN     output current date and time in form YYYY/mm/dd HH:MM:SS
 %tw     output position in track as HH:MM:SS
 %tW     output length of track as HH:MM:SS
+%v4     output video file FourCC
+%vc     output video channels
+%vC     output video codec
+%vb     output video bitrate
+%vs     output video samplerate
+%vw     output video width 
+%vh     output video height
 
 ```
 
@@ -347,7 +360,8 @@ CXine supports the following keys
                 shift: decrease audio compression
 l               display 'load files' menu
 m               mute
-o               toggle online display
+o               toggle online status display
+i               toggle media info display
 p               display playlist menu
 f               toggle 'fast' playback (4*speed, no sound)
 s               toggle 'slow' playback (1/4 speed, no sound)

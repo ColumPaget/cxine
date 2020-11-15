@@ -30,7 +30,8 @@ static void HelpKeys()
     printf("-               decrease volume\n");
     printf("m               mute\n");
 		printf("a               cycle audio outputs. Choice of outputs must have been provided on command-line, e.g. '-ao alsa:0,alsa:1,alsa:2\n");
-    printf("o               toggle online display\n");
+    printf("o               toggle online status display\n");
+    printf("i               toggle media info display\n");
     printf("f               toggle fullscreen\n");
     printf("T               toggle stay-on-top\n");
     printf("l               display file load menu\n");
@@ -139,7 +140,9 @@ static void HelpOSD()
     printf("%%C      output comment of current track\n");
     printf("%%v      output audio volume (0-100)\n");
     printf("%%av     output audio volume (0-100)\n");
-    printf("%%ac     output audio file FourCC\n");
+    printf("%%a4     output audio file FourCC\n");
+    printf("%%ac     output audio channels\n");
+    printf("%%aC     output audio codec\n");
     printf("%%ab     output audio bitrate\n");
     printf("%%as     output audio samplerate\n");
     printf("%%aw     output audio width (compression level)\n");
@@ -165,6 +168,14 @@ static void HelpOSD()
     printf("%%tN     output current date and time in form YYYY/mm/dd HH:MM:SS\n");
     printf("%%tw     output position in track as HH:MM:SS\n");
     printf("%%tW     output length of track as HH:MM:SS\n");
+    printf("%%v4     output video file FourCC\n");
+    printf("%%vc     output video channels\n");
+    printf("%%vC     output video codec\n");
+    printf("%%vb     output video bitrate\n");
+    printf("%%vs     output video samplerate\n");
+    printf("%%vw     output video width\n");
+    printf("%%vh     output video height\n");
+
 }
 
 
@@ -282,6 +293,10 @@ void Help(const char *Page)
         printf("  -s <wid>x<high>         Window size. Default is 480x360.\n");
         printf("  -r                      Load directories recursively, adding their contents to the playlist.\n");
         printf("  -esc                    Allow the 'escape' key to exit the app.\n");
+        printf("  +stdin-ctrl             Read keypresses from stdin.\n");
+        printf("  -stdin-ctrl             DONT keypresses from stdin.\n");
+        printf("  -C                      Read keypresses from stdin.\n");
+        printf("  +C                      DONT keypresses from stdin.\n");
         printf("  -ao <ao name>           Audio output plugins list (default = alsa). This is a comma-seperated list of audio outputs to try, cxine will use the first one that works. For alsa  and oss different output devices can be specified by appending ':0', ':1' to select devices by number. For alsa you can also use device names like 'alsa:hw:0,0' or 'alsa:plug:dmix0'. For Jack, Sun and Pulse appending the device path/name instead of a number *may* work. If a list of devices is provided, then the 'a' key can be used at runtime to cycle through them.\n");
         printf("  -vo <vo name>           Video output plugin name (default = Xv).\n");
         printf("  -identify               Output machine-readable track information on stdout (mplayer feature).\n");
@@ -305,6 +320,7 @@ void Help(const char *Page)
         printf("  -ss                     Disable screensaver during playing, re-enable it on exit, or if playback paused.\n");
         printf("  -SS                     Disable screensaver during playing, re-enable it on exit BUT NOT IF PLAYBACK PAUSED.\n");
         printf("  +ss                     Enable screensaver during playing.\n");
+        printf("  -idle                   Don't exit when nothing left to do, wait for commands on stdin.\n");
         printf("  -persist                Don't exit when nothing left to do, wait for commands on stdin.\n");
         printf("  -quit                   Exit when nothing left to do (use this if you saved -persist config and want to turn it off)\n");
         printf("  -slave                  Mplayer compatible flag, equivalent to '-persist -startms 0'.\n");

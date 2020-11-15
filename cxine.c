@@ -466,9 +466,6 @@ int main(int argc, char **argv)
 		else
 		{
     Config->X11Out=X11Init(Config->parent, 0, 0, Config->width, Config->height);
-		//if we opened an X11 window, then get keypresses through that, not from stdin
-		//this prevents us 'stealing' keypresses from X11
-		if (Config->X11Out) Config->flags &= ~ CONFIG_CONTROL;
     Config->vo_port=X11BindCXineOutput(Config);
 		}
 
@@ -485,8 +482,11 @@ int main(int argc, char **argv)
 
 		if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
 
+		printf("CFLAGS: %d\n", Config->flags & CONFIG_CONTROL);
 		//open stdin late, as X11 setup above can override its use
-		Config->stdin=dup(0);
+		if (Config->flags & (CONFIG_CONTROL | CONFIG_SLAVE | CONFIG_READ_STDIN)) Config->stdin=dup(0);
+		//don't try to use stdin if our setyp doesn't explicitly need it
+		else Config->stdin=-1;
 		//StdinSetup(Config->flags);
 
     CXineSwitchUser();

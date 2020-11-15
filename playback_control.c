@@ -218,6 +218,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
                 Config->state |= STATE_NEWTITLE;
                 result=1;
        			    PlaylistOSDUpdate();
+       			    InfoOSDUpdate();
             }
             else
             {

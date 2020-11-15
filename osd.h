@@ -5,7 +5,7 @@
 #include "common.h"
 
 #define DEFAULT_TOPOSD_STRING "%tt %Lp/%Ls %T - %A"
-#define DEFAULT_BOTTOMOSD_STRING "POS: %tP%% %tw  VOL: %v SPD: %f  AC: %aw"
+#define DEFAULT_BOTTOMOSD_STRING "POS: %tP%% %tw  VOL: %V SPD: %f  AC: %aw"
 
 typedef struct
 {
@@ -25,6 +25,7 @@ xine_stream_t *stream;
 void OSDSetup(TConfig *Config);
 CXineOSD *OSDCreate(void *X11Win, xine_stream_t *stream, const char *config, const char *text);
 CXineOSD *OSDButtonsCreate(void *X11Win, xine_stream_t *stream, const char *config);
+char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream);
 CXineOSD *OSDMessage(int x, int y, const char *Text);
 void OSDUpdateSingle(CXineOSD *OSD, int show);
 void OSDUpdate(int Show);

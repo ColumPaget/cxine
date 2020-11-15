@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "5.2"
+#define VERSION                   "5.3"
 #endif
 
 
@@ -59,7 +59,7 @@ int arg2;
 #define CONFIG_BOOKMARK 128
 #define CONFIG_PERSIST  256
 #define CONFIG_OSD      512
-#define CONFIG_CONTROL  1024
+#define CONFIG_RECURSIVE 1024 
 #define CONFIG_IDENTIFY 2048
 #define CONFIG_SHUFFLE  4096
 #define CONFIG_ALLOW_KEY_EXIT 8192
@@ -70,8 +70,10 @@ int arg2;
 #define CONFIG_WEBCAST        262144
 #define CONFIG_DEBUG 1048576
 #define CONFIG_SAVE  2097152
-#define CONFIG_SLAVE 4194304
-#define CONFIG_RECURSIVE 8388608
+#define CONFIG_SLAVE   4194304
+#define CONFIG_CONTROL 8388608
+#define CONFIG_READ_STDIN   16777216
+
 
 #define STATE_NEWTITLE 1
 #define STATE_RAISED   2
@@ -86,6 +88,7 @@ int arg2;
 #define STATE_DOWNLOADING 16384
 #define STATE_PLAYING 32768
 #define STATE_LOADFILES_DISPLAYED 65536
+#define STATE_INFO_DISPLAYED 131172
 
 
 
