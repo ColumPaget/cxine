@@ -1,4 +1,8 @@
 #include "download_osd.h"
+#include "download.h"
+#include "playlist.h"
+#include "X11.h"
+
 
 static CXineOSD *DownloadOSD=NULL;
 
@@ -21,12 +25,6 @@ void DownloadOSDDisplay()
     static char *PrevSizeStr=NULL;
     const char *ptr;
 
-    //don't display it if anything else is currently being shown
-    if (Config->state & (STATE_PLAYLIST_DISPLAYED | STATE_LOADFILES_DISPLAYED | STATE_INFO_DISPLAYED))
-    {
-        DownloadOSDHide();
-        return;
-    }
 
     Title=PlaylistCurrTitle(Title);
 
@@ -51,10 +49,17 @@ void DownloadOSDDisplay()
             Text=rstrcat(Text, Tempstr);
             Text=rstrcat(Text, " bytes received\n");
 
-            if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Text);
-            else DownloadOSD->Contents=rstrcpy(DownloadOSD->Contents, Text);
-            OSDUpdateSingle(DownloadOSD, TRUE);
 
+            //don't display it if anything else is currently being shown
+            if (Config->state & (STATE_PLAYLIST_DISPLAYED | STATE_LOADFILES_DISPLAYED | STATE_INFO_DISPLAYED)) DownloadOSDHide();
+            else
+            {
+                if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Text);
+                else DownloadOSD->Contents=rstrcpy(DownloadOSD->Contents, Text);
+                OSDUpdateSingle(DownloadOSD, TRUE);
+            }
+
+            //always display in window title though
             Tempstr=rstrcat(Tempstr, " bytes of: ");
             Tempstr=rstrcat(Tempstr, Title);
             X11WindowSetTitle(Config->X11Out, Tempstr, "cxine");

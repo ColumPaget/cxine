@@ -409,9 +409,13 @@ void Help(const char *Page)
         printf("CXine downloads media using helper apps. Default config will use curl, wget or Twighbright links, elinks, lynx, or snarf, depending on which are found in your path your path. Cxine should be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested.\n");
         printf("You can also use 'ssh:' (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your '.ssh/config' to auto-login. So, for example the url 'ssh://myhost/home/music/BinaryFinary.mp3' will log into 'myhost' and use ssh to pull the file '/home/music/BinaryFinary.mp3' provided that 'myhost' has been set up in your .config with an ssh key to log in with.\n");
         printf("More information about helpers is available with 'cxine --help helpers'\n");
+
         printf("\nStreaming\n");
         printf("The '-stream' option is intended for use with internet radio, and only works for http:// streams. If '-stream' is supplied then http:// urls will be streamed without being downloaded to the cache directory\n");
-        printf("The '-webcast' option is intended for use with internet radio. It impleis '-stream' but also treats supplied urls as playlist files containing one entry, the url to the radio stream\n");
+        printf("The '-webcast' option is intended for use with internet radio. It implies '-stream' but also treats supplied urls as playlist files containing one entry, the url to the radio stream\n");
+
+        printf("\nPodcasts\n");
+        printf("The '-podcast' option is intended for use with RSS podcast urls. This feature was added in v6.0 and is somewhat experimental. '-podcast' implies '-noauto' and '-playlist' so that all urls passed on the command-line will be considered to be playlists, and tracks/episodes will not be auto-downloaded and played.\n");
 
         printf("\nBroadcast\n");
         printf("Cxine supports libxine-style broadcast. If the '-bcast' option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url 'slave://<address>:<port>' and mirror it's output.\n");

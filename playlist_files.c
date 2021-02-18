@@ -294,6 +294,14 @@ int DetectPlaylist4CC(const char *MRL)
 
         if (result > 9)
         {
+            //fsking unicode! this pattern is a unicode Byte Order Mark to tell us the
+            //document is in utf8
+            if (memcmp(Buffer, "\xef\xbb\xbf", 3)==0)
+            {
+                result-=3;
+                memmove(Buffer, Buffer+3, result);
+            }
+
             if (strncasecmp(Buffer, "[playlist]", 10)==0) return(PLAYLIST_FILE_PLS);
             Buffer[6]='\0';
             if (strncasecmp(Buffer, "<?xml", 5)==0) return(PLAYLIST_FILE_XML);

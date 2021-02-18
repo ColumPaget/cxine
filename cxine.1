@@ -97,8 +97,20 @@ cxine [options] [url]
 .B -loud
  Play with raised volume.
 .TP
+.B -noauto
+ Don't download and autoplay tracks.
+.TP
 .B -stream
  Don\(aqt download remote urls in playlists etc. This currently only works for \(aqhttp:\(aq (not https:) urls. This allow streaming internet radio urls.
+.TP
+.B  -webcast
+ Implies '-stream', treats playlists as webcast announcement files, only containing one item.
+.TP
+.B -playlist
+ Treat paths on command-line as playlist files.
+.TP
+.B -podcast
+ Implies '-playlist' '-noauto' and '-show-playlist'.
 .TP
 .B -prefix
  Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they\(aqre in.

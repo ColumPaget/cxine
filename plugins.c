@@ -7,7 +7,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 
 
-typedef const char *(*PLUGIN_DESC_FUNC)(xine_t *, const char *const *);
+typedef const char *(*PLUGIN_DESC_FUNC)(xine_t *, const char *);
 
 void DisplayPluginInfo(xine_t *xine, const char *title, const char *const *list, PLUGIN_DESC_FUNC description_func)
 {

@@ -13,6 +13,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "plugins.h"
 #include "xine/xine_internal.h"
 #include "playlist_osd.h"
+#include "media_info_osd.h"
 #include "audio_drivers.h"
 #include "X11.h"
 

@@ -4,6 +4,8 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 */
 
 #include "download.h"
+#include "playlist.h"
+#include "playback_control.h"
 #include "playlist_files.h"
 #include "X11.h"
 #include <fcntl.h>
@@ -205,10 +207,10 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
     //get next helper. This will gradually consume all the helpers booked
     //against the download
     ptr=rstrtok(Download->Helpers, ";", &Cmd);
-    if (! StrLen(ptr)) 
+    if (! StrLen(ptr))
     {
-      destroy(Cmd);
-      return(-1);
+        destroy(Cmd);
+        return(-1);
     }
 
     Download->Helpers=memmove(Download->Helpers, ptr, StrLen(ptr) +1);
@@ -374,7 +376,7 @@ int DownloadPostProcessFile(const char *Path, const char *MRL)
 
             if (Stat.st_size > 0)
             {
-                if (IsPlaylist(Path)) PlaylistLoadFromURL(*MRL, Path);
+                if (IsPlaylist(Path)) PlaylistLoadFromURL(MRL, Path);
 
                 if (Download)
                 {
