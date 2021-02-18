@@ -48,6 +48,7 @@ Options
   -C                      Read keypresses from stdin
   +C                      Dont read keypresses from stdin
   -bcast <port>           Specify port that slave libxine players can connect to to recieve broadcasted stream.
+  -noauto                 No autoplay, items must be selected from the playlist.
   -pause                  Start paused.
   -mute                   Start muted.
   -shuffle                Shuffle playlist.
@@ -81,6 +82,10 @@ Options
   -loud                   Play with raised volume.
   -vloud                  Play with maximum volume.
   -stream                 Don't download remote urls in playlists etc. This currently only works for 'http:' (not https:) urls. This allow streaming internet radio urls.
+  -stream                 Don't download remote urls in playlists etc. This currently only works for 'http:' (not https:) urls. This allow streaming internet radio urls.
+  -webcast                Implies '-stream', treats playlists as webcast announcement files, only containing one item.
+  -playlist               Treat paths on command-line as playlist files.
+  -podcast                Implies -playlist -noauto and -show-playlist.
   -prefix                 Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they're in.
   -keygrab                Register keygrabs, a comma-separated list of keys. See '-help keygrabs' below.
   -helpers <config>       Register list of helper apps.
@@ -261,6 +266,12 @@ Streaming
 ---------
 
 The '-stream' option is intended for use with internet radio, and only works for http:// streams. If '-stream' is supplied then http:// urls will be streamed without being downloaded to the cache directory
+
+Podcasts
+--------
+
+The '-podcast' option is intended for use with RSS podcast urls. This feature was added in v6.0 and is somewhat experimental. '-podcast' implies '-noauto' and '-playlist' so that all urls passed on the command-line will be considered to be playlists, and tracks/episodes will not be auto-downloaded and played.
+
 
 
 On Screen Displays
