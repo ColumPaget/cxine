@@ -135,26 +135,32 @@ char *OSDFormatParam(char *ValueStr, xine_stream_t *stream, int Type)
 
 char *OSDFormatValue(char *ValueStr, xine_stream_t *stream, int Type)
 {
-uint32_t val;
-const char *ptr;
+    uint32_t val;
+    const char *ptr;
 
-		val=xine_get_stream_info(stream, Type);
+    val=xine_get_stream_info(stream, Type);
     switch (Type)
     {
-			case XINE_STREAM_INFO_AUDIO_CHANNELS:
-				switch (val)
-				{
-					case 1:  snprintf(ValueStr, VALUE_STR_LEN, "%s", "mono"); break;
-					case 2:  snprintf(ValueStr, VALUE_STR_LEN, "%s", "stereo"); break;
-					default: snprintf(ValueStr, VALUE_STR_LEN, "%dchan", val); break;
-				}
-			break;
+    case XINE_STREAM_INFO_AUDIO_CHANNELS:
+        switch (val)
+        {
+        case 1:
+            snprintf(ValueStr, VALUE_STR_LEN, "%s", "mono");
+            break;
+        case 2:
+            snprintf(ValueStr, VALUE_STR_LEN, "%s", "stereo");
+            break;
+        default:
+            snprintf(ValueStr, VALUE_STR_LEN, "%dchan", val);
+            break;
+        }
+        break;
 
-			case XINE_STREAM_INFO_VIDEO_FOURCC:
-			case XINE_STREAM_INFO_AUDIO_FOURCC:
-				ptr=(const char *) &val;
+    case XINE_STREAM_INFO_VIDEO_FOURCC:
+    case XINE_STREAM_INFO_AUDIO_FOURCC:
+        ptr=(const char *) &val;
         snprintf(ValueStr, VALUE_STR_LEN, "%c%c%c%c", ptr[0], ptr[1], ptr[2], ptr[3]);
-				break;
+        break;
 
     default:
         snprintf(ValueStr, VALUE_STR_LEN, "%d", val);
@@ -272,7 +278,7 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
             case 'c':
                 RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_CHANNELS));
                 break;
-						case 'C':
+            case 'C':
                 RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_AUDIOCODEC));
             case 'b':
                 RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_AUDIO_BITRATE));
@@ -355,17 +361,17 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
             }
             break;
 
-				case 'P':
-                RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_INPUT_PLUGIN));
-				break;
+        case 'P':
+            RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_INPUT_PLUGIN));
+            break;
 
         case 'T':
             Tempstr=PlaylistCurrTitle(Tempstr);
             RetStr=rstrcat(RetStr, Tempstr);
             break;
 
-				//video info
-				case 'v':
+        //video info
+        case 'v':
             ptr++;
             switch (*ptr)
             {
@@ -375,9 +381,9 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
             case 'c':
                 RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_CHANNELS));
                 break;
-						case 'C':
+            case 'C':
                 RetStr=rstrcat(RetStr, xine_get_meta_info(stream, XINE_META_INFO_VIDEOCODEC));
-								break;
+                break;
             case 'b':
                 RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_BITRATE));
                 break;
@@ -387,14 +393,14 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
             case 'r':
                 RetStr=rstrcat(RetStr, OSDFormatParam(ValueStr, stream, XINE_STREAM_INFO_VIDEO_RATIO));
                 break;
-		        case 'w':
-            	RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_WIDTH));
-      		      break;
-  		      case 'h':
-            	RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_HEIGHT));
-          		  break;
-						} 
-				break;
+            case 'w':
+                RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_WIDTH));
+                break;
+            case 'h':
+                RetStr=rstrcat(RetStr, OSDFormatValue(ValueStr, stream, XINE_STREAM_INFO_VIDEO_HEIGHT));
+                break;
+            }
+            break;
         }
         if (*ptr != '\0') ptr++;
         prev=ptr;
@@ -618,14 +624,14 @@ void OSDDestroy(CXineOSD *OSD)
 
 int OSDGetScreenHeight(CXineOSD *OSD)
 {
-int x=0, y=0, wid, high;
+    int x=0, y=0, wid, high;
 
-wid=OSD->wid;
-high=OSD->high;
+    wid=OSD->wid;
+    high=OSD->high;
 
-X11Fit(Config->X11Out, &x, &y, &wid, &high);
+    X11Fit(Config->X11Out, &x, &y, &wid, &high);
 
-return(high);
+    return(high);
 }
 
 

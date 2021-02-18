@@ -45,7 +45,7 @@ int X11GetFileDescriptor(void *p_Win)
 {
     X11Window *Win;
 
-		if (! p_Win) return(-1);
+    if (! p_Win) return(-1);
     Win=(X11Window *) p_Win;
     return(XConnectionNumber(Win->display));
 }
@@ -107,7 +107,7 @@ void X11SetTextProperty(void *p_Win, const char *Name, const char *Str)
 {
     X11Window *Win;
 
-		if (p_Win==NULL) return;
+    if (p_Win==NULL) return;
     Win=(X11Window *) p_Win;
     X11SetProperty(Win->display,  Win->drawable, XA_STRING, Name, (const unsigned char *) Str, StrLen(Str));
 }
@@ -165,13 +165,13 @@ void X11SetWindowState(void *p_Win, const char *StateStr)
         X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_ABOVE");
         X11SendSetStateEvent(p_Win, WINSTATE_ADD, StateStr);
     }
-		else if (strcmp(StateStr, "_NET_WM_STATE_ZORDER")==0)
-		{
+    else if (strcmp(StateStr, "_NET_WM_STATE_ZORDER")==0)
+    {
         X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_ABOVE");
         X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_BELOW");
         Config->state &= ~STATE_RAISED;
         Config->state &= ~STATE_LOWERED;
-		}
+    }
     else if (strcmp(StateStr,  "_NET_WM_STATE_SHADED") ==0)
     {
         Config->state |= STATE_SHADED;
@@ -415,13 +415,13 @@ void *X11Init(const char *ParentID, int xpos, int ypos, int width, int height)
     resx = (DisplayWidth(display, Win->screen) * 1000 / DisplayWidthMM(display, Win->screen));
     resy = (DisplayHeight(display, Win->screen) * 1000 / DisplayHeightMM(display, Win->screen));
     Win->pixel_aspect= (float) resy / (float) resx;
-		if (Config->flags & CONFIG_DEBUG) printf("pixel aspect: %d/%d = '%f'\n", resy,  resx, Win->pixel_aspect);
+    if (Config->flags & CONFIG_DEBUG) printf("pixel aspect: %d/%d = '%f'\n", resy,  resx, Win->pixel_aspect);
 
-    if(Win->pixel_aspect < 0.01) 
-		{
-			Win->pixel_aspect = 1.0;
-			if (Config->flags & CONFIG_DEBUG) printf("adjusted pixel aspect to: '%f'\n", Win->pixel_aspect);
-		}
+    if(Win->pixel_aspect < 0.01)
+    {
+        Win->pixel_aspect = 1.0;
+        if (Config->flags & CONFIG_DEBUG) printf("adjusted pixel aspect to: '%f'\n", Win->pixel_aspect);
+    }
 
     if (Config->flags & DISABLE_SCREENSAVER) X11ScreenSaver(Win, False);
     XSync(display, False);
@@ -476,7 +476,7 @@ xine_video_port_t *X11BindCXineOutput(TConfig *Config)
     x11_visual_t vis;
 
     Win=(X11Window *) Config->X11Out;
-		if (! Win) return(NULL);
+    if (! Win) return(NULL);
     if (!Win->drawable) return(NULL);
 
     vis.display           = Win->display;
@@ -632,7 +632,7 @@ void X11HandleKeyPress(X11Window *Win, XEvent *xevent, TEvent *Event)
     case XK_BackSpace:
         Event->arg1=KEY_BACKSPACE;
         break;
-  case XK_Tab:
+    case XK_Tab:
         Event->arg1=KEY_TAB;
         break;
 
@@ -715,7 +715,7 @@ int X11NextEvent(void *p_Win, xine_video_port_t *vo_port, TEvent *Event)
 
     while (got_event)
     {
-				memset(&xevent, 0, sizeof(XEvent));
+        memset(&xevent, 0, sizeof(XEvent));
         XLockDisplay(Win->display);
         XNextEvent(Win->display, &xevent);
         XUnlockDisplay(Win->display);
@@ -780,7 +780,7 @@ void X11WindowSetTitle(void *p_Win, const char *MainTitle, const char *IconTitle
 {
     X11Window *Win;
 
-		if (! p_Win) return;
+    if (! p_Win) return;
     Win=(X11Window *) p_Win;
     if (! IconTitle) IconTitle="";
     if (! MainTitle) MainTitle=IconTitle;
@@ -903,12 +903,12 @@ int X11KeyGrabsControl(void *p_Win, int Grab, const char *keystr)
     if (keysym > 0)
     {
         keycode = XKeysymToKeycode (Win->display, keysym);
-				//keycode 0 will grab everything! But is returned if key doesn't exist on this keyboard
-				if (keycode > 0)
-				{
-				if (Grab) XGrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display), False, GrabModeAsync, GrabModeAsync);
-        else XUngrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display));
-				}
+        //keycode 0 will grab everything! But is returned if key doesn't exist on this keyboard
+        if (keycode > 0)
+        {
+            if (Grab) XGrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display), False, GrabModeAsync, GrabModeAsync);
+            else XUngrabKey(Win->display, keycode, modifiers, DefaultRootWindow(Win->display));
+        }
     }
 
 }
@@ -917,33 +917,33 @@ int X11KeyGrabsControl(void *p_Win, int Grab, const char *keystr)
 
 int X11GrabKey(void *p_Win, const char *keystr)
 {
-if (! p_Win) return(-1);
-return(X11KeyGrabsControl(p_Win, TRUE, keystr));
+    if (! p_Win) return(-1);
+    return(X11KeyGrabsControl(p_Win, TRUE, keystr));
 }
 
 
 int X11UnGrabKey(void *p_Win, const char *keystr)
 {
-if (! p_Win) return(-1);
-return(X11KeyGrabsControl(p_Win, TRUE, keystr));
+    if (! p_Win) return(-1);
+    return(X11KeyGrabsControl(p_Win, TRUE, keystr));
 }
 
 void X11Disassociate(void *p_Win)
 {
     X11Window *Win;
-		int fd;
+    int fd;
 
-		if (! p_Win) return;
+    if (! p_Win) return;
     Win=(X11Window *) p_Win;
     fd=XConnectionNumber(Win->display);
-		close(fd);
+    close(fd);
 }
 
 void X11Close(void *p_Win)
 {
     X11Window *Win;
 
-		if (! p_Win) return;
+    if (! p_Win) return;
     Win=(X11Window *) p_Win;
     XLockDisplay(Win->display);
     if (Win->drawable)

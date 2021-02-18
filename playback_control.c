@@ -94,9 +94,9 @@ void CXineMute(xine_stream_t *stream, int Setting)
 void CXineSetPos(xine_stream_t *stream, int skip)
 {
     int val, pos_msecs, len_msecs;
-		long speed;
+    long speed;
 
-		speed=xine_get_param(Config->stream, XINE_PARAM_FINE_SPEED);
+    speed=xine_get_param(Config->stream, XINE_PARAM_FINE_SPEED);
 
     xine_get_pos_length (stream, &val, &pos_msecs, &len_msecs);
     val = pos_msecs + skip;
@@ -104,8 +104,8 @@ void CXineSetPos(xine_stream_t *stream, int skip)
     if (val < 0) val=0;
     xine_play(stream, 0, val);
 
-		//have to reset speed because xine_play defaults back to normal speed
-		xine_set_param(Config->stream, XINE_PARAM_FINE_SPEED, speed);
+    //have to reset speed because xine_play defaults back to normal speed
+    xine_set_param(Config->stream, XINE_PARAM_FINE_SPEED, speed);
 }
 
 
@@ -130,9 +130,9 @@ int CXinePause(TConfig *Config)
 
 void CXinePlaybackEnd()
 {
-        xine_stop(Config->stream);
-        xine_close(Config->stream);
-				CXineCloseAudio();
+    xine_stop(Config->stream);
+    xine_close(Config->stream);
+    CXineCloseAudio();
 }
 
 
@@ -166,7 +166,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
     int len, result=0, fd;
     TStringList *NewPlaylist;
 
-		PlaylistParseEntry(info, &url, &ID, &Title);
+    PlaylistParseEntry(info, &url, &ID, &Title);
     len=StrLen(url);
     if (len >0)
     {
@@ -174,15 +174,13 @@ int CXinePlayStream(TConfig *Config, const char *info)
         //so if we get a file path starting with '-' (probably a command-line option that we don't recognize)
         //then we don't want to pass it to xine unless the file really exists
         if ((*url=='-') && (len > 1) && (access(url, F_OK) !=0)) /* do nothing*/ ;
-        else if (! DownloadDone(&url, ID))
+        else if (DownloadProcess(&url, ID, DOWNLOAD_PLAY)==DOWNLOAD_ACTIVE)
         {
             Config->state |= STATE_DOWNLOADING;
         }
         else if (IsPlaylist(url))
         {
-            NewPlaylist=PlaylistExpandCurr(Config->playlist, Tempstr, url);
-            StringListDestroy(Config->playlist);
-            Config->playlist=NewPlaylist;
+            PlaylistLoadFromURL(Tempstr, url);
             Config->state &= ~STATE_DOWNLOADING;
         }
         else if (xine_open(Config->stream, url))
@@ -191,6 +189,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
             Config->state &= ~STATE_DOWNLOADING;
             if (StrLen(Title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, Title);
             else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(url));
+
             //do this before calling play..
             CXineStreamInitConfig(Config);
 
@@ -201,7 +200,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
             }
 
             CXineNewTitle(Config);
-						CXineOpenAudio();
+            CXineOpenAudio();
 
             if (xine_play(Config->stream, 0, startms))
             {
@@ -217,8 +216,8 @@ int CXinePlayStream(TConfig *Config, const char *info)
                 else Config->state &= ~STATE_STDIN_URL;
                 Config->state |= STATE_NEWTITLE;
                 result=1;
-       			    PlaylistOSDUpdate();
-       			    InfoOSDUpdate();
+                PlaylistOSDUpdate();
+                InfoOSDUpdate();
             }
             else
             {
@@ -243,21 +242,26 @@ int CXinePlayStream(TConfig *Config, const char *info)
 int CXineSelectStream(TConfig *Config, int Which)
 {
     const char *ptr;
+    int speed=0, result;
 
     if (Config->state & STATE_DOWNLOADING)
     {
         return(CXinePlayStream(Config, StringListCurr(Config->playlist)));
     }
 
-		//bookmark current stream
-    SaveBookmark(StringListCurr(Config->playlist), Config->stream);
+    //bookmark current stream
+    ptr=StringListCurr(Config->playlist);
+    if (StrLen(ptr) && Config->stream)
+    {
+        SaveBookmark(ptr, Config->stream);
+    }
 
     if (Which==PLAY_NEXT)
     {
         ptr=StringListNext(Config->playlist);
         if ( (ptr==NULL)  )
         {
-						//if it's -1 then this won't happen. -1 means 'loop forever'
+            //if it's -1 then this won't happen. -1 means 'loop forever'
             if (Config->loop > 0) Config->loop--;
             if (Config->loop !=0) ptr=StringListGet(Config->playlist, 0);
         }
@@ -266,12 +270,14 @@ int CXineSelectStream(TConfig *Config, int Which)
     {
         ptr=StringListPrev(Config->playlist);
     }
-		else ptr=StringListGet(Config->playlist, Which);
+    else ptr=StringListGet(Config->playlist, Which);
 
     if (ptr)
     {
-				CXinePlaybackEnd();
-        return(CXinePlayStream(Config, ptr));
+        CXinePlaybackEnd();
+        result=CXinePlayStream(Config, ptr);
+        if (Config->speed > 0) xine_set_param (Config->stream, XINE_PARAM_FINE_SPEED, Config->speed);
+        return(result);
     }
     return(0);
 }

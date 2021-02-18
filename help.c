@@ -29,18 +29,18 @@ static void HelpKeys()
     printf("+               increase volume\n");
     printf("-               decrease volume\n");
     printf("m               mute\n");
-		printf("a               cycle audio outputs. Choice of outputs must have been provided on command-line, e.g. '-ao alsa:0,alsa:1,alsa:2\n");
+    printf("a               cycle audio outputs. Choice of outputs must have been provided on command-line, e.g. '-ao alsa:0,alsa:1,alsa:2\n");
     printf("o               toggle online status display\n");
     printf("i               toggle media info display\n");
     printf("f               toggle fullscreen\n");
     printf("T               toggle stay-on-top\n");
     printf("l               display file load menu\n");
     printf("p               display playlist menu\n");
-		printf("[               slower playback (no sound)\n");
-		printf("]               faster playback (no sound)\n");
+    printf("[               slower playback (no sound)\n");
+    printf("]               faster playback (no sound)\n");
     printf("{               toggle 'fast' playback (4*speed, no sound)\n");
     printf("}               toggle 'slow' playback (1/4 speed, no sound)\n");
-		printf("<backspace>     reset playback speed to normal\n");
+    printf("<backspace>     reset playback speed to normal\n");
     printf("<delete>        reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)\n");
     printf(".               reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)\n");
     printf("<               prev item in playlist\n");
@@ -81,19 +81,19 @@ static void HelpKeygrabs()
 
 static void HelpCommandSend()
 {
-printf("The -cmd option sends commands to another, already running, cxine. Many of the commands toggle between two states, like raised/unraised or paused/unpaused. Available commands are:\n");
-printf("		pause     pause/unpause playback\n");
-printf("		stop      stop playback\n");
-printf("		mute      mute/unmute audio\n");
-printf("		next      next track\n");
-printf("		prev      previous track\n");
-printf("		shade     shade/unshade window\n");
-printf("		mini      minimize/restore window\n");
-printf("		icon      minimize/restore window\n");
-printf("		minimize  minimize/restore window\n");
-printf("		lower     lower window below others\n");
-printf("		raise     raise window above others\n");
-printf("		zcycle    cycle between raised, normal, and lowered window\n");
+    printf("The -cmd option sends commands to another, already running, cxine. Many of the commands toggle between two states, like raised/unraised or paused/unpaused. Available commands are:\n");
+    printf("		pause     pause/unpause playback\n");
+    printf("		stop      stop playback\n");
+    printf("		mute      mute/unmute audio\n");
+    printf("		next      next track\n");
+    printf("		prev      previous track\n");
+    printf("		shade     shade/unshade window\n");
+    printf("		mini      minimize/restore window\n");
+    printf("		icon      minimize/restore window\n");
+    printf("		minimize  minimize/restore window\n");
+    printf("		lower     lower window below others\n");
+    printf("		raise     raise window above others\n");
+    printf("		zcycle    cycle between raised, normal, and lowered window\n");
 }
 
 
@@ -306,11 +306,12 @@ void Help(const char *Page)
         printf("  -background <path>      Path to background image when not playing anything else. Needed for OSD to mix into.\n");
         printf("  -use-stdin              Read media stream from stdin\n");
         printf("  -bcast <port>           Broadcast to slave libxine players on <port>\n");
+        printf("  -noauto                 No autoplay, items must be selected from the playlist.\n");
         printf("  -pause                  Start paused.\n");
         printf("  -mute                   Start muted.\n");
         printf("  -shuffle                Shuffle playlist.\n");
         printf("  -loop <n>               Repeat playback <n> times.\n");
-				printf("  -show-playlist          Start with playlist displayed\n");
+        printf("  -show-playlist          Start with playlist displayed\n");
         printf("  -title <title>          Set title displayed for this track. This argument is positional and must preceede the track it names, so for exampe 'cxine -title 'title 1' track1.mp4 -title 'title 2' track2.mp4.\n");
         printf("  -image-time <ms>        Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
         printf("  -imagems <ms>           Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
@@ -341,6 +342,8 @@ void Help(const char *Page)
         printf("  -vloud                  Play with maximum volume.\n");
         printf("  -stream                 Don't download remote urls in playlists etc. This currently only works for 'http:' (not https:) urls. This allow streaming internet radio urls.\n");
         printf("  -webcast                Implies '-stream', treats playlists as webcast announcement files, only containing one item.\n");
+        printf("  -playlist               Treat paths on command-line as playlist files.\n");
+        printf("  -podcast                Implies -playlist -noauto and -show-playlist.\n");
         printf("  -prefix                 Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they're in.\n");
         printf("  -keygrab                Register keygrabs, a comma-separated list of keys. See '-help keygrabs' below.\n");
         printf("  -helpers <config>       Register list of helper apps.\n");
@@ -408,10 +411,11 @@ void Help(const char *Page)
         printf("More information about helpers is available with 'cxine --help helpers'\n");
         printf("\nStreaming\n");
         printf("The '-stream' option is intended for use with internet radio, and only works for http:// streams. If '-stream' is supplied then http:// urls will be streamed without being downloaded to the cache directory\n");
+        printf("The '-webcast' option is intended for use with internet radio. It impleis '-stream' but also treats supplied urls as playlist files containing one entry, the url to the radio stream\n");
 
-				printf("\nBroadcast\n");
-				printf("Cxine supports libxine-style broadcast. If the '-bcast' option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url 'slave://<address>:<port>' and mirror it's output.\n");
-	
+        printf("\nBroadcast\n");
+        printf("Cxine supports libxine-style broadcast. If the '-bcast' option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url 'slave://<address>:<port>' and mirror it's output.\n");
+
         printf("\nSaving config\n");
         printf("If '-save-config' is given then cxine will remember the following settings if they are supplied:\n");
         printf("		-vo, -ao, -ac, -ap, -prefix, -keygrab, -persist/-quit, -bookmark/-no-bookmark, -screensaver/+screensaver, -show-osd/-hide-osd, -background, -input, -cache, -nowplay,  -dvd-device, -dvd-region, -dvd-lang, -helpers\n");

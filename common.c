@@ -27,16 +27,16 @@ const char *cbasename(const char *Path)
 
     if (! Path) return("");
     ptr=strrchr(Path, '/');
-    if (ptr) 
-		{
-			if (*(ptr+1)=='\0')
-			{
-				ptr--;
-				while ((ptr > Path) && (*ptr !='/')) ptr--;
-			}
-			if (*ptr=='/') return(ptr+1);
-			return(ptr);
-		}
+    if (ptr)
+    {
+        if (*(ptr+1)=='\0')
+        {
+            ptr--;
+            while ((ptr > Path) && (*ptr !='/')) ptr--;
+        }
+        if (*ptr=='/') return(ptr+1);
+        return(ptr);
+    }
     return(Path);
 }
 
@@ -155,14 +155,14 @@ char *rstrunquot(char *RetStr, const char *Str)
 
 void StripQuotes(char *Str)
 {
-int len;
+    int len;
 
-if ( (*Str=='\'') || (*Str=='\"') )
-{
-	len=strlen(Str);
-	Str[len-1]='\0';
-	memmove(Str, Str+1, len);
-}
+    if ( (*Str=='\'') || (*Str=='\"') )
+    {
+        len=strlen(Str);
+        Str[len-1]='\0';
+        memmove(Str, Str+1, len);
+    }
 
 }
 
@@ -252,10 +252,10 @@ void MkDirPath(const char *Dir)
 
 void LongFormatMetric(char *Str, int len, long value)
 {
-	if (value > 1000000000) snprintf(Str, len, "%0.2fG", ((float) value) / 1000000000.0);
-	else if (value > 1000000) snprintf(Str, len, "%0.2fM", ((float) value) / 1000000.0);
-	else if (value > 1000) snprintf(Str, len, "%0.2fk", ((float) value) / 1000000.0);
-	else snprintf(Str, len, "%lu", value);
+    if (value > 1000000000) snprintf(Str, len, "%0.2fG", ((float) value) / 1000000000.0);
+    else if (value > 1000000) snprintf(Str, len, "%0.2fM", ((float) value) / 1000000.0);
+    else if (value > 1000) snprintf(Str, len, "%0.2fk", ((float) value) / 1000000.0);
+    else snprintf(Str, len, "%lu", value);
 }
 
 
@@ -268,7 +268,7 @@ void Exec(const char *CmdLine)
     ptr=rstrtok(CmdLine, " ", &Token);
     while (ptr)
     {
-				StripQuotes(Token);
+        StripQuotes(Token);
         Args=realloc(Args, (count+10) * sizeof(char *));
         Args[count]=strdup(Token);
         count++;

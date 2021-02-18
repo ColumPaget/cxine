@@ -34,22 +34,22 @@ int StringListAdd(TStringList *sl, const char *str)
 
 int StringListDel(TStringList *sl, int pos)
 {
-	if (sl->size > 0)
-	{
-		memmove(sl->list+pos, sl->list+(pos+1), (sl->size - pos) * sizeof(char *));
-    sl->size--;
-	}
+    if (sl->size > 0)
+    {
+        memmove(sl->list+pos, sl->list+(pos+1), (sl->size - pos) * sizeof(char *));
+        sl->size--;
+    }
 
-  return(sl->size);
+    return(sl->size);
 }
 
 void StringListSwap(TStringList *sl, int pos1, int pos2)
 {
-	char *tmp;
+    char *tmp;
 
-	tmp=sl->list[pos1];
-	sl->list[pos1]=sl->list[pos2];
-	sl->list[pos2]=tmp;
+    tmp=sl->list[pos1];
+    sl->list[pos1]=sl->list[pos2];
+    sl->list[pos2]=tmp;
 }
 
 
@@ -124,18 +124,18 @@ void StringListClear(TStringList *sl)
 
     for (i=0; i < sl->size; i++)
     {
-       if (sl->list[i]) free(sl->list[i]);
+        if (sl->list[i]) free(sl->list[i]);
     }
 
     free(sl->list);
-		sl->list=NULL;
-		sl->size=0;
+    sl->list=NULL;
+    sl->size=0;
 }
 
 
 void StringListDestroy(TStringList *sl)
 {
-	StringListClear(sl);
-  free(sl);
+    StringListClear(sl);
+    free(sl);
 }
 

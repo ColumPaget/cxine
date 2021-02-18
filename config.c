@@ -14,7 +14,7 @@ TConfig *ConfigInit(xine_t *xine)
 {
     TConfig *Config=NULL;
     char *Tempstr=NULL;
-		int pipes[2];	
+    int pipes[2];
 
     Config=(TConfig *) calloc(1, sizeof(TConfig));
     Config->xine=xine;
@@ -39,15 +39,15 @@ TConfig *ConfigInit(xine_t *xine)
     Config->top_osd_text=rstrcpy(Config->top_osd_text, xine_config_register_string (xine, "cxine.top_osd", DEFAULT_TOPOSD_STRING, "Default text for top OSD", "", 1, 0, NULL));
     Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, xine_config_register_string (xine, "cxine.bottom_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for bottom OSD", "", 1, 0, NULL));
 
-		//we will not have changed stdin to point to our internal pipe at this point
+    //we will not have changed stdin to point to our internal pipe at this point
     if (isatty(0)) Config->flags |= CONFIG_CONTROL;
 
-		//if we detect an X11 display, then get keypresses through that, not from stdin
+    //if we detect an X11 display, then get keypresses through that, not from stdin
     //this prevents us 'stealing' keypresses from X11
     if (StrLen(getenv("DISPLAY"))) Config->flags &= ~ CONFIG_CONTROL;
 
-		Config->stdin=-1; //later this will be our access to stdin, and fd0 will be a pipe
-		Config->to_xine=-1;
+    Config->stdin=-1; //later this will be our access to stdin, and fd0 will be a pipe
+    Config->to_xine=-1;
     Config->control_pipe=-1;
     Config->nowplay_pipe=-1;
 
@@ -164,37 +164,37 @@ int CXineConfigModify(xine_t *xine, const char *Key, const char *Value)
         }
 
         xine_config_update_entry (xine, &entry);
-				return(TRUE);
+        return(TRUE);
     }
-return(FALSE);
+    return(FALSE);
 }
 
 void CXineConfigModifyOrCreate(xine_t *xine, const char *Key, const char *Value, const char *Help)
 {
-char *Type=NULL;
-const char *ptr;
+    char *Type=NULL;
+    const char *ptr;
 
-if (strncmp(Key, "num:", 4)==0) ptr=Key+4;
-else ptr=Key;
+    if (strncmp(Key, "num:", 4)==0) ptr=Key+4;
+    else ptr=Key;
 
-if (! CXineConfigModify(xine, ptr, Value)) 
-{
-	if (strncmp(Key, "num:",4)==0) xine_config_register_num(xine, ptr, atoi(Value), Help, "", 1, 0, NULL);
-	else xine_config_register_string(xine, Key, Value, Help, "", 1, 0, NULL);
-}
+    if (! CXineConfigModify(xine, ptr, Value))
+    {
+        if (strncmp(Key, "num:",4)==0) xine_config_register_num(xine, ptr, atoi(Value), Help, "", 1, 0, NULL);
+        else xine_config_register_string(xine, Key, Value, Help, "", 1, 0, NULL);
+    }
 }
 
 int CXineConfigNumericModify(xine_t *xine, const char *Key, int Value)
 {
     char *Tempstr=NULL;
-		int result=FALSE;
+    int result=FALSE;
 
     Tempstr=realloc(Tempstr, 40);
     snprintf(Tempstr, 40, "%d", Value);
     result=CXineConfigModify(xine, Key, Tempstr);
 
     destroy(Tempstr);
-		return(result);
+    return(result);
 }
 
 

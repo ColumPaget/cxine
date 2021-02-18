@@ -56,6 +56,7 @@ int arg2;
 #define CONFIG_PAUSE 8
 #define CONFIG_LOUD  16
 #define CONFIG_VLOUD 32
+#define CONFIG_NOAUTOPLAY 64
 #define CONFIG_BOOKMARK 128
 #define CONFIG_PERSIST  256
 #define CONFIG_OSD      512
@@ -73,6 +74,7 @@ int arg2;
 #define CONFIG_SLAVE   4194304
 #define CONFIG_CONTROL 8388608
 #define CONFIG_READ_STDIN   16777216
+#define CONFIG_PLAYLIST   33554432
 
 
 #define STATE_NEWTITLE 1
@@ -99,6 +101,8 @@ int state;
 int width;
 int height;
 int zoom;
+int loop;
+int speed;
 int debug;
 // file descriptors. stdin is a file descriptor for stdin after we've moved it from fd0
 // 'to_cxine' is the new fd0 which the cxine player process considers to be stdin, and
@@ -131,7 +135,6 @@ char *cache_dir;
 char *helpers;
 int cache_maxage;
 int priority;
-int loop;
 int image_ms;
 int bcast_port;
 void *X11Out;

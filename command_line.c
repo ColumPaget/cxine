@@ -27,11 +27,11 @@ static int CXineAddURL(const char *URL, const char *ID, const char *Title)
     char *Tempstr=NULL, *Msg=NULL;
 
     Msg=rstrcpy(Msg, "add ");
-		Tempstr=PlaylistFormatEntry(Tempstr, URL, ID, Title);
+    Tempstr=PlaylistFormatEntry(Tempstr, URL, ID, Title);
     Msg=rstrcat(Msg, Tempstr);
     Msg=rstrcat(Msg, "\n");
 
-		result=ControlSendMessage(Msg);
+    result=ControlSendMessage(Msg);
     close(Config->control_pipe);
     Config->control_pipe=-1;
 
@@ -44,10 +44,10 @@ static int CXineAddURL(const char *URL, const char *ID, const char *Title)
 
 static void CXineQueueURL(const char *URL, const char *ID, const char *Title)
 {
-	//if a cxine is already running, then send it there
-	if (CXineAddURL(URL, ID, Title)) exit(0);
+    //if a cxine is already running, then send it there
+    if (CXineAddURL(URL, ID, Title)) exit(0);
 
-	PlaylistAdd(Config->playlist, URL, ID, Title);
+    PlaylistAdd(Config->playlist, URL, ID, Title);
 }
 
 
@@ -77,22 +77,22 @@ void CommandLineParseCache(const char *Arg)
 
 void CommandLineCmd(const char *Cmd)
 {
-	if (strcmp(Cmd, "pause")==0) ControlSendMessage("pause\n");
-	else if (strcmp(Cmd, "next")==0) ControlSendMessage("next\n");
-	else if (strcmp(Cmd, "prev")==0) ControlSendMessage("prev\n");
-	else if (strcmp(Cmd, "mute")==0) ControlSendMessage("mute\n");
-	else if (strcmp(Cmd, "stop")==0) ControlSendMessage("stop\n");
-	else if (strcmp(Cmd, "raise")==0) ControlSendMessage("raise\n");
-	else if (strcmp(Cmd, "lower")==0) ControlSendMessage("lower\n");
-	else if (strcmp(Cmd, "zcycle")==0) ControlSendMessage("zcycle\n");
-	else if (strcmp(Cmd, "shade")==0) ControlSendMessage("shade\n");
-	else if (strcmp(Cmd, "mini")==0) ControlSendMessage("minimize\n");
-	else if (strcmp(Cmd, "icon")==0) ControlSendMessage("minimize\n");
-	else if (strcmp(Cmd, "minimize")==0) ControlSendMessage("minimize\n");
-  else if (strcmp(Cmd, "help")==0 ) Help("cmd");
-	else printf("ERROR: unknown command '%s'\n", Cmd);
+    if (strcmp(Cmd, "pause")==0) ControlSendMessage("pause\n");
+    else if (strcmp(Cmd, "next")==0) ControlSendMessage("next\n");
+    else if (strcmp(Cmd, "prev")==0) ControlSendMessage("prev\n");
+    else if (strcmp(Cmd, "mute")==0) ControlSendMessage("mute\n");
+    else if (strcmp(Cmd, "stop")==0) ControlSendMessage("stop\n");
+    else if (strcmp(Cmd, "raise")==0) ControlSendMessage("raise\n");
+    else if (strcmp(Cmd, "lower")==0) ControlSendMessage("lower\n");
+    else if (strcmp(Cmd, "zcycle")==0) ControlSendMessage("zcycle\n");
+    else if (strcmp(Cmd, "shade")==0) ControlSendMessage("shade\n");
+    else if (strcmp(Cmd, "mini")==0) ControlSendMessage("minimize\n");
+    else if (strcmp(Cmd, "icon")==0) ControlSendMessage("minimize\n");
+    else if (strcmp(Cmd, "minimize")==0) ControlSendMessage("minimize\n");
+    else if (strcmp(Cmd, "help")==0 ) Help("cmd");
+    else printf("ERROR: unknown command '%s'\n", Cmd);
 
-	exit(0);
+    exit(0);
 }
 
 
@@ -122,7 +122,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-vo")==0 ) Config->vo_driver = rstrcpy(Config->vo_driver, argv[++i]);
         else if ( strcmp(argv[i], "-ao")==0 ) Config->ao_driver = rstrcpy(Config->ao_driver, argv[++i]);
         else if ( strcmp(argv[i], "-esc")==0 ) Config->flags |= CONFIG_ALLOW_KEY_EXIT;
-        else if ( strcmp(argv[i], "-r")==0 ) Config->flags |= CONFIG_RECURSIVE; 
+        else if ( strcmp(argv[i], "-r")==0 ) Config->flags |= CONFIG_RECURSIVE;
         else if ( strcmp(argv[i], "-s")==0 ) ParseCommandLineWindowSize(argv[++i], Config);
         else if ( strcmp(argv[i], "-into")==0 ) Config->parent=rstrcpy(Config->parent, argv[++i]);
         else if ( strcmp(argv[i], "-win")==0 ) Config->parent=rstrcpy(Config->parent,argv[++i]);
@@ -141,6 +141,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
             Config->startms=strtof(argv[++i], NULL);
             if (Config->startms==0) Config->startms=1;
         }
+        else if ( strcmp(argv[i], "-noauto")==0 ) Config->flags |= CONFIG_NOAUTOPLAY;
         else if ( strcmp(argv[i], "-debug")==0 ) Config->flags |= CONFIG_DEBUG;
         else if ( strcmp(argv[i], "-save-config")==0 ) Config->flags |= CONFIG_SAVE;
         else if ( strcmp(argv[i], "-defaults")==0 ) ConfigDefaults(Config);
@@ -160,6 +161,12 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-no-bookmark")==0 ) Config->flags &= ~CONFIG_BOOKMARK;
         else if ( strcmp(argv[i], "-stream")==0 ) Config->flags |= CONFIG_STREAM;
         else if ( strcmp(argv[i], "-webcast")==0 ) Config->flags |= CONFIG_STREAM | CONFIG_WEBCAST;
+        else if ( strcmp(argv[i], "-playlist")==0 ) Config->flags |= CONFIG_PLAYLIST;
+        else if ( strcmp(argv[i], "-podcast")==0 ) 
+				{
+					Config->flags |= CONFIG_PLAYLIST | CONFIG_NOAUTOPLAY;
+					Config->state |= STATE_PLAYLIST_REQUESTED;
+				}
         else if ( strcmp(argv[i], "-background")==0 ) Config->background=rstrcpy(Config->background, argv[++i]);
         else if ( strcmp(argv[i], "-persist")==0 ) Config->flags |= CONFIG_PERSIST;
         else if ( strcmp(argv[i], "-idle")==0 ) Config->flags |= CONFIG_PERSIST;
@@ -187,12 +194,12 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-prio")==0 ) Config->priority=atoi(argv[++i])+1;
         else if ( strcmp(argv[i], "-bcast")==0 ) Config->bcast_port=atoi(argv[++i]);
         else if ( strcmp(argv[i], "-shuffle")==0 ) Config->flags |= CONFIG_SHUFFLE;
-        else if ( strcmp(argv[i], "-loop")==0 ) 
-				{
-					val=atoi(argv[++i]);
-					if (val==0) Config->loop=-1;
-					else Config->loop=val;
-				}
+        else if ( strcmp(argv[i], "-loop")==0 )
+        {
+            val=atoi(argv[++i]);
+            if (val==0) Config->loop=-1;
+            else Config->loop=val;
+        }
         else if ( strcmp(argv[i], "-show-playlist")==0 ) Config->state |= STATE_PLAYLIST_REQUESTED;
         else if ( strcmp(argv[i], "-keygrab")==0 ) Config->keygrabs=rstrcpy(Config->keygrabs, argv[++i]);
         else if ( strcmp(argv[i], "-helpers")==0 ) Config->helpers=rstrcpy(Config->helpers, argv[++i]);
@@ -238,34 +245,34 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         )
         {
             PlaylistAdd(Config->playlist, "stdin://", ID, Title);
-						Config->flags &= ~CONFIG_CONTROL;
-						Config->flags |= CONFIG_READ_STDIN;
+            Config->flags &= ~CONFIG_CONTROL;
+            Config->flags |= CONFIG_READ_STDIN;
         }
         else if ( strcmp(argv[i], "-v")==0 ) Config->debug++;
         else if ( strcmp(argv[i], "-version")==0 )
-				{
-					printf("cxine %s\n", VERSION);
-					exit(0);
-				}
+        {
+            printf("cxine %s\n", VERSION);
+            exit(0);
+        }
         else if ( strcmp(argv[i], "--version")==0 )
-				{
-					printf("cxine %s\n", VERSION);
-					exit(0);
-				}
+        {
+            printf("cxine %s\n", VERSION);
+            exit(0);
+        }
         else if ( strcmp(argv[i], "-list-extn")==0 )
-				{
-					ptr=xine_get_file_extensions(Config->xine);
-					printf("File Types Supported:  %s\n", ptr); 
-					exit(0);
-				}
+        {
+            ptr=xine_get_file_extensions(Config->xine);
+            printf("File Types Supported:  %s\n", ptr);
+            exit(0);
+        }
         else if ( strcmp(argv[i], "-list-mime")==0 )
-				{
-					ptr=xine_get_mime_types(Config->xine);
-					Token=rstrcpy(Token, ptr);
-					strrep(Token, ';', '\n');
-					printf("Mime Types Supported:\n%s\n", Token); 
-					exit(0);
-				}
+        {
+            ptr=xine_get_mime_types(Config->xine);
+            Token=rstrcpy(Token, ptr);
+            strrep(Token, ';', '\n');
+            printf("Mime Types Supported:\n%s\n", Token);
+            exit(0);
+        }
         else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "-help")==0 ) Help(argv[++i]);
         else if ( strcmp(argv[i], "--help")==0 ) Help(argv[++i]);

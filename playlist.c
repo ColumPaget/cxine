@@ -5,6 +5,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 #include "playlist.h"
 #include "playlist_files.h"
+#include "playlist_osd.h"
 #include "download.h"
 #include "osd.h"
 #include <glob.h>
@@ -33,44 +34,44 @@ void PlaylistShuffle()
 
 char *PlaylistFormatEntry(char *RetStr, const char *URL, const char *ID, const char *Title)
 {
-char *Quoted=NULL, *Tempstr=NULL;
+    char *Quoted=NULL, *Tempstr=NULL;
 
-Quoted=rstrquot(Quoted, URL, "\\  ");
-RetStr=rstrcat(RetStr, Quoted);
+    Quoted=rstrquot(Quoted, URL, "\\  ");
+    RetStr=rstrcat(RetStr, Quoted);
 
-if (StrLen(ID))
-{
-	RetStr=rstrcat(RetStr, " id='");
-	Quoted=rstrcpy(Quoted, ID);
-	StripQuotes(Quoted);
-	RetStr=rstrcat(RetStr, Quoted);
-	RetStr=rstrcat(RetStr, "'");
-}
+    if (StrLen(ID))
+    {
+        RetStr=rstrcat(RetStr, " id='");
+        Quoted=rstrcpy(Quoted, ID);
+        StripQuotes(Quoted);
+        RetStr=rstrcat(RetStr, Quoted);
+        RetStr=rstrcat(RetStr, "'");
+    }
 
-if (StrLen(Title))
-{
-	RetStr=rstrcat(RetStr, " title='");
-	Tempstr=rstrcpy(Tempstr, Title);
-	StripQuotes(Tempstr);
-	Quoted=rstrquot(Quoted, Tempstr, "\'");
-	RetStr=rstrcat(RetStr, Quoted);
-	RetStr=rstrcat(RetStr, "'");
+    if (StrLen(Title))
+    {
+        RetStr=rstrcat(RetStr, " title='");
+        Tempstr=rstrcpy(Tempstr, Title);
+        StripQuotes(Tempstr);
+        Quoted=rstrquot(Quoted, Tempstr, "\'");
+        RetStr=rstrcat(RetStr, Quoted);
+        RetStr=rstrcat(RetStr, "'");
 
-}
+    }
 
-destroy(Tempstr);
-destroy(Quoted);
-return(RetStr);
+    destroy(Tempstr);
+    destroy(Quoted);
+    return(RetStr);
 }
 
 
 static int IsDir(const char *URL)
 {
-struct stat Stat;
+    struct stat Stat;
 
-if (stat(URL, &Stat) !=0) return(FALSE);
-if (S_ISDIR(Stat.st_mode)) return(TRUE);
-return(FALSE);
+    if (stat(URL, &Stat) !=0) return(FALSE);
+    if (S_ISDIR(Stat.st_mode)) return(TRUE);
+    return(FALSE);
 }
 
 
@@ -78,26 +79,26 @@ void PlaylistAdd(TStringList *playlist, const char *iURL, const char *ID, const 
 {
     char *Tempstr=NULL, *URL=NULL;
     CXineOSD *OSD=NULL;
-		glob_t Glob;
-		int i;
+    glob_t Glob;
+    int i;
 
     URL=rstrcpy(URL, iURL);
-		
-		if (IsDir(URL))
-		{
-			if (Config->flags & CONFIG_RECURSIVE)
-			{
-				Tempstr=rstrcpy(Tempstr, iURL);
-				Tempstr=rstrcat(Tempstr, "/*");
-				glob(Tempstr, 0, 0, &Glob);
-				for (i=0; i < Glob.gl_pathc; i++)
-				{
-					PlaylistAdd(playlist, Glob.gl_pathv[i], ID, Title);
-				}
-				globfree(&Glob);
-			}
-		}
-		else if (IsPlaylist(URL))
+
+    if (IsDir(URL))
+    {
+        if (Config->flags & CONFIG_RECURSIVE)
+        {
+            Tempstr=rstrcpy(Tempstr, iURL);
+            Tempstr=rstrcat(Tempstr, "/*");
+            glob(Tempstr, 0, 0, &Glob);
+            for (i=0; i < Glob.gl_pathc; i++)
+            {
+                PlaylistAdd(playlist, Glob.gl_pathv[i], ID, Title);
+            }
+            globfree(&Glob);
+        }
+    }
+    else if (IsPlaylist(URL))
     {
         if ( ! PlaylistLoad(playlist, URL) ) StringListAdd(playlist, URL);
     }
@@ -108,15 +109,15 @@ void PlaylistAdd(TStringList *playlist, const char *iURL, const char *ID, const 
             (*URL != '/' ) &&
             (! strchr(URL, ':')) &&
             (StrLen(Config->path_prefix))
-        ) 
-				{
-					//rebuild URL with leading prefix
-					Tempstr=rstrcpy(Tempstr, Config->path_prefix);
-       	 	Tempstr=rstrcat(Tempstr, URL);
-       	 	URL=rstrcpy(URL, Tempstr);
-				}
+        )
+        {
+            //rebuild URL with leading prefix
+            Tempstr=rstrcpy(Tempstr, Config->path_prefix);
+            Tempstr=rstrcat(Tempstr, URL);
+            URL=rstrcpy(URL, Tempstr);
+        }
 
-				Tempstr=PlaylistFormatEntry(Tempstr, URL, ID, Title);
+        Tempstr=PlaylistFormatEntry(Tempstr, URL, ID, Title);
         StringListAdd(playlist, Tempstr);
     }
 
@@ -126,15 +127,14 @@ void PlaylistAdd(TStringList *playlist, const char *iURL, const char *ID, const 
 }
 
 
-
 int PlaylistMoveItem(TStringList *playlist, int pos, int move)
 {
-int newpos;
+    int newpos;
 
-newpos=pos+move;
-StringListSwap(playlist, pos, newpos);
+    newpos=pos+move;
+    StringListSwap(playlist, pos, newpos);
 
-return(newpos);
+    return(newpos);
 }
 
 
@@ -162,54 +162,65 @@ TStringList *PlaylistExpandCurr(TStringList *playlist, const char *URL, const ch
 }
 
 
+void PlaylistLoadFromURL(const char *URL, const char *LocalPath)
+{
+    TStringList *NewPlaylist;
+
+    NewPlaylist=PlaylistExpandCurr(Config->playlist, URL, LocalPath);
+    StringListDestroy(Config->playlist);
+    Config->playlist=NewPlaylist;
+		PlaylistOSDUpdate();
+}
+
+
 
 void PlaylistParseEntry(const char *info, char **URL, char **ID, char **Title)
 {
-char *Path=NULL, *Tempstr=NULL, *UnQuote=NULL;
-const char *ptr;
+    char *Path=NULL, *Tempstr=NULL, *UnQuote=NULL;
+    const char *ptr;
 
-	if (URL) *URL=rstrcpy(*URL, "");
-	if (ID) *ID=rstrcpy(*ID, "");
-	if (Title) *Title=rstrcpy(*Title, "");
+    if (URL) *URL=rstrcpy(*URL, "");
+    if (ID) *ID=rstrcpy(*ID, "");
+    if (Title) *Title=rstrcpy(*Title, "");
 
-	if (info == NULL) return;
+    if (info == NULL) return;
 
-  ptr=rstrtok(info, " ", &Path);
-  if (URL) *URL=rstrunquot(*URL, Path);
+    ptr=rstrtok(info, " ", &Path);
+    if (URL) *URL=rstrunquot(*URL, Path);
 
-  while (ptr)
-  {
-    ptr=rstrtok(ptr, " ", &Tempstr);
-    if (StrLen(Tempstr))
+    while (ptr)
     {
-	    if (strncmp(Tempstr, "id=", 3)==0)
-			{
-				if (ID) 
-				{
-					*ID=rstrcpy(*ID, Tempstr+3);
-					StripQuotes(*ID);
-				}
-			}
-	    else if (strncmp(Tempstr, "title=", 6)==0) 
-			{
-				if (Title) 
-				{
-					UnQuote=rstrcpy(UnQuote, Tempstr+6);
-					StripQuotes(UnQuote);
-					*Title=rstrunquot(*Title, UnQuote);
-				}
-			}
-	    else 
-			{
-				if (Title) *Title=rstrunquot(*Title, cbasename(Tempstr));
-			}
+        ptr=rstrtok(ptr, " ", &Tempstr);
+        if (StrLen(Tempstr))
+        {
+            if (strncmp(Tempstr, "id=", 3)==0)
+            {
+                if (ID)
+                {
+                    *ID=rstrcpy(*ID, Tempstr+3);
+                    StripQuotes(*ID);
+                }
+            }
+            else if (strncmp(Tempstr, "title=", 6)==0)
+            {
+                if (Title)
+                {
+                    UnQuote=rstrcpy(UnQuote, Tempstr+6);
+                    StripQuotes(UnQuote);
+                    *Title=rstrunquot(*Title, UnQuote);
+                }
+            }
+            else
+            {
+                if (Title) *Title=rstrunquot(*Title, cbasename(Tempstr));
+            }
+        }
     }
-  }
 
-	if (Title && (StrLen(*Title)==0)) *Title=rstrunquot(*Title, cbasename(Path));
+    if (Title && (StrLen(*Title)==0)) *Title=rstrunquot(*Title, cbasename(Path));
 
-destroy(Tempstr);
-destroy(UnQuote);
+    destroy(Tempstr);
+    destroy(UnQuote);
 }
 
 
@@ -218,11 +229,11 @@ char *PlaylistCurrTitle(char *RetStr)
 {
     char *URL=NULL;
 
-		RetStr=rstrcpy(RetStr, "");
+    RetStr=rstrcpy(RetStr, "");
     if (Config->stream) RetStr=rstrcpy(RetStr, xine_get_meta_info(Config->stream, XINE_META_INFO_TITLE));
     if (StrLen(RetStr)==0)
     {
-				PlaylistParseEntry(StringListCurr(Config->playlist), &URL, NULL, &RetStr);
+        PlaylistParseEntry(StringListCurr(Config->playlist), &URL, NULL, &RetStr);
         if (StrLen(RetStr) ==0) RetStr=rstrcpy(RetStr, cbasename(URL));
     }
 
@@ -230,3 +241,25 @@ char *PlaylistCurrTitle(char *RetStr)
 
     return(RetStr);
 }
+
+
+//This function does some setting up work on the initial playlist loaded from 
+//command-line args
+void PlaylistInit(TStringList *playlist)
+{
+char *URL=NULL, *ID=NULL;
+int i;
+
+if (Config->flags & CONFIG_PLAYLIST)
+{
+ for (i=0; i < StringListSize(playlist); i++)
+ {
+  PlaylistParseEntry(StringListGet(Config->playlist, i), &URL, &ID, NULL);
+	DownloadProcess(&URL, ID, DOWNLOAD_PLAY);
+ }
+}
+
+destroy(URL);
+destroy(ID);
+}
+

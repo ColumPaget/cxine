@@ -35,6 +35,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "audio_drivers.h"
 #include "keypress.h"
 #include "download.h"
+#include "download_osd.h"
 #include "playlist.h"
 #include "playlist_osd.h"
 #include "playback_control.h"
@@ -51,7 +52,6 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 #define DEFAULT_CACHE_DIR "~/.cxine/cache"
 
-static CXineOSD *DownloadOSD=NULL;
 
 
 
@@ -100,50 +100,6 @@ static void event_listener(void *user_data, const xine_event_t *event)
 
 
 
-void DisplayDownloadProgress()
-{
-    char *Tempstr=NULL, *Title=NULL, *URL=NULL, *Text=NULL;
-		static char *PrevSizeStr=NULL;
-    const char *ptr;
-
-    Title=PlaylistCurrTitle(Title);
-
-    ptr=StringListCurr(Config->playlist);
-    if (ptr)
-    {
-      rstrtok(ptr, " ", &URL);
-
-     	Tempstr=(char *) calloc(1, 256);
-			LongFormatMetric(Tempstr, 255, (unsigned long) DownloadTransferred(URL));
-
-			//don't bother to update everything if the value of the download display
-			//hasn't changed
-			if ( (! PrevSizeStr) || (strcmp(Tempstr, PrevSizeStr) !=0) )
-			{
-				PrevSizeStr=rstrcpy(PrevSizeStr, Tempstr);
-
-        Text=rstrcpy(Text, "Downloading: ");
-        Text=rstrcat(Text, Title);
-        Text=rstrcat(Text, "\n");
-
-        Text=rstrcat(Text, Tempstr);
-        Text=rstrcat(Text, " bytes received\n");
-
-        if (! DownloadOSD) DownloadOSD=OSDMessage(10, 50, Text);
-        else DownloadOSD->Contents=rstrcpy(DownloadOSD->Contents, Text);
-        OSDUpdateSingle(DownloadOSD, TRUE);
-
-				Tempstr=rstrcat(Tempstr, " bytes of: ");
-				Tempstr=rstrcat(Tempstr, Title);
-			  X11WindowSetTitle(Config->X11Out, Tempstr, "cxine");
-			}
-		}
-
-    destroy(Tempstr);
-    destroy(Title);
-    destroy(Text);
-    destroy(URL);
-}
 
 
 
@@ -152,7 +108,7 @@ void PeriodicProcessing()
 {
     char *URL=NULL, *ID=NULL;
     const char *ptr;
-    int pos;
+    int pos, DoDownload;
 
 // Sweep through playlist and start downloading things that need downloading
     if (Config->playlist && (! (Config->flags & CONFIG_STREAM)))
@@ -161,8 +117,12 @@ void PeriodicProcessing()
         ptr=StringListFirst(Config->playlist);
         while (ptr)
         {
-						PlaylistParseEntry(ptr, &URL, &ID, NULL);
-            if (! DownloadDone(&URL, ID)) break;
+            PlaylistParseEntry(ptr, &URL, &ID, NULL);
+					 	if (Config->flags & CONFIG_NOAUTOPLAY) DoDownload=FALSE;
+						else DoDownload=TRUE;
+
+						if (DownloadProcess(&URL, ID, DoDownload)==DOWNLOAD_ACTIVE) break;
+
             ptr=StringListNext(Config->playlist);
         }
         Config->playlist->next=pos;
@@ -179,10 +139,7 @@ void PeriodicProcessing()
 
     OSDUpdate((Config->flags & CONFIG_OSD) && (! (Config->state & STATE_PLAYLIST_DISPLAYED)));
 
-    if (
-				(Config->state & STATE_DOWNLOADING) &&
-				(! (Config->state & (STATE_PLAYLIST_DISPLAYED | STATE_LOADFILES_DISPLAYED)) )
-			) DisplayDownloadProgress();
+    if (Config->state & STATE_DOWNLOADING) DownloadOSDDisplay();
 
     destroy(URL);
     destroy(ID);
@@ -191,12 +148,12 @@ void PeriodicProcessing()
 
 int FDCopyBytes(int in, int out)
 {
-char Buffer[1024];
-int result;
+    char Buffer[1024];
+    int result;
 
-result=read(in, Buffer, 1024);
-write(out, Buffer, result);
-return(result);
+    result=read(in, Buffer, 1024);
+    write(out, Buffer, result);
+    return(result);
 }
 
 
@@ -205,12 +162,12 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
     fd_set select_set;
     int high_fd=0, display_fd=-1, result, sleep_ms;
     static struct timeval *tv=NULL;
-		const char *ptr;
+    const char *ptr;
     TEvent Event;
 
     Event.type=EVENT_NONE;
 
-		//decide how log we will wait in 'select' for
+    //decide how log we will wait in 'select' for
     ptr=xine_get_meta_info(Config->stream, XINE_STREAM_INFO_VIDEO_FOURCC);
     if ((Config->image_ms > 0) && (strcmp(ptr, "imagedmx")==0)) sleep_ms=Config->image_ms;
     else sleep_ms=200;
@@ -246,29 +203,29 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
     {
         if ((stdin_fd > -1) && FD_ISSET(stdin_fd, &select_set))
         {
-						//if in slave mode we read strings from StdIn with 'ControlHandleInput'
-    				if (Config->flags & CONFIG_SLAVE)
-						{
-            if (ControlHandleInput(stdin_fd, Config->stream) ==EVENT_CLOSE)
+            //if in slave mode we read strings from StdIn with 'ControlHandleInput'
+            if (Config->flags & CONFIG_SLAVE)
             {
-                close(stdin_fd);
-                stdin_fd=-1;
+                if (ControlHandleInput(stdin_fd, Config->stream) ==EVENT_CLOSE)
+                {
+                    close(stdin_fd);
+                    stdin_fd=-1;
+                }
             }
-						}
-						//if NOT in slave mode, we read keypresses from stdin
-						else if (Config->flags & CONFIG_CONTROL)
-						{
-							KeypressHandleStdIn(stdin_fd, Config->stream);
-						}
-						else 
-						{
-							result=FDCopyBytes(stdin_fd, Config->to_xine);
-							if (result < 1)
-							{
-								close(stdin_fd);
-								stdin_fd=-1;
-							}
-						}
+            //if NOT in slave mode, we read keypresses from stdin
+            else if (Config->flags & CONFIG_CONTROL)
+            {
+                KeypressHandleStdIn(stdin_fd, Config->stream);
+            }
+            else
+            {
+                result=FDCopyBytes(stdin_fd, Config->to_xine);
+                if (result < 1)
+                {
+                    close(stdin_fd);
+                    stdin_fd=-1;
+                }
+            }
         }
 
         if ((control_pipe > -1) && FD_ISSET(control_pipe, &select_set))
@@ -294,7 +251,7 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
     if (tv->tv_usec == 0)
     {
         tv->tv_usec=sleep_ms * 1000;
-				time(&Now);
+        time(&Now);
         return(EVENT_TIMEOUT);
     }
 
@@ -343,21 +300,21 @@ void OutputAccellerationTypes()
 void CXineSwitchUser()
 {
     uid_t real, effective, saved;
-		int result=-1;
+    int result=-1;
 
     getresuid(&real, &effective, &saved);
-		//if we are root, or effectively root, then switch to another user
+    //if we are root, or effectively root, then switch to another user
     if (effective==0)
     {
         if (real != 0) result=setresuid(real, real, real);
-				if ((real==0) || (result != 0)) 
-				{
-					if (saved != 0) result=setresuid(saved, saved, saved);
-					if (result !=0)
-					{
-						printf("WARNING: cannot switch to a saved user, you are running this app as root\n");
-					}
-				}
+        if ((real==0) || (result != 0))
+        {
+            if (saved != 0) result=setresuid(saved, saved, saved);
+            if (result !=0)
+            {
+                printf("WARNING: cannot switch to a saved user, you are running this app as root\n");
+            }
+        }
     }
 
 }
@@ -385,53 +342,53 @@ void CXineOutputs(xine_t *xine, xine_stream_t *stream)
 
 void CXineExit(TConfig *Config)
 {
-		//will only save bookmark if stream is still playing
-		SaveBookmark(StringListCurr(Config->playlist), Config->stream);
+    //will only save bookmark if stream is still playing
+    SaveBookmark(StringListCurr(Config->playlist), Config->stream);
 
-		CXinePlaybackEnd();
+    CXinePlaybackEnd();
     xine_event_dispose_queue(Config->event_queue);
     xine_dispose(Config->stream);
     if (Config->vo_port)  xine_close_video_driver(Config->xine, Config->vo_port);
     xine_exit(Config->xine);
     X11Close(Config->X11Out);
-		StdinReset();
+    StdinReset();
 }
 
 
 char *CXineFormatXineList(char *RetStr, const char * const *List)
 {
-const char * const *ptr;
+    const char * const *ptr;
 
-RetStr=rstrcpy(RetStr, "");
+    RetStr=rstrcpy(RetStr, "");
 
-for (ptr=List; *ptr !=NULL; ptr++) 
-{
-	if (StrLen(RetStr)) RetStr=rstrcat(RetStr, ", ");
-	RetStr=rstrcat(RetStr, *ptr);
-}
+    for (ptr=List; *ptr !=NULL; ptr++)
+    {
+        if (StrLen(RetStr)) RetStr=rstrcat(RetStr, ", ");
+        RetStr=rstrcat(RetStr, *ptr);
+    }
 
-return(RetStr);
+    return(RetStr);
 }
 
 void CXineShowSystemSetup()
 {
-char *Tempstr=NULL;
+    char *Tempstr=NULL;
 
-  OutputAccellerationTypes();
-	Tempstr=CXineFormatXineList(Tempstr, xine_list_audio_output_plugins(Config->xine));
-	printf("Audio Drivers:  %s\n", Tempstr); 
+    OutputAccellerationTypes();
+    Tempstr=CXineFormatXineList(Tempstr, xine_list_audio_output_plugins(Config->xine));
+    printf("Audio Drivers:  %s\n", Tempstr);
 
-	Tempstr=CXineFormatXineList(Tempstr, xine_list_video_output_plugins(Config->xine));
-	printf("Video Drivers:  %s\n", Tempstr); 
+    Tempstr=CXineFormatXineList(Tempstr, xine_list_video_output_plugins(Config->xine));
+    printf("Video Drivers:  %s\n", Tempstr);
 
-destroy(Tempstr);
+    destroy(Tempstr);
 }
 
 
 int main(int argc, char **argv)
 {
-  int control_pipe=-1, result;
-	broadcaster_t *bcast=NULL;
+    int control_pipe=-1, result;
+    broadcaster_t *bcast=NULL;
 
     //call 'SignalHandler' with a signal it ignores as it will set up
     //handlers for SIGINT and SIGTERM
@@ -445,6 +402,7 @@ int main(int argc, char **argv)
     if (Config->flags & CONFIG_SHUFFLE) PlaylistShuffle();
     if (Config->flags & CONFIG_SAVE) CXineConfigSave(Config);
     DownloadCleanCacheDir();
+		PlaylistInit(Config->playlist);
 
     signal(SIGPIPE, SIG_IGN);
 
@@ -455,19 +413,19 @@ int main(int argc, char **argv)
     //CXineDisplayPlugins(Config->xine);
     //HelpMimeTypes(Config->xine);
 
-		CXineShowSystemSetup();
+    CXineShowSystemSetup();
 
     control_pipe=ControlPipeOpen(O_RDWR | O_NONBLOCK);
 
-		if (strcmp(Config->vo_driver, "none")==0)
-		{
-			printf("vo_driver: none. No video output\n");
-		}
-		else
-		{
-    Config->X11Out=X11Init(Config->parent, 0, 0, Config->width, Config->height);
-    Config->vo_port=X11BindCXineOutput(Config);
-		}
+    if (strcmp(Config->vo_driver, "none")==0)
+    {
+        printf("vo_driver: none. No video output\n");
+    }
+    else
+    {
+        Config->X11Out=X11Init(Config->parent, 0, 0, Config->width, Config->height);
+        Config->vo_port=X11BindCXineOutput(Config);
+    }
 
     Config->ao_port = CXineOpenAudioDriver("none");
     Config->stream=xine_stream_new(Config->xine, Config->ao_port, Config->vo_port);
@@ -480,14 +438,13 @@ int main(int argc, char **argv)
         OSDSetup(Config);
     }
 
-		if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
+    if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
 
-		printf("CFLAGS: %d\n", Config->flags & CONFIG_CONTROL);
-		//open stdin late, as X11 setup above can override its use
-		if (Config->flags & (CONFIG_CONTROL | CONFIG_SLAVE | CONFIG_READ_STDIN)) Config->stdin=dup(0);
-		//don't try to use stdin if our setyp doesn't explicitly need it
-		else Config->stdin=-1;
-		//StdinSetup(Config->flags);
+    //open stdin late, as X11 setup above can override its use
+    if (Config->flags & (CONFIG_CONTROL | CONFIG_SLAVE | CONFIG_READ_STDIN)) Config->stdin=dup(0);
+    //don't try to use stdin if our setyp doesn't explicitly need it
+    else Config->stdin=-1;
+    //StdinSetup(Config->flags);
 
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);
@@ -495,24 +452,20 @@ int main(int argc, char **argv)
     CXineOutputs(Config->xine, Config->stream);
 //	xine_set_param (Config->stream, XINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
 
-		CxineInjectSplashScreen(Config->xine);
+    CxineInjectSplashScreen(Config->xine);
 
     running = 1;
     while(running)
     {
-				if (Config->state & STATE_PLAYLIST_REQUESTED)
-				{
-					PlaylistOSDShow();
-					Config->state &= ~STATE_PLAYLIST_REQUESTED;
-				}
+        if (Config->state & STATE_PLAYLIST_REQUESTED)
+        {
+            PlaylistOSDShow();
+            Config->state &= ~STATE_PLAYLIST_REQUESTED;
+        }
 
         if (Config->state & STATE_PLAYING)
         {
-            if (DownloadOSD)
-            {
-                OSDDestroy(DownloadOSD);
-                DownloadOSD=NULL;
-            }
+            DownloadOSDHide();
         }
         else
         {
@@ -525,31 +478,39 @@ int main(int argc, char **argv)
                 }
             }
 
-            result=CXineSelectStream(Config, PLAY_NEXT);
-
-            if  ((! result) && (! (Config->state & STATE_DOWNLOADING))) 
+            if (! (Config->flags & CONFIG_NOAUTOPLAY))
             {
-									//we are at the end
-									if ((StringListPos(Config->playlist)+1) >= StringListSize(Config->playlist))
-									{
-										if (! (Config->flags & CONFIG_PERSIST)) running=0;
-									}
+                result=CXineSelectStream(Config, PLAY_NEXT);
+
+                if  ((! result) && (! (Config->state & STATE_DOWNLOADING)))
+                {
+                    //we are at the end
+                    if ((StringListPos(Config->playlist)+1) >= StringListSize(Config->playlist))
+                    {
+                        if (! (Config->flags & CONFIG_PERSIST)) running=0;
+                    }
+                }
             }
         }
 
 //		if (Config->state & STATE_NEWTITLE) CXineNewTitle(Config);
 
         result=WatchFileDescriptors(Config, Config->stdin, control_pipe);
-				switch (result)
-				{
-					case EVENT_RESIZE: OSDSetup(Config); break;
-					case EVENT_TIMEOUT: PeriodicProcessing(); break;
-				}
+        switch (result)
+        {
+        case EVENT_RESIZE:
+            OSDSetup(Config);
+            break;
+
+        case EVENT_TIMEOUT:
+            PeriodicProcessing();
+            break;
+        }
 
         waitpid(-1, NULL, WNOHANG);
     }
 
-		if (bcast) _x_close_broadcaster(bcast);
+    if (bcast) _x_close_broadcaster(bcast);
     CXineExit(Config);
 
     return(1);

@@ -118,34 +118,34 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
 {
     int val, pos_msecs, len_msecs;
 
-		switch (keychar)
+    switch (keychar)
     {
     case KEY_ESC:
         if (modifier & KEYMOD_CTRL)
         {
             if (Config->state & STATE_SHADED)
             {
-              X11SetWindowState(X11Out,  "_NET_WM_STATE_UNSHADE");
-              X11UnGrabKey(X11Out, "ctrl-esc");
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_UNSHADE");
+                X11UnGrabKey(X11Out, "ctrl-esc");
             }
             else
             {
-              X11SetWindowState(X11Out,  "_NET_WM_STATE_SHADED");
-              X11GrabKey(X11Out, "ctrl-esc");
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_SHADED");
+                X11GrabKey(X11Out, "ctrl-esc");
             }
         }
         else if (modifier & KEYMOD_SHIFT)
         {
-            if (Config->state & STATE_RAISED) 
-						{
-							X11SetWindowState(X11Out,  "_NET_WM_STATE_BELOW");
-              X11GrabKey(X11Out, "shift-esc");
-						}
-            else 
-						{
-							X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
-              X11UnGrabKey(X11Out, "shift-esc");
-						}
+            if (Config->state & STATE_RAISED)
+            {
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_BELOW");
+                X11GrabKey(X11Out, "shift-esc");
+            }
+            else
+            {
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
+                X11UnGrabKey(X11Out, "shift-esc");
+            }
         }
         else if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_PREVIOUS);
         else if (Config->flags & CONFIG_ALLOW_KEY_EXIT) running=0;
@@ -158,19 +158,19 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         if (! (Config->flags & KILL_SCREENSAVER)) X11ScreenSaver(X11Out, (val != XINE_SPEED_PAUSE));
         break;
 
-		case 'a':
+    case 'a':
         CXineCycleAudio();
-				break;
+        break;
 
 
     case 'f':
         if (Config->state & STATE_FULLSCREEN) X11SetWindowState(X11Out,  "_NET_WM_STATE_RESTORED");
-				else X11SetWindowState(X11Out,  "_NET_WM_STATE_FULLSCREEN");
+        else X11SetWindowState(X11Out,  "_NET_WM_STATE_FULLSCREEN");
         break;
 
     case 'T':
         if (Config->state & STATE_RAISED) X11SetWindowState(X11Out,  "_NET_WM_STATE_ZORDER");
-				else X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
+        else X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
         break;
 
 
@@ -227,7 +227,7 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         break;
 
     case KEY_ENTER:
-		case KEY_RETURN:
+    case KEY_RETURN:
         if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_SELECT);
         else CXineSelectStream(Config, PLAY_NEXT);
         break;
@@ -237,29 +237,29 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         {
             if (Config->state & STATE_SHADED)
             {
-              X11SetWindowState(X11Out,  "_NET_WM_STATE_UNSHADE");
-              X11UnGrabKey(X11Out, "ctrl-tab");
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_UNSHADE");
+                X11UnGrabKey(X11Out, "ctrl-tab");
             }
             else
             {
-              X11SetWindowState(X11Out,  "_NET_WM_STATE_SHADED");
-              X11GrabKey(X11Out, "ctrl-tab");
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_SHADED");
+                X11GrabKey(X11Out, "ctrl-tab");
             }
         }
         else if (modifier & KEYMOD_SHIFT)
         {
-            if (Config->state & STATE_RAISED) 
-						{
-							X11SetWindowState(X11Out,  "_NET_WM_STATE_BELOW");
-              X11GrabKey(X11Out, "shift-tab");
-						}
-            else 
-						{
-							X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
-              X11UnGrabKey(X11Out, "shift-tab");
-						}
+            if (Config->state & STATE_RAISED)
+            {
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_BELOW");
+                X11GrabKey(X11Out, "shift-tab");
+            }
+            else
+            {
+                X11SetWindowState(X11Out,  "_NET_WM_STATE_ABOVE");
+                X11UnGrabKey(X11Out, "shift-tab");
+            }
         }
-    break;
+        break;
 
     case '.':
     case KEY_DELETE:
@@ -276,35 +276,35 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         CXineSelectStream(Config, PLAY_PREV);
         break;
 
-		case '[':
-	      val=xine_get_param (stream, XINE_PARAM_FINE_SPEED);
-				if (val > 0) val-=10000;
-        xine_set_param (stream, XINE_PARAM_FINE_SPEED, val);
-				break;
-
-		case ']':
-	      val=xine_get_param (stream, XINE_PARAM_FINE_SPEED);
-				val+=10000;
-        xine_set_param (stream, XINE_PARAM_FINE_SPEED, val);
-				break;
-
-    case '{':
-        val=xine_get_param (stream, XINE_PARAM_SPEED);
-        if (val == XINE_SPEED_SLOW_4) val=XINE_SPEED_NORMAL;
-        else val=XINE_SPEED_SLOW_4;
-        xine_set_param (stream, XINE_PARAM_SPEED, val);
+    case '[':
+        Config->speed=xine_get_param (stream, XINE_PARAM_FINE_SPEED);
+        if (Config->speed > 0) Config->speed-=10000;
+        xine_set_param (stream, XINE_PARAM_FINE_SPEED, Config->speed);
         break;
 
-		case '}':
-        val=xine_get_param (stream, XINE_PARAM_SPEED);
-        if (val == XINE_SPEED_FAST_4) val=XINE_SPEED_NORMAL;
-        else val=XINE_SPEED_FAST_4;
-        xine_set_param (stream, XINE_PARAM_SPEED, val);
-		break;
+    case ']':
+        Config->speed=xine_get_param (stream, XINE_PARAM_FINE_SPEED);
+        Config->speed+=10000;
+        xine_set_param (stream, XINE_PARAM_FINE_SPEED, Config->speed);
+        break;
 
-		case KEY_BACKSPACE:
+    case '{':
+        Config->speed=xine_get_param (stream, XINE_PARAM_SPEED);
+        if (Config->speed == XINE_SPEED_SLOW_4) Config->speed=XINE_SPEED_NORMAL;
+        else Config->speed=XINE_SPEED_SLOW_4;
+        xine_set_param (stream, XINE_PARAM_SPEED, Config->speed);
+        break;
+
+    case '}':
+        Config->speed=xine_get_param (stream, XINE_PARAM_SPEED);
+        if (Config->speed == XINE_SPEED_FAST_4) Config->speed=XINE_SPEED_NORMAL;
+        else Config->speed=XINE_SPEED_FAST_4;
+        xine_set_param (stream, XINE_PARAM_SPEED, Config->speed);
+        break;
+
+    case KEY_BACKSPACE:
         xine_set_param (stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL);
-		break;
+        break;
 
     case '+':
     case '=':
@@ -320,17 +320,17 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         if (modifier & KEYMOD_SHIFT) CXineSwitchAudioChannel(stream, -1);
         else if (modifier & KEYMOD_SHIFT) CXineAudioComp(stream, SET_ADD, -25);
         else CXineVolume(stream, SET_ADD, -5);
-    break;
+        break;
 
-		case 'i':
-				if (Config->state & STATE_INFO_DISPLAYED) InfoOSDHide();
-				else InfoOSDShow();
-		break;
+    case 'i':
+        if (Config->state & STATE_INFO_DISPLAYED) InfoOSDHide();
+        else InfoOSDShow();
+        break;
 
-		case 'l':
-				if (Config->state & STATE_LOADFILES_DISPLAYED) LoadFilesOSDHide();
-				else LoadFilesOSDShow();
-		break;
+    case 'l':
+        if (Config->state & STATE_LOADFILES_DISPLAYED) LoadFilesOSDHide();
+        else LoadFilesOSDShow();
+        break;
 
     case 'm':
     case KEY_MUTE:
@@ -341,10 +341,10 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         Config->flags ^= CONFIG_OSD;
         break;
 
-		case 'p':
-				if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDHide();
-				else PlaylistOSDShow();
-		break;		
+    case 'p':
+        if (Config->state & STATE_PLAYLIST_DISPLAYED) PlaylistOSDHide();
+        else PlaylistOSDShow();
+        break;
 
     case '0':
     case '1':
@@ -368,11 +368,11 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
 
 void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifier)
 {
-		//if playlist is displayed, and playlist takes/recognizes keypress, then 
-		//don't handle it in the main keypress code
-	if ( (Config->state & STATE_PLAYLIST_DISPLAYED) && PlaylistOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
-	else if ( (Config->state & STATE_LOADFILES_DISPLAYED) && LoadFilesOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
-	else MainScreenHandleKeyPress(X11Out, stream, keychar, modifier);
+    //if playlist is displayed, and playlist takes/recognizes keypress, then
+    //don't handle it in the main keypress code
+    if ( (Config->state & STATE_PLAYLIST_DISPLAYED) && PlaylistOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
+    else if ( (Config->state & STATE_LOADFILES_DISPLAYED) && LoadFilesOSDKeypress(X11Out, stream, keychar, modifier) ) /*do nothing, OSD took the keypress */ ;
+    else MainScreenHandleKeyPress(X11Out, stream, keychar, modifier);
 }
 
 
@@ -381,107 +381,107 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 
 const char *KeypressHandleEscapeSequence(const char *Sequence, xine_stream_t *stream)
 {
-if (strcmp(Sequence, "\x1b[A")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_UP, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[B")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_DOWN, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[C")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_RIGHT, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[D")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_LEFT, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[a")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_UP, KEYMOD_SHIFT);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[b")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_DOWN, KEYMOD_SHIFT);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[c")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_RIGHT, KEYMOD_SHIFT);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[d")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_LEFT, KEYMOD_SHIFT);
-	return(Sequence+3);
-}
+    if (strcmp(Sequence, "\x1b[A")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_UP, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[B")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_DOWN, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[C")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_RIGHT, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[D")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_LEFT, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[a")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_UP, KEYMOD_SHIFT);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[b")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_DOWN, KEYMOD_SHIFT);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[c")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_RIGHT, KEYMOD_SHIFT);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[d")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_LEFT, KEYMOD_SHIFT);
+        return(Sequence+3);
+    }
 
-else if (strcmp(Sequence, "\x1b[H")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_HOME, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[F")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_END, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[Z")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_END, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[P")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_PAUSE, 0);
-	return(Sequence+3);
-}
-else if (strcmp(Sequence, "\x1b[5~")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_PGUP, 0);
-	return(Sequence+4);
-}
-else if (strcmp(Sequence, "\x1b[6~")==0) 
-{
-	HandleKeyPress(Config->X11Out, stream, KEY_PGDN, 0);
-	return(Sequence+4);
-}
+    else if (strcmp(Sequence, "\x1b[H")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_HOME, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[F")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_END, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[Z")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_END, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[P")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_PAUSE, 0);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[5~")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_PGUP, 0);
+        return(Sequence+4);
+    }
+    else if (strcmp(Sequence, "\x1b[6~")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_PGDN, 0);
+        return(Sequence+4);
+    }
 
 
 
-return(Sequence);
+    return(Sequence);
 }
 
 
 int KeypressHandleStdIn(int fd, xine_stream_t *stream)
 {
-char *Token=NULL;
-int result, i;
+    char *Token=NULL;
+    int result, i;
 
-Token=(char *) calloc(1, 256);
-result=read(fd, Token, 255);
-if (result > 0)
-{
-  Token[result]='\0';
-	if (Token[0]=='\x1b')
-	{
-		//escape key pressed, this is likely an escape sequence for keys like the arrow keys
-		//or pageup/pagedown
-		KeypressHandleEscapeSequence(Token, stream);
-	}
-	else for (i=0; i < result; i++)
-	{
-		HandleKeyPress(Config->X11Out, stream, Token[i], 0);
-	}
-}
+    Token=(char *) calloc(1, 256);
+    result=read(fd, Token, 255);
+    if (result > 0)
+    {
+        Token[result]='\0';
+        if (Token[0]=='\x1b')
+        {
+            //escape key pressed, this is likely an escape sequence for keys like the arrow keys
+            //or pageup/pagedown
+            KeypressHandleEscapeSequence(Token, stream);
+        }
+        else for (i=0; i < result; i++)
+            {
+                HandleKeyPress(Config->X11Out, stream, Token[i], 0);
+            }
+    }
 
-destroy(Token);
+    destroy(Token);
 }
 
 

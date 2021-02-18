@@ -12,22 +12,22 @@ static CXineOSD *OSD=NULL;
 
 void InfoOSDUpdate()
 {
-if (! (Config->state & STATE_INFO_DISPLAYED) ) return;
+    if (! (Config->state & STATE_INFO_DISPLAYED) ) return;
 
-OSD->Contents=OSDFormatString(OSD->Contents, "Playing: %P:%T\nVideo: [%v4] %wx%h %vC\nAudio: [%a4] %ac %aC\nArtist: %ma\nTitle: %mt\n", Config->stream);
-OSDUpdateSingle(OSD,TRUE);
+    OSD->Contents=OSDFormatString(OSD->Contents, "Playing: %P:%T\nVideo: [%v4] %wx%h %vC\nAudio: [%a4] %ac %aC\nArtist: %ma\nTitle: %mt\n", Config->stream);
+    OSDUpdateSingle(OSD,TRUE);
 }
 
 
 void InfoOSDHide()
 {
-	if (OSD) 
-	{
-		xine_osd_hide(OSD->osd, 0);
-		OSDDestroy(OSD);
-		OSD=NULL;
-	}
-	Config->state &= ~ STATE_INFO_DISPLAYED;
+    if (OSD)
+    {
+        xine_osd_hide(OSD->osd, 0);
+        OSDDestroy(OSD);
+        OSD=NULL;
+    }
+    Config->state &= ~ STATE_INFO_DISPLAYED;
 }
 
 
@@ -35,11 +35,11 @@ void InfoOSDHide()
 void InfoOSDShow()
 {
 
-	if (Config->state & STATE_INFO_DISPLAYED) return;
-	if (! OSD) 
-	{
-		OSD=OSDCreate(Config->X11Out, Config->stream, "0,10,-20,-20 font=mono", "");
-	}
-	Config->state |= STATE_INFO_DISPLAYED;
-	InfoOSDUpdate();
+    if (Config->state & STATE_INFO_DISPLAYED) return;
+    if (! OSD)
+    {
+        OSD=OSDCreate(Config->X11Out, Config->stream, "0,24,-20,-20 font=mono", "");
+    }
+    Config->state |= STATE_INFO_DISPLAYED;
+    InfoOSDUpdate();
 }

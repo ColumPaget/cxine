@@ -15,25 +15,25 @@ void SaveBookmark(const char *url, xine_stream_t *stream)
     const char *ptr;
     int val, pos, size;
 
-		//if no url get the hell out of here!
+    //if no url get the hell out of here!
     if (! url) return;
 
-		if (stream)
-		{
-		//if it's not currently playing then we either got to the end, or haven't started
-		//either way there's no point saving a bookmark
-    if (! (Config->state & STATE_PLAYING)) return;
+    if (stream)
+    {
+        //if it's not currently playing then we either got to the end, or haven't started
+        //either way there's no point saving a bookmark
+        if (! (Config->state & STATE_PLAYING)) return;
 
-		//if it's not a seekable stream, don't save a bookmark
-    if (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE)) return;
-		}
+        //if it's not a seekable stream, don't save a bookmark
+        if (! xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE)) return;
+    }
 
     OutPath=rstrcpy(OutPath, xine_get_homedir());
     OutPath=rstrcat(OutPath, "/.cxine/cxine.bookmarks+");
     outf=fopen(OutPath, "w");
 
-		//first copy all bookmarks that *aren't* our target bookmark. This ensures there
-		//should only be one entry for a given url
+    //first copy all bookmarks that *aren't* our target bookmark. This ensures there
+    //should only be one entry for a given url
     if (outf)
     {
         InPath=rstrcpy(InPath, xine_get_homedir());
@@ -53,14 +53,14 @@ void SaveBookmark(const char *url, xine_stream_t *stream)
             }
             fclose(inf);
         }
-	
-				//if stream is NULL we don't write a bookmark to the file. This can be used to delete
-				//an existing bookmark for a stream		
-				if (stream)
-				{
-        xine_get_pos_length (stream, &val, &pos, &size);
-        if ((size - pos) > 20000) fprintf(outf, "%d %s\n", pos, url);
-				}
+
+        //if stream is NULL we don't write a bookmark to the file. This can be used to delete
+        //an existing bookmark for a stream
+        if (stream)
+        {
+            xine_get_pos_length (stream, &val, &pos, &size);
+            if ((size - pos) > 20000) fprintf(outf, "%d %s\n", pos, url);
+        }
 
         fclose(outf);
         rename(OutPath, InPath);
@@ -98,8 +98,8 @@ int LoadBookmark(const char *url)
         fclose(inf);
     }
 
-		//delete bookmark now we've used it
-		SaveBookmark(url, NULL);
+    //delete bookmark now we've used it
+    SaveBookmark(url, NULL);
 
     destroy(Tempstr);
     destroy(Line);
