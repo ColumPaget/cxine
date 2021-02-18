@@ -18,7 +18,7 @@ typedef struct
     char *MRL;
     char *Helpers;
     pid_t Pid;
-		int Flags;
+    int Flags;
 } TDownload;
 
 
@@ -228,7 +228,7 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
                 Cmd=rstrcat(Cmd, ptr);
 
                 // set stdout to be fd, then we can close fd
-								// DO NOT PRINTF ANYTHING AFTER HERE. It will go in the file
+                // DO NOT PRINTF ANYTHING AFTER HERE. It will go in the file
                 close(1);
                 dup(fd);
                 close(fd);
@@ -314,7 +314,7 @@ static int DownloadLaunch(const char *MRL, int Flags)
         download=(TDownload *) calloc(1, sizeof(TDownload));
         download->Helpers=rstrcpy(download->Helpers, SelectedHelpers);
         download->MRL=rstrcpy(download->MRL, MRL);
-				download->Flags=Flags;
+        download->Flags=Flags;
         if (! Downloads) Downloads=xine_list_new();
         xine_list_push_back(Downloads, download);
 
@@ -346,58 +346,58 @@ size_t DownloadTransferred(const char *MRL)
 //check if a file in the cache has really downloaded and is > 0 bytes in size
 int DownloadPostProcessFile(const char *Path, const char *MRL)
 {
-int fd;
-int size=0;
-struct flock Lock;
-struct stat Stat;
-int result=DOWNLOAD_NONE, Play=FALSE;
-TDownload *Download;
+    int fd;
+    int size=0;
+    struct flock Lock;
+    struct stat Stat;
+    int result=DOWNLOAD_NONE, Play=FALSE;
+    TDownload *Download;
 
-        //if the file isn't locked, then it's finished downloading
-        fd=open(Path, O_RDWR);
-        if (fd > -1)
+    //if the file isn't locked, then it's finished downloading
+    fd=open(Path, O_RDWR);
+    if (fd > -1)
+    {
+        if (flock(fd, LOCK_EX | LOCK_NB)==0)
         {
-            if (flock(fd, LOCK_EX | LOCK_NB)==0) 
-						{
-								fstat(fd, &Stat);
-								//close early so it's not locked by our flock check
-            		close(fd); 
+            fstat(fd, &Stat);
+            //close early so it's not locked by our flock check
+            close(fd);
 
 
-								//download is complete even if size is zero
-								result=DOWNLOAD_DONE;
-								Download=DownloadsFind(MRL);
+            //download is complete even if size is zero
+            result=DOWNLOAD_DONE;
+            Download=DownloadsFind(MRL);
 
-								if (Stat.st_size > 0) 
-								{
-				  					if (IsPlaylist(Path)) PlaylistLoadFromURL(*MRL, Path);
+            if (Stat.st_size > 0)
+            {
+                if (IsPlaylist(Path)) PlaylistLoadFromURL(*MRL, Path);
 
-										if (Download)
-										{
-										if (Download->Flags & DOWNLOAD_PLAY) Play=TRUE;
-        						DownloadsDelete(Download);
-										}
+                if (Download)
+                {
+                    if (Download->Flags & DOWNLOAD_PLAY) Play=TRUE;
+                    DownloadsDelete(Download);
+                }
 
-										if (Play) CXinePlayStream(Config, MRL);
-								}
-                else
-								{
-                    unlink(Path);
-										//if file was zero size try download again with the next helper
-                    if (Download)
-										{
-											if (DownloadLaunchHelper(Download) > 0) result=DOWNLOAD_NONE;
-										}
-										else result=DOWNLOAD_NONE;
-								}
-             }
-						 else 
-						 {
-							result=DOWNLOAD_ACTIVE;
-						 }
+                if (Play) CXinePlayStream(Config, MRL);
+            }
+            else
+            {
+                unlink(Path);
+                //if file was zero size try download again with the next helper
+                if (Download)
+                {
+                    if (DownloadLaunchHelper(Download) > 0) result=DOWNLOAD_NONE;
+                }
+                else result=DOWNLOAD_NONE;
+            }
         }
+        else
+        {
+            result=DOWNLOAD_ACTIVE;
+        }
+    }
 
-return(result);
+    return(result);
 }
 
 
@@ -425,8 +425,8 @@ int DownloadState(char **MRL, const char *ID)
 // if Path already in cache then it's downloading already
     if (access(CachePath, F_OK)==0)
     {
-		result=DownloadPostProcessFile(CachePath, *MRL);
-		if (result==DOWNLOAD_DONE) *MRL=rstrcpy(*MRL, CachePath);
+        result=DownloadPostProcessFile(CachePath, *MRL);
+        if (result==DOWNLOAD_DONE) *MRL=rstrcpy(*MRL, CachePath);
     }
 
     destroy(CachePath);
@@ -441,11 +441,11 @@ int DownloadProcess(char **MRL, const char *ID, int Flags)
     int result;
 
     result=DownloadState(MRL, ID);
-		if (Flags)
-		{
-		// if download isn't done, then launch a new download
-    if (! result) result=DownloadLaunch(*MRL, Flags);
-		}
+    if (Flags)
+    {
+        // if download isn't done, then launch a new download
+        if (! result) result=DownloadLaunch(*MRL, Flags);
+    }
 
     return(result);
 }

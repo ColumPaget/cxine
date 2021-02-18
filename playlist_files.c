@@ -141,18 +141,18 @@ xml_node_t *PlayListXMLLoad(const char *MRL)
     stat(MRL, &FStat);
     Tempstr=calloc(FStat.st_size +20, sizeof(char));
     f=fopen(MRL, "r");
-		if (f)
-		{
-    fread(Tempstr, FStat.st_size, sizeof(char), f);
-    fclose(f);
-
-    parser = xml_parser_init_r (Tempstr, FStat.st_size, XML_PARSER_CASE_INSENSITIVE);
-    if (parser)
+    if (f)
     {
-        xml_parser_build_tree_r(parser, &root);
-        xml_parser_finalize_r (parser);
+        fread(Tempstr, FStat.st_size, sizeof(char), f);
+        fclose(f);
+
+        parser = xml_parser_init_r (Tempstr, FStat.st_size, XML_PARSER_CASE_INSENSITIVE);
+        if (parser)
+        {
+            xml_parser_build_tree_r(parser, &root);
+            xml_parser_finalize_r (parser);
+        }
     }
-		}
 
     destroy(Tempstr);
 

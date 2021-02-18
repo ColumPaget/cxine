@@ -6,11 +6,11 @@ static CXineOSD *DownloadOSD=NULL;
 
 void DownloadOSDHide()
 {
-            if (DownloadOSD)
-            {
-                OSDDestroy(DownloadOSD);
-                DownloadOSD=NULL;
-            }
+    if (DownloadOSD)
+    {
+        OSDDestroy(DownloadOSD);
+        DownloadOSD=NULL;
+    }
 }
 
 
@@ -21,12 +21,12 @@ void DownloadOSDDisplay()
     static char *PrevSizeStr=NULL;
     const char *ptr;
 
-		//don't display it if anything else is currently being shown
-		if (Config->state & (STATE_PLAYLIST_DISPLAYED | STATE_LOADFILES_DISPLAYED | STATE_INFO_DISPLAYED)) 
-		{
-			DownloadOSDHide();
-			return;
-		}
+    //don't display it if anything else is currently being shown
+    if (Config->state & (STATE_PLAYLIST_DISPLAYED | STATE_LOADFILES_DISPLAYED | STATE_INFO_DISPLAYED))
+    {
+        DownloadOSDHide();
+        return;
+    }
 
     Title=PlaylistCurrTitle(Title);
 

@@ -169,7 +169,7 @@ void PlaylistLoadFromURL(const char *URL, const char *LocalPath)
     NewPlaylist=PlaylistExpandCurr(Config->playlist, URL, LocalPath);
     StringListDestroy(Config->playlist);
     Config->playlist=NewPlaylist;
-		PlaylistOSDUpdate();
+    PlaylistOSDUpdate();
 }
 
 
@@ -243,23 +243,23 @@ char *PlaylistCurrTitle(char *RetStr)
 }
 
 
-//This function does some setting up work on the initial playlist loaded from 
+//This function does some setting up work on the initial playlist loaded from
 //command-line args
 void PlaylistInit(TStringList *playlist)
 {
-char *URL=NULL, *ID=NULL;
-int i;
+    char *URL=NULL, *ID=NULL;
+    int i;
 
-if (Config->flags & CONFIG_PLAYLIST)
-{
- for (i=0; i < StringListSize(playlist); i++)
- {
-  PlaylistParseEntry(StringListGet(Config->playlist, i), &URL, &ID, NULL);
-	DownloadProcess(&URL, ID, DOWNLOAD_PLAY);
- }
-}
+    if (Config->flags & CONFIG_PLAYLIST)
+    {
+        for (i=0; i < StringListSize(playlist); i++)
+        {
+            PlaylistParseEntry(StringListGet(Config->playlist, i), &URL, &ID, NULL);
+            DownloadProcess(&URL, ID, DOWNLOAD_PLAY);
+        }
+    }
 
-destroy(URL);
-destroy(ID);
+    destroy(URL);
+    destroy(ID);
 }
 

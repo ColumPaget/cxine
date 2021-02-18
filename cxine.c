@@ -118,10 +118,10 @@ void PeriodicProcessing()
         while (ptr)
         {
             PlaylistParseEntry(ptr, &URL, &ID, NULL);
-					 	if (Config->flags & CONFIG_NOAUTOPLAY) DoDownload=FALSE;
-						else DoDownload=TRUE;
+            if (Config->flags & CONFIG_NOAUTOPLAY) DoDownload=FALSE;
+            else DoDownload=TRUE;
 
-						if (DownloadProcess(&URL, ID, DoDownload)==DOWNLOAD_ACTIVE) break;
+            if (DownloadProcess(&URL, ID, DoDownload)==DOWNLOAD_ACTIVE) break;
 
             ptr=StringListNext(Config->playlist);
         }
@@ -402,7 +402,7 @@ int main(int argc, char **argv)
     if (Config->flags & CONFIG_SHUFFLE) PlaylistShuffle();
     if (Config->flags & CONFIG_SAVE) CXineConfigSave(Config);
     DownloadCleanCacheDir();
-		PlaylistInit(Config->playlist);
+    PlaylistInit(Config->playlist);
 
     signal(SIGPIPE, SIG_IGN);
 

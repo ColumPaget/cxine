@@ -162,11 +162,11 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-stream")==0 ) Config->flags |= CONFIG_STREAM;
         else if ( strcmp(argv[i], "-webcast")==0 ) Config->flags |= CONFIG_STREAM | CONFIG_WEBCAST;
         else if ( strcmp(argv[i], "-playlist")==0 ) Config->flags |= CONFIG_PLAYLIST;
-        else if ( strcmp(argv[i], "-podcast")==0 ) 
-				{
-					Config->flags |= CONFIG_PLAYLIST | CONFIG_NOAUTOPLAY;
-					Config->state |= STATE_PLAYLIST_REQUESTED;
-				}
+        else if ( strcmp(argv[i], "-podcast")==0 )
+        {
+            Config->flags |= CONFIG_PLAYLIST | CONFIG_NOAUTOPLAY;
+            Config->state |= STATE_PLAYLIST_REQUESTED;
+        }
         else if ( strcmp(argv[i], "-background")==0 ) Config->background=rstrcpy(Config->background, argv[++i]);
         else if ( strcmp(argv[i], "-persist")==0 ) Config->flags |= CONFIG_PERSIST;
         else if ( strcmp(argv[i], "-idle")==0 ) Config->flags |= CONFIG_PERSIST;
