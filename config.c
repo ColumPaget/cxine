@@ -7,7 +7,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "osd.h"
 #include "pwd.h"
 
-#define DEFAULT_HELPERS "http,https,ftp,ftps,sftp,smb,smbs:curl -o - $(mrl);http,https,ftp,ftps:wget -q -o /dev/null -O - $(mrl);http,https,ftp,gopher:links -source $(mrl);http,https,ftp,gopher:elinks -source $(mrl);http,https,ftp,gopher:lynx -source $(mrl);http,ftp:snarf $(mrl) -;ssh:ssh -T $(host) 'cat $(path)'"
+#define DEFAULT_HELPERS "http,https,ftp,ftps,sftp,smb,smbs:curl -L -o - $(mrl);http,https,ftp,ftps:wget -q -o /dev/null -O - $(mrl);http,https,ftp,gopher:links -source $(mrl);http,https,ftp,gopher:elinks -source $(mrl);http,https,ftp,gopher:lynx -source $(mrl);http,ftp:snarf $(mrl) -;ssh:ssh -T $(host) 'cat $(path)'"
 
 
 TConfig *ConfigInit(xine_t *xine)
