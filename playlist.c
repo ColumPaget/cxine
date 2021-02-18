@@ -221,6 +221,7 @@ void PlaylistParseEntry(const char *info, char **URL, char **ID, char **Title)
 
     destroy(Tempstr);
     destroy(UnQuote);
+    destroy(Path);
 }
 
 

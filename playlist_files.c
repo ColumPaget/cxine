@@ -165,7 +165,6 @@ void XSPFPlaylistParseItem(TStringList *List, xml_node_t *item)
 {
     xml_node_t *node;
     const char *p_title=NULL, *p_path=NULL;
-    char *Tempstr=NULL;
 
     for (node = item->child; node != NULL; node = node->next)
     {
@@ -174,8 +173,6 @@ void XSPFPlaylistParseItem(TStringList *List, xml_node_t *item)
     }
 
     if (p_path) PlaylistAdd(List, p_path, "", p_title);
-
-    destroy(Tempstr);
 }
 
 
@@ -198,7 +195,6 @@ void RSSPlaylistParseItem(TStringList *List, xml_node_t *item)
     xml_property_t *prop;
 
     const char *p_title=NULL, *p_path=NULL;
-    char *Tempstr=NULL;
 
     for (node = item->child; node != NULL; node = node->next)
     {
@@ -214,7 +210,6 @@ void RSSPlaylistParseItem(TStringList *List, xml_node_t *item)
 
     if (p_path) PlaylistAdd(List, p_path, "", p_title);
 
-    destroy(Tempstr);
 }
 
 
@@ -229,27 +224,11 @@ void RSSPlaylistParseTracklist(TStringList *List, xml_node_t *parent)
     }
 }
 
-int XMLPlaylistLoad(TStringList *List, const char *MRL)
-{
-    xml_node_t *root;
-
-    root=PlayListXMLLoad(MRL);
-    if (root)
-    {
-        if (strcasecmp(root->name, "rss")==0) RSSPlaylistParseTracklist(List, root);
-        else if (strcasecmp(root->name, "playlist")==0) XSPFPlaylistParseTracklist(List, root);
-        xml_parser_free_tree(root);
-        return(TRUE);
-    }
-    return(FALSE);
-}
-
 
 void ASXPlaylistParseItem(TStringList *List, xml_node_t *item)
 {
     xml_node_t *node;
     const char *p_title=NULL, *p_path=NULL;
-    char *Tempstr=NULL;
 
     for (node = item->child; node != NULL; node = node->next)
     {
@@ -259,7 +238,6 @@ void ASXPlaylistParseItem(TStringList *List, xml_node_t *item)
 
     if (p_path) PlaylistAdd(List, p_path, "", p_title);
 
-    destroy(Tempstr);
 }
 
 
@@ -273,21 +251,22 @@ void ASXPlaylistParseTracklist(TStringList *List, xml_node_t *parent)
     }
 }
 
-int ASXPlaylistLoad(TStringList *List, const char *MRL)
+
+int XMLPlaylistLoad(TStringList *List, const char *MRL)
 {
     xml_node_t *root;
 
     root=PlayListXMLLoad(MRL);
     if (root)
     {
-        if (strcasecmp(root->name, "asx")==0) ASXPlaylistParseTracklist(List, root);
+        if (strcasecmp(root->name, "rss")==0) RSSPlaylistParseTracklist(List, root);
+        else if (strcasecmp(root->name, "playlist")==0) XSPFPlaylistParseTracklist(List, root);
+        else if (strcasecmp(root->name, "asx")==0) ASXPlaylistParseTracklist(List, root);
         xml_parser_free_tree(root);
         return(TRUE);
     }
     return(FALSE);
 }
-
-
 
 
 
@@ -341,12 +320,12 @@ int PlaylistLoad(TStringList *List, const char *MRL)
     case PLAYLIST_FILE_PLS:
         return(PLSPlaylistLoad(List, MRL));
         break;
+
     case PLAYLIST_FILE_M3U:
         return(M3UPlaylistLoad(List, MRL));
         break;
+
     case PLAYLIST_FILE_ASX:
-        return(ASXPlaylistLoad(List, MRL));
-        break;
     case PLAYLIST_FILE_XML:
     case PLAYLIST_FILE_XSPF:
     case PLAYLIST_FILE_RSS:

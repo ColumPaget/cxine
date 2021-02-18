@@ -205,7 +205,11 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
     //get next helper. This will gradually consume all the helpers booked
     //against the download
     ptr=rstrtok(Download->Helpers, ";", &Cmd);
-    if (! StrLen(ptr)) return(-1);
+    if (! StrLen(ptr)) 
+    {
+      destroy(Cmd);
+      return(-1);
+    }
 
     Download->Helpers=memmove(Download->Helpers, ptr, StrLen(ptr) +1);
 
