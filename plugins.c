@@ -55,7 +55,6 @@ void CXineListPluginApi(xine_post_t *plug)
         parm=api_descr->parameter;
         while (parm->type != POST_PARAM_TYPE_LAST)
         {
-//printf("PARM: %s\n",parm->name);
             parm++;
         }
     }

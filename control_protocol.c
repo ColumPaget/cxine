@@ -97,11 +97,7 @@ int ControlHandleInput(int fd, xine_stream_t *stream)
             switch (*Cmd)
             {
             case 'a':
-                if (strcasecmp(Cmd, "add")==0)
-                {
-                    PlaylistParseEntry(ptr, &URL, &Token, &Title);
-                    PlaylistAdd(Config->playlist, URL, Token, Title);
-                }
+                if (strcasecmp(Cmd, "add")==0) PlaylistParseAndAdd(Config->playlist, ptr);
                 break;
 
             case 'd':

@@ -118,7 +118,8 @@ int LoadFilesOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int m
 
 void LoadFilesOSDUpdate()
 {
-    char *Title=NULL;
+		TPlaylistItem *PI;
+		char *Tempstr=NULL;
     const char *ptr;
     int i, y=0, wid, high, osd_high=0, start=0, count=0, per_page;
     int val;
@@ -139,23 +140,25 @@ void LoadFilesOSDUpdate()
     for (i=start; i < FilesList->size; i++)
     {
         ptr=StringListItem(FilesList, i);
-        PlaylistParseEntry(ptr, NULL, NULL, &Title);
+        PI=PlaylistDecodeEntry(ptr);
 
         val=XINE_OSD_TEXT1;
 
         if (i == pos) xine_osd_draw_text(OSD->osd, 0, y, ">", val);
-        xine_osd_draw_text(OSD->osd, 10, y, Title, val);
+        xine_osd_draw_text(OSD->osd, 10, y, PI->Title, val);
         y+=high;
         count++;
+				PlaylistItemDestroy(PI);
+
         if (count > per_page) break;
     }
 
 
-    Title=rstrcpy(Title, "arrows: cursor, enter: add, bksp/del:cd up");
-    xine_osd_draw_text(OSD->osd, 10, osd_high-high, Title, XINE_OSD_TEXT1);
+    Tempstr=rstrcpy(Tempstr, "arrows: cursor, enter: add, bksp/del:cd up");
+    xine_osd_draw_text(OSD->osd, 10, osd_high-high, Tempstr, XINE_OSD_TEXT1);
     xine_osd_show_unscaled(OSD->osd, 0);
 
-    destroy(Title);
+    destroy(Tempstr);
 }
 
 

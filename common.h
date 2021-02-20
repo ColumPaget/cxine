@@ -134,6 +134,7 @@ char *background;
 char *cache_dir;
 char *helpers;
 int cache_maxage;
+int playlist_update_time;
 int priority;
 int image_ms;
 int bcast_port;

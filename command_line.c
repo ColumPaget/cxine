@@ -166,6 +166,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         {
             Config->flags |= CONFIG_PLAYLIST | CONFIG_NOAUTOPLAY;
             Config->state |= STATE_PLAYLIST_REQUESTED;
+            if (Config->playlist_update_time ==0) Config->playlist_update_time=600; //10 mins
         }
         else if ( strcmp(argv[i], "-background")==0 ) Config->background=rstrcpy(Config->background, argv[++i]);
         else if ( strcmp(argv[i], "-persist")==0 ) Config->flags |= CONFIG_PERSIST;

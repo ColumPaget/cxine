@@ -41,17 +41,22 @@ void SaveBookmark(const char *url, xine_stream_t *stream)
         inf=fopen(InPath, "r");
         if (inf)
         {
-            Line=calloc(MAX_LINE, sizeof(char));
+            Line=(char *) calloc(MAX_LINE, sizeof(char));
             while (fgets(Line, MAX_LINE, inf))
             {
                 Line=xine_chomp(Line);
-                if (StrLen(Line))
+                //xine_chomp doesn't strip lines that are just '\n' or '\r\n', so
+                //we have to operate on a minium size that a line can be, and that's
+                //3 bytes
+
+                if (StrLen(Line) > 2)
                 {
                     ptr=rstrtok(Line, " 	", &Tempstr);
                     if (ptr && strcmp(ptr, url) !=0) fprintf(outf, "%s\n", Line);
                 }
             }
             fclose(inf);
+
         }
 
         //if stream is NULL we don't write a bookmark to the file. This can be used to delete

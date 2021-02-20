@@ -106,7 +106,8 @@ static void event_listener(void *user_data, const xine_event_t *event)
 //This to do every so many ms
 void PeriodicProcessing()
 {
-    char *URL=NULL, *ID=NULL;
+    char *URL=NULL;
+		TPlaylistItem *PI;
     const char *ptr;
     int pos, DoDownload;
 
@@ -117,11 +118,13 @@ void PeriodicProcessing()
         ptr=StringListFirst(Config->playlist);
         while (ptr)
         {
-            PlaylistParseEntry(ptr, &URL, &ID, NULL);
+            PI=PlaylistDecodeEntry(ptr);
             if (Config->flags & CONFIG_NOAUTOPLAY) DoDownload=FALSE;
             else DoDownload=TRUE;
 
-            if (DownloadProcess(&URL, ID, DoDownload)==DOWNLOAD_ACTIVE) break;
+						URL=rstrcpy(URL, PI->URL);
+            if (DownloadProcess(&URL, PI->ID, DoDownload)==DOWNLOAD_ACTIVE) break;
+						PlaylistItemDestroy(PI);
 
             ptr=StringListNext(Config->playlist);
         }
@@ -142,7 +145,6 @@ void PeriodicProcessing()
     if (Config->state & STATE_DOWNLOADING) DownloadOSDDisplay();
 
     destroy(URL);
-    destroy(ID);
 }
 
 

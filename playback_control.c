@@ -161,35 +161,37 @@ void CXineNewTitle(TConfig *Config)
 
 int CXinePlayStream(TConfig *Config, const char *info)
 {
-    char *url=NULL, *Tempstr=NULL, *Title=NULL, *ID=NULL;
+    char *Tempstr=NULL, *URL=NULL;
+		TPlaylistItem *PI;
     const char *ptr=NULL;
     int startms;
     int len, result=0, fd;
     TStringList *NewPlaylist;
 
-    PlaylistParseEntry(info, &url, &ID, &Title);
-    len=StrLen(url);
+    PI=PlaylistDecodeEntry(info);
+		URL=rstrcpy(URL, PI->URL);
+    len=StrLen(URL);
     if (len >0)
     {
         //xine interprets anything starting with '-' to mean 'stdin', and sits there trying to read from stdin.
         //so if we get a file path starting with '-' (probably a command-line option that we don't recognize)
         //then we don't want to pass it to xine unless the file really exists
-        if ((*url=='-') && (len > 1) && (access(url, F_OK) !=0)) /* do nothing*/ ;
-        else if (DownloadProcess(&url, ID, DOWNLOAD_PLAY)==DOWNLOAD_ACTIVE)
+        if ((*URL=='-') && (len > 1) && (access(URL, F_OK) !=0)) /* do nothing*/ ;
+        else if (DownloadProcess(&URL, PI->ID, DOWNLOAD_PLAY)==DOWNLOAD_ACTIVE)
         {
             Config->state |= STATE_DOWNLOADING;
         }
-        else if (IsPlaylist(url))
+        else if (IsPlaylist(URL))
         {
-            PlaylistLoadFromURL(Tempstr, url);
+            PlaylistLoadFromURL(Tempstr, URL);
             Config->state &= ~STATE_DOWNLOADING;
         }
-        else if (xine_open(Config->stream, url))
+        else if (xine_open(Config->stream, URL))
         {
-            TouchFile(url);
+            TouchFile(URL);
             Config->state &= ~STATE_DOWNLOADING;
-            if (StrLen(Title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, Title);
-            else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(url));
+            if (StrLen(PI->Title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, PI->Title);
+            else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(URL));
 
             //do this before calling play..
             CXineStreamInitConfig(Config);
@@ -197,7 +199,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
             startms=Config->startms;
             if ((startms==0) && xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE))
             {
-                startms=LoadBookmark(url);
+                startms=LoadBookmark(URL);
             }
 
             CXineNewTitle(Config);
@@ -213,7 +215,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
                 CXineStreamInitConfig(Config);
                 Config->state &= ~STATE_BACKGROUND_DISPLAYED;
                 Config->state |= STATE_PLAYING;
-                if (strncmp(url,"stdin:",6)==0) Config->state |= STATE_STDIN_URL;
+                if (strncmp(URL,"stdin:",6)==0) Config->state |= STATE_STDIN_URL;
                 else Config->state &= ~STATE_STDIN_URL;
                 Config->state |= STATE_NEWTITLE;
                 result=1;
@@ -222,20 +224,23 @@ int CXinePlayStream(TConfig *Config, const char *info)
             }
             else
             {
-                printf("Unable to play url '%s'\n", url);
+                printf("Unable to play URL '%s'\n", URL);
                 result=PLAY_FAIL;
             }
         }
         else
         {
-            printf("Unable to open url '%s'\n", url);
+            printf("Unable to open URL '%s'\n", URL);
             result=PLAY_FAIL;
             Config->state &= ~STATE_DOWNLOADING;
         }
     }
 
-    destroy(url);
+		PlaylistItemDestroy(PI);
+
+    destroy(URL);
     destroy(Tempstr);
+
     return(result);
 }
 

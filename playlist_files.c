@@ -16,6 +16,9 @@ typedef struct
 } TPlayListItem;
 
 
+
+
+
 //If the file contains a 'NumberOfEntries' line, then we use that to allocate a list of TPlayListItem
 //structures to hold this. If it doesn't contain this entry, then we just add a file when we encounter
 //the 'File[n]=' line. If the number of entries is more than specified, we fall back on the 'just add
@@ -193,12 +196,14 @@ void RSSPlaylistParseItem(TStringList *List, xml_node_t *item)
 {
     xml_node_t *node;
     xml_property_t *prop;
+		char *Title=NULL;
 
-    const char *p_title=NULL, *p_path=NULL;
+    const char *p_title=NULL, *p_path=NULL, *p_description=NULL;;
 
     for (node = item->child; node != NULL; node = node->next)
     {
-        if (strcasecmp(node->name, "title")==0) p_title = node->data;
+        if (strcasecmp(node->name, "title")==0) p_title=node->data;
+        else if (strcasecmp(node->name, "description")==0) p_description=node->data;
         else if (strcasecmp(node->name, "enclosure")==0)
         {
             for (prop=node->props; prop !=NULL; prop=prop->next)
@@ -208,8 +213,15 @@ void RSSPlaylistParseItem(TStringList *List, xml_node_t *item)
         }
     }
 
-    if (p_path) PlaylistAdd(List, p_path, "", p_title);
+		Title=rstrcpy(Title, p_title);
+		if (StrLen(Title) < 10) 
+		{
+			Title=rstrcat(Title, " ");
+			Title=rstrcat(Title, p_description);
+		}
+    if (p_path) PlaylistAdd(List, p_path, "", Title);
 
+	destroy(Title);
 }
 
 
@@ -341,5 +353,19 @@ int PlaylistLoad(TStringList *List, const char *MRL)
         break;
     }
 
+    return(FALSE);
+}
+
+int PlaylistFileNeedsUpdate(const char *MRL, const char *Path)
+{
+    struct stat Stat;
+
+    if (! StrLen(MRL)) return(FALSE);
+
+    if (*MRL == '/') return(FALSE);
+    if (strcmp(MRL, Path)==0) return(FALSE);
+
+    stat(Path, &Stat);
+    if ( (time(NULL) - Stat.st_mtime) > Config->playlist_update_time) return(TRUE);
     return(FALSE);
 }

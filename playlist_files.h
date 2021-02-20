@@ -13,6 +13,7 @@
 #define PLAYLIST_FILE_XML  9999
 
 int IsPlaylist(const char *MRL);
+int PlaylistFileNeedsUpdate(const char *MRL, const char *Path);
 int PLSPlaylistLoad(TStringList *List, const char *MRL);
 int M3UPlaylistLoad(TStringList *List, const char *MRL);
 int XSPFPlaylistLoad(TStringList *List, const char *MRL);
