@@ -416,6 +416,7 @@ int DownloadPostProcessFile(const char *Path, const char *MRL)
         else
         {
             result=DOWNLOAD_ACTIVE;
+	    close(fd);
         }
     }
 
