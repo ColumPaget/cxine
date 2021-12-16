@@ -33,6 +33,38 @@
 #audio.device.oss_device_name:auto
 */
 
+
+//parse an alsa device name. This can either be a number, which we map to hw:1 hw:2 etc
+//or it can be a device name, or it can be an mplayer-style device value
+char *CXineParseAlsaDevice(char *RetStr, const char *DevString)
+{
+const char *ptr;
+
+						ptr=DevString;
+            if (! StrLen(ptr)) RetStr=rstrcpy(RetStr, "plug:default");
+            else if (isdigit(*ptr))
+            {
+                RetStr=rstrcpy(RetStr,"hw:");
+                RetStr=rstrcat(RetStr,ptr);
+            }
+						else if (strncmp(ptr, "device=", 7)==0)
+						{
+								ptr+=7;
+								if (strncmp(ptr, "hw=", 3)==0) 
+								{
+									RetStr=rstrcpy(RetStr, "hw:");
+									RetStr=rstrcat(RetStr, ptr+3);
+								}
+								else 
+								{
+									RetStr=rstrcpy(RetStr, ptr);
+								}
+						} 
+            else RetStr=rstrcpy(RetStr, ptr);
+
+return(RetStr);
+}
+
 xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
 {
     char *Type=NULL, *Tempstr=NULL;
@@ -58,14 +90,8 @@ xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
         }
         else if (strcmp(Type, "alsa")==0)
         {
-            if (! StrLen(ptr)) Tempstr=rstrcpy(Tempstr, "plug:default");
-            if (isdigit(*ptr))
-            {
-                Tempstr=rstrcpy(Tempstr,"hw:");
-                Tempstr=rstrcat(Tempstr,ptr);
-            }
-            else Tempstr=rstrcpy(Tempstr, ptr);
-
+						Tempstr=CXineParseAlsaDevice(Tempstr, ptr);
+printf("ALSA: [%s]\n", Tempstr);
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_default_device", Tempstr, "ALSA device for mono output");
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_front_device", Tempstr, "ALSA device for stereo output");
         }
