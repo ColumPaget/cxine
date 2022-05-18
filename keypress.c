@@ -190,7 +190,7 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
 #ifdef XINE_PARAM_VO_SINGLE_STEP //earlier versions of libxine lack this
         else if (modifier & KEYMOD_CTRL)
         {
-            CXineSetPos(stream, -1);
+            CXineSetPos(stream, -30);
             xine_set_param (stream,  XINE_PARAM_VO_SINGLE_STEP, 1);
         }
 #endif

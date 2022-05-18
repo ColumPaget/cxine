@@ -118,8 +118,8 @@ int LoadFilesOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int m
 
 void LoadFilesOSDUpdate()
 {
-		TPlaylistItem *PI;
-		char *Tempstr=NULL;
+    TPlaylistItem *PI;
+    char *Tempstr=NULL;
     const char *ptr;
     int i, y=0, wid, high, osd_high=0, start=0, count=0, per_page;
     int val;
@@ -148,7 +148,7 @@ void LoadFilesOSDUpdate()
         xine_osd_draw_text(OSD->osd, 10, y, PI->Title, val);
         y+=high;
         count++;
-				PlaylistItemDestroy(PI);
+        PlaylistItemDestroy(PI);
 
         if (count > per_page) break;
     }

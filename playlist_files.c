@@ -196,7 +196,7 @@ void RSSPlaylistParseItem(TStringList *List, xml_node_t *item)
 {
     xml_node_t *node;
     xml_property_t *prop;
-		char *Title=NULL;
+    char *Title=NULL;
 
     const char *p_title=NULL, *p_path=NULL, *p_description=NULL;;
 
@@ -213,15 +213,15 @@ void RSSPlaylistParseItem(TStringList *List, xml_node_t *item)
         }
     }
 
-		Title=rstrcpy(Title, p_title);
-		if (StrLen(Title) < 10) 
-		{
-			Title=rstrcat(Title, " ");
-			Title=rstrcat(Title, p_description);
-		}
+    Title=rstrcpy(Title, p_title);
+    if (StrLen(Title) < 10)
+    {
+        Title=rstrcat(Title, " ");
+        Title=rstrcat(Title, p_description);
+    }
     if (p_path) PlaylistAdd(List, p_path, "", Title);
 
-	destroy(Title);
+    destroy(Title);
 }
 
 

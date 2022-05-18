@@ -38,31 +38,31 @@
 //or it can be a device name, or it can be an mplayer-style device value
 char *CXineParseAlsaDevice(char *RetStr, const char *DevString)
 {
-const char *ptr;
+    const char *ptr;
 
-						ptr=DevString;
-            if (! StrLen(ptr)) RetStr=rstrcpy(RetStr, "plug:default");
-            else if (isdigit(*ptr))
-            {
-                RetStr=rstrcpy(RetStr,"hw:");
-                RetStr=rstrcat(RetStr,ptr);
-            }
-						else if (strncmp(ptr, "device=", 7)==0)
-						{
-								ptr+=7;
-								if (strncmp(ptr, "hw=", 3)==0) 
-								{
-									RetStr=rstrcpy(RetStr, "hw:");
-									RetStr=rstrcat(RetStr, ptr+3);
-								}
-								else 
-								{
-									RetStr=rstrcpy(RetStr, ptr);
-								}
-						} 
-            else RetStr=rstrcpy(RetStr, ptr);
+    ptr=DevString;
+    if (! StrLen(ptr)) RetStr=rstrcpy(RetStr, "plug:default");
+    else if (isdigit(*ptr))
+    {
+        RetStr=rstrcpy(RetStr,"hw:");
+        RetStr=rstrcat(RetStr,ptr);
+    }
+    else if (strncmp(ptr, "device=", 7)==0)
+    {
+        ptr+=7;
+        if (strncmp(ptr, "hw=", 3)==0)
+        {
+            RetStr=rstrcpy(RetStr, "hw:");
+            RetStr=rstrcat(RetStr, ptr+3);
+        }
+        else
+        {
+            RetStr=rstrcpy(RetStr, ptr);
+        }
+    }
+    else RetStr=rstrcpy(RetStr, ptr);
 
-return(RetStr);
+    return(RetStr);
 }
 
 xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
@@ -90,8 +90,8 @@ xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
         }
         else if (strcmp(Type, "alsa")==0)
         {
-						Tempstr=CXineParseAlsaDevice(Tempstr, ptr);
-printf("ALSA: [%s]\n", Tempstr);
+            Tempstr=CXineParseAlsaDevice(Tempstr, ptr);
+            printf("ALSA: [%s]\n", Tempstr);
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_default_device", Tempstr, "ALSA device for mono output");
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_front_device", Tempstr, "ALSA device for stereo output");
         }

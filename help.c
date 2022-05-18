@@ -38,8 +38,8 @@ static void HelpKeys()
     printf("p               display playlist menu\n");
     printf("[               slower playback (no sound)\n");
     printf("]               faster playback (no sound)\n");
-    printf("{               toggle 'fast' playback (4*speed, no sound)\n");
-    printf("}               toggle 'slow' playback (1/4 speed, no sound)\n");
+    printf("{               toggle 'slow' playback (1/4 speed, no sound)\n");
+    printf("}               toggle 'fast' playback (4*speed, no sound)\n");
     printf("<backspace>     reset playback speed to normal\n");
     printf("<delete>        reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)\n");
     printf(".               reset window to 'normal' mode. (turns off 'above', 'below' and 'shaded' modes)\n");

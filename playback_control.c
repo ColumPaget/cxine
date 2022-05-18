@@ -112,19 +112,34 @@ void CXineSetPos(xine_stream_t *stream, int skip)
 
 int CXinePause(TConfig *Config)
 {
-    int val;
+    int val, fine;
+    static int prev_speed=0;
 
-    val=xine_get_param (Config->stream, XINE_PARAM_SPEED);
+    val=xine_get_param(Config->stream, XINE_PARAM_SPEED);
     if (val == XINE_SPEED_PAUSE) val=XINE_SPEED_NORMAL;
-    else val=XINE_SPEED_PAUSE;
+    else
+    {
+        prev_speed=xine_get_param(Config->stream, XINE_PARAM_FINE_SPEED);
+        val=XINE_SPEED_PAUSE;
+    }
     xine_set_param (Config->stream, XINE_PARAM_SPEED, val);
 
 
+    if (val == XINE_SPEED_NORMAL) xine_set_param(Config->stream, XINE_PARAM_FINE_SPEED, prev_speed);
     //pause seems to lose its place in the audio stream, so
     //we seek back slightly to resync
     //if (val==XINE_SPEED_NORMAL) CXineSetPos(Config->stream, -1);
 
 
+    return(val==XINE_SPEED_PAUSE);
+}
+
+
+int CXineIsPaused(TConfig *Config)
+{
+    int val;
+
+    val=xine_get_param (Config->stream, XINE_PARAM_SPEED);
     return(val==XINE_SPEED_PAUSE);
 }
 
@@ -162,14 +177,14 @@ void CXineNewTitle(TConfig *Config)
 int CXinePlayStream(TConfig *Config, const char *info)
 {
     char *Tempstr=NULL, *URL=NULL;
-		TPlaylistItem *PI;
+    TPlaylistItem *PI;
     const char *ptr=NULL;
     int startms;
     int len, result=0, fd;
     TStringList *NewPlaylist;
 
     PI=PlaylistDecodeEntry(info);
-		URL=rstrcpy(URL, PI->URL);
+    URL=rstrcpy(URL, PI->URL);
     len=StrLen(URL);
     if (len >0)
     {
@@ -236,7 +251,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
         }
     }
 
-		PlaylistItemDestroy(PI);
+    PlaylistItemDestroy(PI);
 
     destroy(URL);
     destroy(Tempstr);

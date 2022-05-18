@@ -78,9 +78,9 @@ int PlaylistOSDKeypress(void *X11Out, xine_stream_t *stream, int keychar, int mo
 
 void PlaylistOSDUpdate()
 {
-		char *Tempstr=NULL;
+    char *Tempstr=NULL;
     const char *ptr;
-		TPlaylistItem *PI;
+    TPlaylistItem *PI;
     int i, y=0, wid, high, osd_high=0, start=0, count=0, per_page;
     int playing=-1, val;
 
@@ -112,7 +112,7 @@ void PlaylistOSDUpdate()
 
         y+=high;
         count++;
-				PlaylistItemDestroy(PI);
+        PlaylistItemDestroy(PI);
 
         if (count > per_page) break;
     }
@@ -121,7 +121,7 @@ void PlaylistOSDUpdate()
     xine_osd_draw_text(OSD->osd, 10, osd_high-high, Tempstr, XINE_OSD_TEXT1);
     xine_osd_show_unscaled(OSD->osd, 0);
 
-		destroy(Tempstr);
+    destroy(Tempstr);
 }
 
 

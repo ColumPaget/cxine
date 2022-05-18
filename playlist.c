@@ -14,13 +14,13 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 void PlaylistItemDestroy(void *p_Item)
 {
-TPlaylistItem *PI;
+    TPlaylistItem *PI;
 
-PI=(TPlaylistItem *) p_Item;
-destroy(PI->URL);
-destroy(PI->ID);
-destroy(PI->Title);
-destroy(PI->Description);
+    PI=(TPlaylistItem *) p_Item;
+    destroy(PI->URL);
+    destroy(PI->ID);
+    destroy(PI->Title);
+    destroy(PI->Description);
 }
 
 
@@ -144,11 +144,11 @@ void PlaylistAdd(TStringList *playlist, const char *iURL, const char *ID, const 
 
 void PlaylistParseAndAdd(TStringList *playlist, const char *ItemInfo)
 {
-TPlaylistItem *PI;
+    TPlaylistItem *PI;
 
-   PI=PlaylistDecodeEntry(ItemInfo);
-   PlaylistAdd(Config->playlist, PI->URL, PI->ID, PI->Title);
-	 PlaylistItemDestroy(PI);
+    PI=PlaylistDecodeEntry(ItemInfo);
+    PlaylistAdd(Config->playlist, PI->URL, PI->ID, PI->Title);
+    PlaylistItemDestroy(PI);
 }
 
 
@@ -202,46 +202,46 @@ void PlaylistLoadFromURL(const char *URL, const char *LocalPath)
 TPlaylistItem *PlaylistDecodeEntry(const char *info)
 {
     char *Path=NULL, *Tempstr=NULL, *UnQuote=NULL;
-		TPlaylistItem *PI;
+    TPlaylistItem *PI;
     const char *ptr;
 
-		PI=(TPlaylistItem *) calloc(1, sizeof(TPlaylistItem));
+    PI=(TPlaylistItem *) calloc(1, sizeof(TPlaylistItem));
     if (info != NULL)
-		{
-    ptr=rstrtok(info, " ", &Path);
-    PI->URL=rstrunquot(PI->URL, Path);
-
-    while (ptr)
     {
-        ptr=rstrtok(ptr, " ", &Tempstr);
-        if (StrLen(Tempstr))
+        ptr=rstrtok(info, " ", &Path);
+        PI->URL=rstrunquot(PI->URL, Path);
+
+        while (ptr)
         {
-            if (strncmp(Tempstr, "id=", 3)==0)
+            ptr=rstrtok(ptr, " ", &Tempstr);
+            if (StrLen(Tempstr))
             {
+                if (strncmp(Tempstr, "id=", 3)==0)
+                {
                     PI->ID=rstrcpy(PI->ID, Tempstr+3);
                     StripQuotes(PI->ID);
-            }
-            else if (strncmp(Tempstr, "title=", 6)==0)
-            {
+                }
+                else if (strncmp(Tempstr, "title=", 6)==0)
+                {
                     UnQuote=rstrcpy(UnQuote, Tempstr+6);
                     StripQuotes(UnQuote);
                     PI->Title=rstrunquot(PI->Title, UnQuote);
-            }
-            else
-            {
-               PI->Title=rstrunquot(PI->Title, cbasename(Tempstr));
+                }
+                else
+                {
+                    PI->Title=rstrunquot(PI->Title, cbasename(Tempstr));
+                }
             }
         }
-    }
 
-    if (StrLen(PI->Title)==0) PI->Title=rstrunquot(PI->Title, cbasename(Path));
-		}
+        if (StrLen(PI->Title)==0) PI->Title=rstrunquot(PI->Title, cbasename(Path));
+    }
 
     destroy(Tempstr);
     destroy(UnQuote);
     destroy(Path);
 
-		return(PI);
+    return(PI);
 }
 
 
@@ -250,16 +250,16 @@ TPlaylistItem *PlaylistDecodeEntry(const char *info)
 
 char *PlaylistCurrTitle(char *RetStr)
 {
-		TPlaylistItem *PI;
+    TPlaylistItem *PI;
 
     RetStr=rstrcpy(RetStr, "");
     if (Config->stream) RetStr=rstrcpy(RetStr, xine_get_meta_info(Config->stream, XINE_META_INFO_TITLE));
     if (StrLen(RetStr)==0)
     {
         PI=PlaylistDecodeEntry(StringListCurr(Config->playlist));
-				RetStr=rstrcpy(RetStr, PI->Title);
+        RetStr=rstrcpy(RetStr, PI->Title);
         if (StrLen(RetStr) ==0) RetStr=rstrcpy(RetStr, cbasename(PI->URL));
-				PlaylistItemDestroy(PI);
+        PlaylistItemDestroy(PI);
     }
 
 
@@ -272,7 +272,7 @@ char *PlaylistCurrTitle(char *RetStr)
 void PlaylistInit(TStringList *playlist)
 {
     char *URL=NULL;
-		TPlaylistItem *PI;
+    TPlaylistItem *PI;
     int i;
 
     if (Config->flags & CONFIG_PLAYLIST)
@@ -280,9 +280,9 @@ void PlaylistInit(TStringList *playlist)
         for (i=0; i < StringListSize(playlist); i++)
         {
             PI=PlaylistDecodeEntry(StringListGet(Config->playlist, i));
-						URL=rstrcpy(URL, PI->URL);
+            URL=rstrcpy(URL, PI->URL);
             DownloadProcess(&URL, PI->ID, DOWNLOAD_PLAY);
-						PlaylistItemDestroy(PI);
+            PlaylistItemDestroy(PI);
         }
     }
 

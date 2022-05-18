@@ -376,8 +376,8 @@ int DownloadPostProcessFile(const char *Path, const char *MRL)
 
             if (Stat.st_size > 0)
             {
-								//At this point we have downloaded someting, so we can delete the 
-								//download entry from the download queue and mark the thing ready to play
+                //At this point we have downloaded someting, so we can delete the
+                //download entry from the download queue and mark the thing ready to play
                 if (Download)
                 {
                     if (Download->Flags & DOWNLOAD_PLAY) Play=TRUE;
@@ -386,8 +386,8 @@ int DownloadPostProcessFile(const char *Path, const char *MRL)
 
                 if (IsPlaylist(Path))
                 {
-								// don't play playlists
-										Play=FALSE;
+                    // don't play playlists
+                    Play=FALSE;
                     if (PlaylistFileNeedsUpdate(MRL, Path))
                     {
                         unlink(Path);
@@ -416,7 +416,7 @@ int DownloadPostProcessFile(const char *Path, const char *MRL)
         else
         {
             result=DOWNLOAD_ACTIVE;
-	    close(fd);
+            close(fd);
         }
     }
 
