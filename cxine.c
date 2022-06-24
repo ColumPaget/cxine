@@ -180,6 +180,7 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
 
     FD_ZERO(&select_set);
 
+
     if ((stdin_fd > -1) && (! (Config->state & STATE_STDIN_URL)) && (fcntl(stdin_fd, F_GETFD) > -1))
     {
         FD_SET(stdin_fd, &select_set);
@@ -412,8 +413,6 @@ int main(int argc, char **argv)
     if (Config->priority > 0) setpriority(PRIO_PROCESS, getpid(), Config->priority - 21);
 
     if (Config->debug > 0) xine_engine_set_param(Config->xine, XINE_ENGINE_PARAM_VERBOSITY, Config->debug);
-    //CXineDisplayPlugins(Config->xine);
-    //HelpMimeTypes(Config->xine);
 
     CXineShowSystemSetup();
 
@@ -422,6 +421,7 @@ int main(int argc, char **argv)
     if (strcmp(Config->vo_driver, "none")==0)
     {
         printf("vo_driver: none. No video output\n");
+        Config->flags |= CONFIG_CONTROL;
     }
     else
     {
@@ -443,10 +443,14 @@ int main(int argc, char **argv)
     if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
 
     //open stdin late, as X11 setup above can override its use
-    if (Config->flags & (CONFIG_CONTROL | CONFIG_SLAVE | CONFIG_READ_STDIN)) Config->stdin=dup(0);
+    if (Config->flags & (CONFIG_CONTROL | CONFIG_SLAVE | CONFIG_READ_STDIN))
+    {
+        Config->stdin=dup(0);
+        if (Config->flags & CONFIG_CONTROL) StdInSetup();
+    }
     //don't try to use stdin if our setyp doesn't explicitly need it
     else Config->stdin=-1;
-    //StdinSetup(Config->flags);
+
 
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);
@@ -454,7 +458,7 @@ int main(int argc, char **argv)
     CXineOutputs(Config->xine, Config->stream);
 //	xine_set_param (Config->stream, XINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
 
-    CxineInjectSplashScreen(Config->xine);
+//    CxineInjectSplashScreen(Config->xine);
 
     running = 1;
     while(running)

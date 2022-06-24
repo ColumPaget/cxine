@@ -208,11 +208,13 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
 
     case KEY_UP:
         if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_UP);
+        else if (modifier & KEYMOD_SHIFT) CXineSelectStream(Config, PLAY_NEXT);
         else CXineSetPos(stream, SKIP_LARGE);
         break;
 
     case KEY_DOWN:
         if (Config->DVDNavButtons > 1) CXineEventSend(Config, XINE_EVENT_INPUT_DOWN);
+        else if (modifier & KEYMOD_SHIFT) CXineSelectStream(Config, PLAY_PREV);
         else CXineSetPos(stream, 0-SKIP_LARGE);
         break;
 
@@ -381,6 +383,7 @@ void HandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, int modifi
 
 const char *KeypressHandleEscapeSequence(const char *Sequence, xine_stream_t *stream)
 {
+
     if (strcmp(Sequence, "\x1b[A")==0)
     {
         HandleKeyPress(Config->X11Out, stream, KEY_UP, 0);
@@ -421,7 +424,26 @@ const char *KeypressHandleEscapeSequence(const char *Sequence, xine_stream_t *st
         HandleKeyPress(Config->X11Out, stream, KEY_LEFT, KEYMOD_SHIFT);
         return(Sequence+3);
     }
-
+    else if (strcmp(Sequence, "\x1b[5A")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_UP, KEYMOD_CTRL);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[5B")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_DOWN, KEYMOD_CTRL);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[5C")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_RIGHT, KEYMOD_CTRL);
+        return(Sequence+3);
+    }
+    else if (strcmp(Sequence, "\x1b[5D")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_LEFT, KEYMOD_CTRL);
+        return(Sequence+3);
+    }
     else if (strcmp(Sequence, "\x1b[H")==0)
     {
         HandleKeyPress(Config->X11Out, stream, KEY_HOME, 0);
@@ -476,9 +498,9 @@ int KeypressHandleStdIn(int fd, xine_stream_t *stream)
             KeypressHandleEscapeSequence(Token, stream);
         }
         else for (i=0; i < result; i++)
-            {
-                HandleKeyPress(Config->X11Out, stream, Token[i], 0);
-            }
+        {
+          HandleKeyPress(Config->X11Out, stream, Token[i], 0);
+        }
     }
 
     destroy(Token);

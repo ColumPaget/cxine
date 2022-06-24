@@ -152,6 +152,8 @@ void X11SendSetStateEvent(void *p_Win, int AddOrDel, const char *StateStr)
 void X11SetWindowState(void *p_Win, const char *StateStr)
 {
 
+if (p_Win)
+{
     if (strcmp(StateStr,  "_NET_WM_STATE_ABOVE") ==0)
     {
         Config->state |=STATE_RAISED;
@@ -208,6 +210,7 @@ void X11SetWindowState(void *p_Win, const char *StateStr)
         X11SendSetStateEvent(p_Win, WINSTATE_DEL, "_NET_WM_STATE_HIDDEN");
     }
     else X11SendSetStateEvent(p_Win, WINSTATE_ADD, StateStr);
+}
 }
 
 

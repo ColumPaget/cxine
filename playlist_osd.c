@@ -125,6 +125,28 @@ void PlaylistOSDUpdate()
 }
 
 
+void PlaylistOSDConsole()
+{
+int i, playing;
+TPlaylistItem *PI;
+const char *ptr;
+
+
+playing=StringListPos(Config->playlist);
+printf("\n======= Current Playlist ========\n");
+    for (i=0; i < Config->playlist->size; i++)
+    {
+        ptr=StringListItem(Config->playlist, i);
+        PI=PlaylistDecodeEntry(ptr);
+				if (i==playing) printf(">>% 4d: %s\n", i, PI->Title);
+				else printf("  % 4d: %s\n", i, PI->Title);
+
+        PlaylistItemDestroy(PI);
+    }
+
+}
+
+
 void PlaylistOSDHide()
 {
     if (OSD)
@@ -141,7 +163,11 @@ void PlaylistOSDHide()
 void PlaylistOSDShow()
 {
     if (Config->state & STATE_LOADFILES_DISPLAYED) return;
+		if ( Config->X11Out) 
+		{
     if (! OSD) OSD=OSDCreate(Config->X11Out, Config->stream, "0,10,-20,-20 font=mono", "");
     Config->state |= STATE_PLAYLIST_DISPLAYED;
     PlaylistOSDUpdate();
+		}
+		else PlaylistOSDConsole();
 }

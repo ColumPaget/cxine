@@ -19,6 +19,8 @@ void StdInSetup()
     tty_new.c_cc[VMIN]=1;
     tty_new.c_cc[VTIME]=0;
     tcsetattr(Config->stdin, TCSANOW, &tty_new);
+
+    printf("SETUP: %d\n", Config->stdin);
 }
 
 //reset StdIn back to whatever it was at program startup
