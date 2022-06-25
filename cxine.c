@@ -421,7 +421,10 @@ int main(int argc, char **argv)
     if (strcmp(Config->vo_driver, "none")==0)
     {
         printf("vo_driver: none. No video output\n");
-        Config->flags |= CONFIG_CONTROL;
+        if (
+						 	(! (Config->flags & (CONFIG_SLAVE | CONFIG_READ_STDIN))) &&
+							(isatty(0))
+					 ) Config->flags |= CONFIG_CONTROL;
     }
     else
     {
@@ -458,7 +461,7 @@ int main(int argc, char **argv)
     CXineOutputs(Config->xine, Config->stream);
 //	xine_set_param (Config->stream, XINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
 
-//    CxineInjectSplashScreen(Config->xine);
+    CxineInjectSplashScreen(Config->xine);
 
     running = 1;
     while(running)

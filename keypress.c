@@ -330,7 +330,7 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         break;
 
 		case 'j':
-				if (Config->X11Out) StdInAskJump();
+				if (! Config->X11Out) StdInAskJump();
 				break;
 
     case 'l':
