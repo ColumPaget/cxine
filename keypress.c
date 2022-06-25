@@ -329,6 +329,10 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         else InfoOSDShow();
         break;
 
+		case 'j':
+				if (Config->X11Out) StdInAskJump();
+				break;
+
     case 'l':
         if (Config->state & STATE_LOADFILES_DISPLAYED) LoadFilesOSDHide();
         else LoadFilesOSDShow();

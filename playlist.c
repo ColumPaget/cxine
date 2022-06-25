@@ -9,7 +9,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "download.h"
 #include "osd.h"
 #include <glob.h>
-
+#include <fnmatch.h>
 
 
 void PlaylistItemDestroy(void *p_Item)
@@ -245,6 +245,24 @@ TPlaylistItem *PlaylistDecodeEntry(const char *info)
 }
 
 
+int PlaylistFindMatch(const char *Pattern)
+{
+    TPlaylistItem *PI;
+		int i, pos=-1;
+
+    for (i=StringListPos(Config->playlist); i < StringListSize(Config->playlist); i++)
+    {
+       PI=PlaylistDecodeEntry(StringListGet(Config->playlist, i));
+			 if (fnmatch(Pattern, PI->URL, 0)==0)
+			 {
+				pos=i;
+				break;
+			 }
+       PlaylistItemDestroy(PI);
+    }
+ 
+return(pos);
+}
 
 
 

@@ -32,6 +32,7 @@ static void HelpKeys()
     printf("a               cycle audio outputs. Choice of outputs must have been provided on command-line, e.g. '-ao alsa:0,alsa:1,alsa:2\n");
     printf("o               toggle online status display\n");
     printf("i               toggle media info display\n");
+    printf("j               jump to particular track (currently only works in stdin/console mode)\n");
     printf("f               toggle fullscreen\n");
     printf("T               toggle stay-on-top\n");
     printf("l               display file load menu\n");

@@ -6,7 +6,7 @@
 void StdinSetup();
 void StdinReset();
 int StdinNewPipe(int Flags);
-
+char *StdInReadString(char *RetStr);
 
 #endif
 

@@ -373,6 +373,7 @@ l               display 'load files' menu
 m               mute
 o               toggle online status display
 i               toggle media info display
+j               jump to playlist position (currently only works in console mode)
 p               display playlist menu
 f               toggle 'fast' playback (4*speed, no sound)
 s               toggle 'slow' playback (1/4 speed, no sound)
@@ -386,6 +387,9 @@ s               toggle 'slow' playback (1/4 speed, no sound)
 ```
 
 The '+' and '-' keys represent a departure from mplayer. On the keypad they work as expected, with the 'shift' modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get '+' on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard '=' and '-' change volume up and down, and their shifted versions '_' and '+' alter audio compression.
+
+When in console mode (no X11 window) the 'p' key prints out the current playlist, rather than presenting a menu. To allow movement through the playlist the 'j' key triggers a query into which either a number can by typed, or a shell-style pattern. The playlist will jump to either the track at the numbered position, or to the next track whose title or filename matches the pattern.
+
 
 The following keys on 'internet' or 'media' keyboards are supported
 

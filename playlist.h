@@ -21,6 +21,7 @@ void PlaylistParseAndAdd(TStringList *playlist, const char *Config);
 TStringList *PlaylistExpandCurr(TStringList *playlist, const char *URL, const char *LocalPath);
 void PlaylistLoadFromURL(const char *URL, const char *LocalPath);
 char *PlaylistCurrTitle(char *RetStr);
+int PlaylistFindMatch(const char *Pattern);
 void PlaylistInit(TStringList *playlist);
 
 #endif
