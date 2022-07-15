@@ -49,6 +49,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include <pwd.h>
 #include <xine/broadcaster.h>
 #include <xine/xineutils.h>
+#include <errno.h>
 
 #define DEFAULT_CACHE_DIR "~/.cxine/cache"
 
@@ -250,8 +251,7 @@ int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)
             if (Event.type==EVENT_CLOSE) running=0;
         }
     }
-
-    if (tv->tv_usec == 0)
+    else if ((tv->tv_usec == 0) || (errno==ETIMEDOUT))
     {
         tv->tv_usec=sleep_ms * 1000;
         time(&Now);
@@ -327,7 +327,7 @@ void CXineSwitchUser()
 
 
 
-void CXineOutputs(xine_t *xine, xine_stream_t *stream)
+void CXinePrintOutputs(xine_t *xine, xine_stream_t *stream)
 {
     xine_post_out_t *out;
 
@@ -354,7 +354,7 @@ void CXineExit(TConfig *Config)
     if (Config->vo_port)  xine_close_video_driver(Config->xine, Config->vo_port);
     xine_exit(Config->xine);
     X11Close(Config->X11Out);
-    StdinReset();
+    StdInReset();
 }
 
 
@@ -422,9 +422,9 @@ int main(int argc, char **argv)
     {
         printf("vo_driver: none. No video output\n");
         if (
-						 	(! (Config->flags & (CONFIG_SLAVE | CONFIG_READ_STDIN))) &&
-							(isatty(0))
-					 ) Config->flags |= CONFIG_CONTROL;
+            (! (Config->flags & (CONFIG_SLAVE | CONFIG_READ_STDIN))) &&
+            (isatty(0))
+        ) Config->flags |= CONFIG_CONTROL;
     }
     else
     {
@@ -437,13 +437,15 @@ int main(int argc, char **argv)
     Config->event_queue = xine_event_new_queue(Config->stream);
     xine_event_create_listener_thread(Config->event_queue, event_listener, NULL);
 
+    if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
+
     if (Config->vo_port)
     {
         X11ActivateCXineOutput(Config->X11Out, Config->vo_port);
         OSDSetup(Config);
+    		CxineInjectSplashScreen(Config->xine);
     }
 
-    if (Config->bcast_port > 0) bcast=_x_init_broadcaster(Config->stream, Config->bcast_port);
 
     //open stdin late, as X11 setup above can override its use
     if (Config->flags & (CONFIG_CONTROL | CONFIG_SLAVE | CONFIG_READ_STDIN))
@@ -458,10 +460,9 @@ int main(int argc, char **argv)
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);
 
-    CXineOutputs(Config->xine, Config->stream);
+    CXinePrintOutputs(Config->xine, Config->stream);
 //	xine_set_param (Config->stream, XINE_PARAM_VERBOSITY, XINE_VERBOSITY_DEBUG);
 
-    CxineInjectSplashScreen(Config->xine);
 
     running = 1;
     while(running)

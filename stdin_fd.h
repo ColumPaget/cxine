@@ -3,9 +3,10 @@
 
 #include "common.h"
 
-void StdinSetup();
-void StdinReset();
-int StdinNewPipe(int Flags);
+void StdInSetup();
+void StdInReset();
+int StdInNewPipe(int Flags);
+void StdInAskJump();
 char *StdInReadString(char *RetStr);
 
 #endif

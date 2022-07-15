@@ -146,7 +146,7 @@ int CXineIsPaused(TConfig *Config)
 
 void CXinePlaybackEnd()
 {
-    xine_stop(Config->stream);
+    if (xine_get_status(Config->stream) == XINE_STATUS_PLAY)  xine_stop(Config->stream);
     xine_close(Config->stream);
     CXineCloseAudio();
 }

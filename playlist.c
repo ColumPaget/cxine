@@ -248,20 +248,20 @@ TPlaylistItem *PlaylistDecodeEntry(const char *info)
 int PlaylistFindMatch(const char *Pattern)
 {
     TPlaylistItem *PI;
-		int i, pos=-1;
+    int i, pos=-1;
 
     for (i=StringListPos(Config->playlist); i < StringListSize(Config->playlist); i++)
     {
-       PI=PlaylistDecodeEntry(StringListGet(Config->playlist, i));
-			 if (fnmatch(Pattern, PI->URL, 0)==0)
-			 {
-				pos=i;
-				break;
-			 }
-       PlaylistItemDestroy(PI);
+        PI=PlaylistDecodeEntry(StringListGet(Config->playlist, i));
+        if (fnmatch(Pattern, PI->URL, 0)==0)
+        {
+            pos=i;
+            break;
+        }
+        PlaylistItemDestroy(PI);
     }
- 
-return(pos);
+
+    return(pos);
 }
 
 

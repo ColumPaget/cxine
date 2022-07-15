@@ -1,4 +1,6 @@
 #include "stdin_fd.h"
+#include "playlist.h"
+#include "playback_control.h"
 #include <termios.h>
 
 struct termios tty_old;
@@ -22,12 +24,12 @@ void StdInSetup()
 }
 
 //reset StdIn back to whatever it was at program startup
-void StdinReset()
+void StdInReset()
 {
     if (Config->flags & CONFIG_CONTROL) tcsetattr(Config->stdin, TCSANOW, &tty_old);
 }
 
-int StdinNewPipe(int Flags)
+int StdInNewPipe(int Flags)
 {
     int pipes[2];
 
@@ -46,42 +48,43 @@ int StdinNewPipe(int Flags)
 
 char *StdInReadString(char *RetStr)
 {
-char Key[2];
-int result;
+    char Key[2];
+    int result;
 
-RetStr=rstrcpy(RetStr, "");
-memset(Key, 0, 2);
-while (1)
-{
-   result=read(Config->stdin, Key, 1);
-	 if (result < 1) break;
-	 if (Key[0]=='\n') break;
-	 if (Key[0]=='\0x1b') 
-	 {
-		RetStr=rstrcpy(RetStr, "");
-		break;
-	 }
-	 printf("%c", Key[0]); fflush(NULL);
-   RetStr=rstrcat(RetStr, Key);
-}
+    RetStr=rstrcpy(RetStr, "");
+    memset(Key, 0, 2);
+    while (1)
+    {
+        result=read(Config->stdin, Key, 1);
+        if (result < 1) break;
+        if (Key[0]=='\n') break;
+        if (Key[0]=='\0x1b')
+        {
+            RetStr=rstrcpy(RetStr, "");
+            break;
+        }
+        printf("%c", Key[0]);
+        fflush(NULL);
+        RetStr=rstrcat(RetStr, Key);
+    }
 
-return(RetStr);
+    return(RetStr);
 }
 
 
 void StdInAskJump()
 {
-char *Entry=NULL;
-int pos;
+    char *Entry=NULL;
+    int pos;
 
-printf("Enter Jump: ");
-fflush(stdout);
-Entry=StdInReadString(Entry);
+    printf("Enter Jump: ");
+    fflush(stdout);
+    Entry=StdInReadString(Entry);
 
-pos=PlaylistFindMatch(Entry);
-if (pos < 1) pos=atoi(Entry);
-if (pos > 0) CXineSelectStream(Config, pos);
+    pos=PlaylistFindMatch(Entry);
+    if (pos < 1) pos=atoi(Entry);
+    if (pos > 0) CXineSelectStream(Config, pos);
 
-destroy(Entry);
+    destroy(Entry);
 }
 

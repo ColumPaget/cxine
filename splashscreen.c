@@ -126,7 +126,7 @@ const int cxine_img_length = 1255;
 
 void CxineInjectSplashScreen(xine_t *xine)
 {
-    StdinNewPipe(0);
+    StdInNewPipe(0);
     write(Config->to_xine, cxine_img, cxine_img_length);
     close(Config->to_xine);
 
@@ -135,7 +135,7 @@ void CxineInjectSplashScreen(xine_t *xine)
         xine_play(Config->stream, 0, 0);
     }
 
-//StdinNewPipe(Config->flags);
+//StdInNewPipe(Config->flags);
     close(0);
     dup(Config->stdin);
 }

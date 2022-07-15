@@ -10,6 +10,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "media_info_osd.h"
 #include "X11.h"
 #include "audio_drivers.h"
+#include "stdin_fd.h"
 
 void KeyGrabAdd(void *X11Out, const char *Mod, const char *KeyStr)
 {
@@ -329,9 +330,9 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         else InfoOSDShow();
         break;
 
-		case 'j':
-				if (! Config->X11Out) StdInAskJump();
-				break;
+    case 'j':
+        if (! Config->X11Out) StdInAskJump();
+        break;
 
     case 'l':
         if (Config->state & STATE_LOADFILES_DISPLAYED) LoadFilesOSDHide();
@@ -502,9 +503,9 @@ int KeypressHandleStdIn(int fd, xine_stream_t *stream)
             KeypressHandleEscapeSequence(Token, stream);
         }
         else for (i=0; i < result; i++)
-        {
-          HandleKeyPress(Config->X11Out, stream, Token[i], 0);
-        }
+            {
+                HandleKeyPress(Config->X11Out, stream, Token[i], 0);
+            }
     }
 
     destroy(Token);
