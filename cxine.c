@@ -99,8 +99,15 @@ static void event_listener(void *user_data, const xine_event_t *event)
 }
 
 
-
-
+static void cxine_set_background(int startup)
+{
+   if (StrLen(Config->background))
+   {
+        if (xine_open(Config->stream, Config->background)) xine_play(Config->stream, 0, 0);
+        Config->state |= STATE_BACKGROUND_DISPLAYED;
+   }
+   else if (startup) CxineInjectSplashScreen(Config->xine);
+}
 
 
 
@@ -443,7 +450,7 @@ int main(int argc, char **argv)
     {
         X11ActivateCXineOutput(Config->X11Out, Config->vo_port);
         OSDSetup(Config);
-    		CxineInjectSplashScreen(Config->xine);
+				cxine_set_background(TRUE);
     }
 
 
@@ -479,14 +486,7 @@ int main(int argc, char **argv)
         }
         else
         {
-            if (! (Config->state & STATE_BACKGROUND_DISPLAYED))
-            {
-                if (StrLen(Config->background))
-                {
-                    if (xine_open(Config->stream, Config->background)) xine_play(Config->stream, 0, 0);
-                    Config->state |= STATE_BACKGROUND_DISPLAYED;
-                }
-            }
+            if (! (Config->state & STATE_BACKGROUND_DISPLAYED)) cxine_set_background(FALSE);
 
             if (! (Config->flags & CONFIG_NOAUTOPLAY))
             {

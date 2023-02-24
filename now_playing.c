@@ -65,8 +65,8 @@ static const char *CXineGetStringValue(xine_stream_t *stream, int ValID, int Quo
 
 void CXineNowPlaying(TConfig *Config)
 {
-    const char *ClipInfoTypes[]= {"Title","Artist","Album","Year","Comment","Track","Genre",NULL};
-    int ClipInfoID[]= {XINE_META_INFO_TITLE, XINE_META_INFO_ARTIST, XINE_META_INFO_ALBUM, XINE_META_INFO_YEAR, XINE_META_INFO_COMMENT, XINE_META_INFO_TRACK_NUMBER, XINE_META_INFO_GENRE};
+    const char *ClipInfoTypes[]= {"Title","Artist","Album","Year","Comment","Track","Genre","Video", "Audio", NULL};
+    int ClipInfoID[]= {XINE_META_INFO_TITLE, XINE_META_INFO_ARTIST, XINE_META_INFO_ALBUM, XINE_META_INFO_YEAR, XINE_META_INFO_COMMENT, XINE_META_INFO_TRACK_NUMBER, XINE_META_INFO_GENRE, XINE_META_INFO_VIDEOCODEC, XINE_META_INFO_AUDIOCODEC};
     const char *ptr;
     int i, pos_msecs, len_msecs, pos;
     char *Tempstr=NULL, *Title=NULL, *PipeStr=NULL;
