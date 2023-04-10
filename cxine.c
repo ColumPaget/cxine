@@ -103,10 +103,13 @@ static void cxine_set_background(int startup)
 {
    if (StrLen(Config->background))
    {
-        if (xine_open(Config->stream, Config->background)) xine_play(Config->stream, 0, 0);
+        if (xine_open(Config->stream, Config->background)) 
+				{
+								xine_play(Config->stream, 0, 0);
+				}
         Config->state |= STATE_BACKGROUND_DISPLAYED;
    }
-   else if (startup) CxineInjectSplashScreen(Config->xine);
+   else if (startup && (! (Config->flags & (CONFIG_READ_STDIN | CONFIG_CONTROL)))) CxineInjectSplashScreen(Config->xine);
 }
 
 
@@ -450,7 +453,6 @@ int main(int argc, char **argv)
     {
         X11ActivateCXineOutput(Config->X11Out, Config->vo_port);
         OSDSetup(Config);
-				cxine_set_background(TRUE);
     }
 
 
@@ -463,6 +465,9 @@ int main(int argc, char **argv)
     //don't try to use stdin if our setyp doesn't explicitly need it
     else Config->stdin=-1;
 
+
+		//must do this after open stdin, as injecting splashscreen uses stdin
+		if (Config->vo_port) cxine_set_background(TRUE);
 
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);

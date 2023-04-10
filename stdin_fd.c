@@ -46,6 +46,7 @@ int StdInNewPipe(int Flags)
 
 
 
+//this reads a string from stdin, used by 'StdinReadJump'
 char *StdInReadString(char *RetStr)
 {
     char Key[2];
@@ -58,7 +59,7 @@ char *StdInReadString(char *RetStr)
         result=read(Config->stdin, Key, 1);
         if (result < 1) break;
         if (Key[0]=='\n') break;
-        if (Key[0]=='\0x1b')
+        if (Key[0]=='\x1b')
         {
             RetStr=rstrcpy(RetStr, "");
             break;
@@ -80,10 +81,12 @@ void StdInAskJump()
     printf("Enter Jump: ");
     fflush(stdout);
     Entry=StdInReadString(Entry);
+		printf("\n");
 
     pos=PlaylistFindMatch(Entry);
-    if (pos < 1) pos=atoi(Entry);
-    if (pos > 0) CXineSelectStream(Config, pos);
+    if (pos < 0) pos=atoi(Entry);
+    if (pos >= 0) CXineSelectStream(Config, pos);
+		else printf("ERROR: Can't jump to that position\n");
 
     destroy(Entry);
 }

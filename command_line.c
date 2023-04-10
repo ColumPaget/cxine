@@ -242,6 +242,8 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-title")==0 ) Title=rstrcpy(Title, argv[++i]);
         else if (
             ( strcmp(argv[i], "-use-stdin")==0 ) ||
+            ( strcmp(argv[i], "stdin://")==0 ) ||
+            ( strcmp(argv[i], "stdin:")==0 ) ||
             ( strcmp(argv[i], "-")==0 )
         )
         {

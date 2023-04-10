@@ -1,8 +1,6 @@
 CXine - A mostly mplayer compatible libxine media player
 --------------------------------------------------------
 
-[![Build Status](https://travis-ci.com/ColumPaget/cxine.svg?branch=master)](https://travis-ci.com/ColumPaget/cxine)
-
 CXine is a basic, keyboard-driven, X11, lib-xine based media player that is intended to be used as a keyboard-driven standalone app, or embedded in a frontend. It supports a subset of the mplayer 'slave mode' command protocol. It supports user-configurable on screen displays; embedding into another window; sticky, shaded and stayontop windows; drawing on the root window; fullscreen playback, keygrabs and 'bookmarking' (remembering position in a media item). Its only dependancies are libxine, libX11, libc and libm.
 
 At current CXine is completely keyboard-driven, with no mouse control at all. This may change in future.
@@ -42,10 +40,10 @@ Options
   -rootwin                Draw on root window (mplayer style option).
   -fs                     Play fullscreen (mplayer style option equivalent to '-win fullscreen').
   -background <path>      Path to background image when not playing anything else. Needed for OSD to mix into.
-  -use-stdin              Read media stream from stdin
-  +stdin-ctrl             Read keypresses from stdin
+  -use-stdin              Read media stream from stdin (see 'Reading from Stdin' below)
+  +stdin-ctrl             Read keypresses from stdin (see 'Reading from Stdin' below)
   -stdin-ctrl             Dont read keypresses from stdin
-  -C                      Read keypresses from stdin
+  -C                      Read keypresses from stdin (see 'Reading from Stdin' below)
   +C                      Dont read keypresses from stdin
   -bcast <port>           Specify port that slave libxine players can connect to to recieve broadcasted stream.
   -noauto                 No autoplay, items must be selected from the playlist.
@@ -110,6 +108,46 @@ Options
   --help slave            Show help for MPlayer-compatible slave mode.
   --help plugins          List available plugins.
 ```
+
+
+Reading From Stdin
+------------------
+
+Reading media from stdin can be done using one of the following command lines:
+
+
+```
+cxine -use-stdin
+cxine -
+cxine stdin:
+cxine stdin://
+```
+
+However, there are some issues/caveats with this system.
+
+The xine On Screen Display system requires something to be displayed so that it can 'mix' the onscreen text into the video. Thus cxine provides a default 'background image' (splashscreen) that can serve this purpose. The method it uses to do this is by pipeing a PNG image into it's own stdin, and then telling the xine library to read from stdin. Unfortunately this approach can't be used if we actually want to read media from stdin. Thus, if cxine detects a request to read from stdin, it won't inject the 'splashscreen'. This is fine for any media that has video output, but with audio-only media, the On Screen Display will not work. Solutions to this are:
+
+1) use an audio postprocessor that outputs video. For example:
+
+```
+cxine -ap goom stdin://
+```
+
+2) specify a different background image with  the '-background' option.
+
+```
+cxine -background /tmp/myimage.png stdin:// 
+```
+
+This method doesn't mess with stdin.
+
+3) specify an image as the first media to be played, and use '-image-ms' to advance to the next media url, like so:
+
+```
+cxine -image-ms 1 /tmp/myimage.png stdin:// 
+```
+
+These same caveats apply to situations where you want to read control keystrokes from stdin, and if doing that you cannot supply media on stdin.
 
 
 Window Types

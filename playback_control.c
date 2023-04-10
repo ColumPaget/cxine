@@ -17,7 +17,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "audio_drivers.h"
 #include "X11.h"
 
-static void CXineStreamInitConfig(TConfig *Config)
+void CXineStreamInitConfig(TConfig *Config)
 {
     if ((Config->flags & CONFIG_MUTE) && (! xine_get_param (Config->stream, XINE_PARAM_AUDIO_MUTE))) CXineMute(Config->stream, 1);
     else CXineMute(Config->stream, 0);

@@ -479,6 +479,12 @@ const char *KeypressHandleEscapeSequence(const char *Sequence, xine_stream_t *st
         HandleKeyPress(Config->X11Out, stream, KEY_PGDN, 0);
         return(Sequence+4);
     }
+    else if (strcmp(Sequence, "\x1b")==0)
+    {
+        HandleKeyPress(Config->X11Out, stream, KEY_ESC, 0);
+        return(Sequence+1);
+    }
+
 
 
 
