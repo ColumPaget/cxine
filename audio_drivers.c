@@ -91,7 +91,6 @@ xine_audio_port_t *CXineOpenAudioDriver(const char *Spec)
         else if (strcmp(Type, "alsa")==0)
         {
             Tempstr=CXineParseAlsaDevice(Tempstr, ptr);
-            printf("ALSA: [%s]\n", Tempstr);
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_default_device", Tempstr, "ALSA device for mono output");
             CXineConfigModifyOrCreate(Config->xine, "audio.device.alsa_front_device", Tempstr, "ALSA device for stereo output");
         }
@@ -171,7 +170,7 @@ xine_audio_port_t *CXineOpenAudio()
 
 void CXineCloseAudio()
 {
-    CXineOpenAudioDriver("none");
+    if (Config->ao_port) CXineOpenAudioDriver("none");
 }
 
 xine_audio_port_t *CXineCycleAudio()

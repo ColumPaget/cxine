@@ -1,206 +1,346 @@
 .TH  cxine  1 " 2020/05/21"
+
 .SH NAME
-
+ 
 .P
-cxine - a broadly mplayer-compatible libxine based media player.
+cxine - a broadly mplayer-compatible libxine based media player. 
 .SH DESCRIPTION
-
+ 
 .P
-Cxine is a lib-xine based media player that emulates some aspects of mplayer, and adds a number of features of its own. Cxine displays video on a single window and any control output is overlaid over that.
+Cxine is a lib-xine based media player that emulates some aspects of mplayer, and adds a number of features of its own. Cxine displays video on a single window and any control output is overlaid over that. 
 .SH SYNOPSIS
-
-
+ 
 .nf
 cxine [options] [url]
 .fi
 .ad b
-
+.nop  
 .SH OPTIONS
-
-
+ 
+.br
+ 
 .TP
 .B -queue <url>
  If no cxine is currently running, then start up and play <url>, else add it to the playlist of an existing cxine.
+ 
+.br
+ 
 .TP
 .B -enqueue <url>
  MPlayer compatible equivalent of \(aq-queue\(aq
+ 
+.br
+ 
 .TP
 .B -win
  <win id>       Window settings (see below)
+ 
+.br
+ 
 .TP
 .B -wid
  <win id>       Window to reparent into (mplayer style option).
+ 
+.br
+ 
 .TP
 .B -s <wid>x<high>
  Window size. Default is 480x360.
+ 
+.br
+ 
 .TP
 .B -esc
  Allow the \(aqescape\(aq key to exit the app.
+ 
+.br
+ 
 .TP
 .B -vo <vo name>
  Video output plugin name (default = Xv).
+ 
+.br
+ 
 .TP
 .B -root
  Draw on root window (equivalent to -win root).
+ 
+.br
+ 
 .TP
 .B -fs
  Play fullscreen (mplayer style option equivalent to \(aq-win fullscreen\(aq).
+ 
+.br
+ 
 .TP
 .B -use-stdin
  Read media stream from stdin
+ 
+.br
+ 
 .TP
 .B -pause
  Start paused.
+ 
+.br
+ 
 .TP
 .B -shuffle
  Shuffle playlist.
+ 
+.br
+ 
 .TP
 .B -show-playlist
  Start with playlist displayed
+ 
+.br
+ 
 .TP
 .B -image-time <ms>
  Number of milliseconds to pause on an image for, until starting to play/display the next track.
+ 
+.br
+ 
 .TP
 .B -stop_xscreensaver
  Disable screensaver during playing, re-enable it on exit, or if playback paused.
+ 
+.br
+ 
 .TP
 .B +screensaver
  Enable screensaver during playing (use this to turn off \(aqdisable screensaver\(aq if you saved the config).
+ 
+.br
+ 
 .TP
 .B -SS
  Disable screensaver during playing, re-enable it on exit BUT NOT IF PLAYBACK PAUSED.
+ 
+.br
+ 
 .TP
 .B -persist
  Don\(aqt exit when nothing left to do, wait for commands on stdin.
+ 
+.br
+ 
 .TP
 .B -slave
  Mplayer compatible flag, equivalent to \(aq-persist -startms 0\(aq.
+ 
+.br
+ 
 .TP
 .B -input <path>
- Path to pipe to read commands from (by default cxine creates a pipe in \(aq\*(ti/.cxine/cxine.pipe\(aq). This accepts mplayer compatible form \(aq-input file:<path>\(aq.
+ Path to pipe to read commands from (by default cxine creates a pipe in '~/.cxine/cxine.pipe'). This accepts mplayer compatible form '-input file:<path>\(aq.
+ 
+.br
+ 
 .TP
 .B -nowplay <path>
  Path to pipe to write \(aqnow playing\(aq info to (cxine will create this pipe if it doesn\(aqt already exist).
+ 
+.br
+ 
 .TP
 .B -dvd-device <path>
  Path to DVD device to use (default /dev/dvd)
+ 
+.br
+ 
 .TP
 .B -dvd-lang <lang>
  Default language for DVDs
+ 
+.br
+ 
 .TP
 .B -osd-hide
  Hide On Screen Display\(aq.
+ 
+.br
+ 
 .TP
 .B -slow
  Play halfspeed.
+ 
+.br
+ 
 .TP
 .B -loud
  Play with raised volume.
-.TP
-.B -noauto
- Don't download and autoplay tracks.
+ 
+.br
+ 
 .TP
 .B -stream
  Don\(aqt download remote urls in playlists etc. This currently only works for \(aqhttp:\(aq (not https:) urls. This allow streaming internet radio urls.
-.TP
-.B  -webcast
- Implies '-stream', treats playlists as webcast announcement files, only containing one item.
-.TP
-.B -playlist
- Treat paths on command-line as playlist files.
-.TP
-.B -podcast
- Implies '-playlist' '-noauto' and '-show-playlist'.
+ 
+.br
+ 
 .TP
 .B -prefix
  Append a prefix to a media url. This is mostly used with playlists, where the playlist file just names files, and -prefix is used to point the the directory they\(aqre in.
+ 
+.br
+ 
 .TP
 .B -helpers <config>
  Register list of helper apps.
+ 
+.br
+ 
 .TP
 .B -prio <value>
  Set process priority in range 0-39 (requires superuser capabilities).
+ 
+.br
+ 
 .TP
 .B -ac <value>
  Set audio compression. This boosts quiet sounds, lessening the volume range. value is a percent > 100 to multiply quiet sounds by.
+ 
+.br
+ 
 .TP
 .B -aplug <plugins>
  Comma separated list of audio post processing plugins.
+ 
+.br
+ 
 .TP
 .B -novideo
  Don\(aqt output video (for use in combination with -ap for visualization plugins).
+ 
+.br
+ 
 .TP
 .B -no-bookmark
  Don\(aqt remember where media left-off playing.
+ 
+.br
+ 
 .TP
 .B -defaults
  Reset to default config (this will wipe any settings prior on the command line).
+ 
+.br
+ 
 .TP
 .B -list-mime
  Print to stdout a list of mime-types supported by this player.
+ 
+.br
+ 
 .TP
 .B \(hyversion
  Show program version.
+ 
+.br
+ 
 .TP
 .B -help
  Show this help.
+ 
+.br
+ 
 .TP
 .B \(hyhelp keys
  Show keybindings.
+ 
+.br
+ 
 .TP
 .B \(hyhelp osd
  Show help for OSD config.
+ 
+.br
+ 
 .TP
 .B \(hyhelp plugins
  List available plugins.
-
+ 
 .SH WINDOW SETTINGS 
-
+ 
 .P
-The -win argument accepts a window-type and an optional comma-separated list of extra settings. Window types are:
-
+The -win argument accepts a window-type and an optional comma-separated list of extra settings. Window types are: 
+.br
+ 
 .TP
 .B normal
  normal X11 window (is the default if no type specified)
+ 
+.br
+ 
 .TP
 .B fullscreen
  fullscreen window
+ 
+.br
+ 
 .TP
 .B 
 .na
 0x<win id>
-.ad
-
+.ad n
+.nop 
  the hexidecimal (starting with 0x) id of a window to embed/reparent into
-
+  
 .P
 
-
+.br
+ 
+.TP
+.B 
+.na
+<win id>
+.ad n
+.nop 
+ the decimal id of a window to embed/reparent into
+   
 .P
-Additional window settings are:
-
+Additional window settings are: 
+.br
+ 
 .TP
 .B iconized
  start with iconized/minimized window
+ 
+.br
+ 
 .TP
 .B minimized
  start with iconized/minimized window
+ 
+.br
+ 
 .TP
 .B shaded
  start with \(aqshaded\(aq window (if supported by window manager)
+ 
+.br
+ 
 .TP
 .B above
  keep above all other windows
+ 
+.br
+ 
 .TP
 .B stickontop
  shorthand for sticky,ontop
+ 
+.br
+ 
 .TP
 .B stickbelow
  shorthand for sticky,below
-
+ 
 .P
-Examples:
-
+Examples: 
 .nf
 
   \-win fullscreen,min         fullscreen window that\(aqs minimized at startup
@@ -209,83 +349,89 @@ Examples:
   \-win 0x1f2bc                embed into window with hexadecimal id 1f2bc
 .fi
 .ad b
-
+.nop  
 .P
-When embedding cxine into another application (e.g. a frontend) window ids can be given to \(aq-win\(aq either in hex (with a leading 0x) or in decimal.
+When embedding cxine into another application (e.g. a frontend) window ids can be given to \(aq-win\(aq either in hex (with a leading 0x) or in decimal. 
 .SH BOOKMARKS
-
+ 
 .P
-By default cxine \(aqbookmarks\(aq the position in a video if exit is requested, and restarts from that position if the media is played again. This can be disabled with \(aq-no-bookmark\(aq or  \(aq-startms 0\(aq. 
+By default cxine \(aqbookmarks\(aq the position in a video if exit is requested, and restarts from that position if the media is played again. This can be disabled with \(aq-no-bookmark\(aq or  \(aq-startms 0\(aq.  
 .SH DVD PLAYBACK
-
+ 
 .P
-DVDs can be played using the urls \(aqdvd://0\(aq to use dvdnav menu screen, or \(aqdvd://1\(aq, \(aqdvd://2\(aq, etc to play a particular track on disk. The particular dvd device to read from can be set with \(aq-dvd-device\(aq.
+DVDs can be played using the urls \(aqdvd://0\(aq to use dvdnav menu screen, or \(aqdvd://1\(aq, \(aqdvd://2\(aq, etc to play a particular track on disk. The particular dvd device to read from can be set with \(aq-dvd-device\(aq. 
 .SH DOWNLOADS AND REMOTE MEDIA STREAMS
-
+ 
 .P
-CXine downloads media using helper apps. Default config will use curl, wget or Twighbright links, elinks, lynx, or snarf, depending on which are found in your path your path. Cxine should be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested.
+CXine downloads media using helper apps. Default config will use curl, wget or Twighbright links, elinks, lynx, or snarf, depending on which are found in your path your path. Cxine should be able to accept ftp: ftps: sftp: and smb: urls via curl, but these have not been tested. 
 .P
-You can also use \(aqssh:\(aq (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your \(aq.ssh/config\(aq to auto-login. So, for example the url \(aqssh://myhost/home/music/BinaryFinary.mp3\(aq will log into \(aqmyhost\(aq and use ssh to pull the file \(aq/home/music/BinaryFinary.mp3\(aq provided that \(aqmyhost\(aq has been set up in your .config with an ssh key to log in with.
+You can also use \(aqssh:\(aq (not sftp, this actually streams files over ssh) urls if ssh is in your path, although these have to be set up in your \(aq.ssh/config\(aq to auto-login. So, for example the url \(aqssh://myhost/home/music/BinaryFinary.mp3\(aq will log into \(aqmyhost\(aq and use ssh to pull the file \(aq/home/music/BinaryFinary.mp3\(aq provided that \(aqmyhost\(aq has been set up in your .config with an ssh key to log in with. 
 .P
-More information about helpers is available with \(aqcxine \(hyhelp helpers\(aq
+More information about helpers is available with \(aqcxine \(hyhelp helpers\(aq 
 .P
-The \(aq-stream\(aq option is intended for use with internet radio, and only works for http:// streams. If \(aq-stream\(aq is supplied then http:// urls will be streamed without being downloaded to the cache directory
+The \(aq-stream\(aq option is intended for use with internet radio, and only works for http:// streams. If \(aq-stream\(aq is supplied then http:// urls will be streamed without being downloaded to the cache directory 
 .SH XINE BROADCAST
-
+ 
 .P
-Cxine supports libxine-style broadcast. If the \(aq-bcast\(aq option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url \(aqslave://<address>:<port> and mirror it\(aqs output.
+Cxine supports libxine-style broadcast. If the \(aq-bcast\(aq option is used to specify a port then any libxine player (xine, cxine, oxine etc) should be able to connect to it using the url \(aqslave://<address>:<port> and mirror it\(aqs output. 
 .SH SAVE CONFIGURATION
-
+ 
 .P
-If \(aq-save-config\(aq is given then cxine will remember the following settings if they are supplied:
-
+If \(aq-save-config\(aq is given then cxine will remember the following settings if they are supplied: 
 .nf
 
 		\-vo, \-ao, \-ac, \-ap, \-prefix, \-keygrab, \-persist/\-quit, \-bookmark/\-no\-bookmark, \-screensaver/+screensaver, \-show\-osd/\-hide\-osd, \-background, \-input, \-cache, \-nowplay,  \-dvd\-device, \-dvd\-region, \-dvd\-lang, \-helpers
 .fi
 .ad b
-
+.nop  
 .P
--defaults resets the config to default. It will also reset any settings prior to it  on the command-line, so it\(aqs best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this:
-
+-defaults resets the config to default. It will also reset any settings prior to it  on the command-line, so it\(aqs best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this: 
 .nf
 
 		cxine \-defaults \-background myimage.jpg \-ao alsa \-keygrab media \-save
 .fi
 .ad b
-
+.nop  
 .SS On Screen Displays
-
+ 
 .P
 CXine supports on-screen-displays at the top and bottom of the screen. These are defined using the 
 .na
 \-osd
-.ad
-switch like so:
+.ad n
+.nop switch like so: 
+.nf
+
+cxine \-osd `top,%t now playing: %T` \-osd `bottom,%tP%% %ts/%tl`
+.fi
+.ad b
+.nop  
 .P
-cxine -osd 
-.na
-top,%t now playing: %T
-.ad
--osd 
-.na
-bottom,%tP%% %ts/%tl
-.ad
+There is also a \(aqconsole OSD\(aq: a statusbar printed to stdout. This can be configured like so: 
+.nf
+
+cxine \-osd `console,%T %tP%% %ts/%tl`
+.fi
+.ad b
+.nop  
 .P
 The argument of the -osd option is a pair of comma-seperated strings. The first is 
 .na
 top
-.ad
-or 
+.ad n
+.nop , 
 .na
 bottom
-.ad
-indicating which area of the screen the OSD should be displayed in. The second is the string to display, with the following printf-style 
+.ad n
+.nop or 
+.na
+console
+.ad n
+.nop indicating which area of the screen the OSD should be displayed in. The second part is the string to display, with the following printf-style 
 .na
 %
-.ad
-substitutions supported:
-
+.ad n
+.nop substitutions supported: 
 .nf
 
 %%     output \(aq%\(aq
@@ -327,38 +473,37 @@ substitutions supported:
 
 .fi
 .ad b
-
+.nop  
 .P
 Onscreen displays only work if there\(aqs a video stream for them to mix into. Thus, to have an OSD when playing audio files you should either use the -background option to set a default background image, or use one of the audio post-processing visualizations, or else supply cxine with a .jpeg or .png image as the first 
 .na
 track
-.ad
-to play, and use the 
+.ad n
+.nop to play, and use the 
 .na
 \-image\-time
-.ad
-or 
+.ad n
+.nop or 
 .na
 \-imagems
-.ad
-options to cause the next track to start playing after the image is displayed. The image will persist and be the 
+.ad n
+.nop options to cause the next track to start playing after the image is displayed. The image will persist and be the 
 .na
 video
-.ad
-stream for the OSD to mix into.
+.ad n
+.nop stream for the OSD to mix into. 
 .SS Playlist OSD
-
+ 
 .P
-Pressing \(aqp\(aq brings up the Playlist On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing \(aqenter\(aq will switch playback to that item. Pressing \(aqu\(aq or \(aqd\(aq when an item has the cursor on it will move the item up and down in the playlist. Pressing \(aqdelete\(aq or \(aqbackspace\(aq will delete an item from the playlist. Finally pressing \(aqp\(aq again will dismiss the Playlist OSD.
+Pressing \(aqp\(aq brings up the Playlist On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing \(aqenter\(aq will switch playback to that item. Pressing \(aqu\(aq or \(aqd\(aq when an item has the cursor on it will move the item up and down in the playlist. Pressing \(aqdelete\(aq or \(aqbackspace\(aq will delete an item from the playlist. Finally pressing \(aqp\(aq again will dismiss the Playlist OSD. 
 .SS Load Files OSD
-
+ 
 .P
-Pressing \(aql\(aq brings up the Load Files On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing \(aqenter\(aq will either enter a directory, or add a file to the playlist. Pressing \(aqdelete\(aq or \(aqbackspace\(aq go up one directory level. Pressing \(aql\(aq again will dismiss this menu.
+Pressing \(aql\(aq brings up the Load Files On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing \(aqenter\(aq will either enter a directory, or add a file to the playlist. Pressing \(aqdelete\(aq or \(aqbackspace\(aq go up one directory level. Pressing \(aql\(aq again will dismiss this menu. 
 .SS Keybindings
-
+ 
 .P
-CXine supports the following keys:
-
+CXine supports the following keys: 
 .nf
 
 <escape>        exit app (requires \-esc command\-line option)
@@ -392,42 +537,42 @@ s               toggle \(aqslow\(aq playback (1/4 speed, no sound)
 <               prev item in playlist
 >               next item in playlist
 1,2,3...        seek to n*10 percent (so 5 seeks to 50% of stream)
+?               display keypress help
 .fi
 .ad b
-
+.nop  
 .P
 The 
 .na
 +
-.ad
-and 
+.ad n
+.nop and 
 .na
 \-
-.ad
-keys represent a departure from mplayer. On the keypad they work as expected, with the \(aqshift\(aq modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get 
+.ad n
+.nop keys represent a departure from mplayer. On the keypad they work as expected, with the \(aqshift\(aq modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get 
 .na
 +
-.ad
-on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard 
+.ad n
+.nop on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard 
 .na
 =
-.ad
-and 
+.ad n
+.nop and 
 .na
 \-
-.ad
-change volume up and down, and their shifted versions 
+.ad n
+.nop change volume up and down, and their shifted versions 
 .na
 _
-.ad
-and 
+.ad n
+.nop and 
 .na
 +
-.ad
-alter audio compression.
+.ad n
+.nop alter audio compression. 
 .P
-The following keys on \(aqinternet\(aq or \(aqmedia\(aq keyboards are supported:
-
+The following keys on \(aqinternet\(aq or \(aqmedia\(aq keyboards are supported: 
 .nf
 
 <play>
@@ -441,16 +586,15 @@ The following keys on \(aqinternet\(aq or \(aqmedia\(aq keyboards are supported:
 
 .fi
 .ad b
-
+.nop  
 .SS Keygrabs
-
+ 
 .P
 CXine can grab keys for its exclusive use, meaning that that those keystrokes will be sent to it regardless of what window currently has input focus. Keygrabs are supplied to the program in a comma-seperated list after the 
 .na
 \-keygrab
-.ad
-option. Recognized key names are either alphanumeric characters and punctuation, or the following names:
-
+.ad n
+.nop option. Recognized key names are either alphanumeric characters and punctuation, or the following names: 
 .nf
 
 up, down, left, right       arrow keys
@@ -462,10 +606,9 @@ stop, play, next, prev      playback keys found on \(aqinternet\(aq keyboards
 vpause                      media pause key found on \(aqinternet\(aq keyboards
 .fi
 .ad b
-
+.nop  
 .P
-CXine also supports the following \(aqgroup\(aq names that grab groups of keys:
-
+CXine also supports the following \(aqgroup\(aq names that grab groups of keys: 
 .nf
 
 arrow                       left right up down
@@ -476,32 +619,26 @@ media                       vup, vdown, mute, stop, play, prev, next, vpause
 keypad                      up, down, left, right pgup, pgdn, home, end, +, \-
 .fi
 .ad b
-
+.nop  
 .P
 All key and group names can have a modifier prepended. Available modifiers are 
 .na
 shift\-
-.ad
-, 
+.ad n
+.nop , 
 .na
 cntrl\-
-.ad
-and 
+.ad n
+.nop and 
 .na
 alt\-
-.ad
-. If a key-modifier pair isn
+.ad n
+.nop . If a key-modifier pair isn\(aqt bound to an action, then cxine will treat the key as though it had no modifier. Thus 
 .na
-t bound to an action, then cxine will treat the key as though it had no modifier. Thus 
-.ad
-alt-o
+alt\-o
+.ad n
+.nop can be bound to turn OSD display on-and-off without depriving other programs of use of the 
 .na
- can be bound to turn OSD display on\-and\-off without depriving other programs of use of the 
-.ad
 o
-.na
- key.
-\\pp\-
-\\pp\-
-
-.ad
+.ad n
+.nop key.  

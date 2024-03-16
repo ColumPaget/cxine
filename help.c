@@ -427,9 +427,11 @@ void Help(const char *Page)
         printf("-defaults resets the config to default. It will also reset any settings prior to it  on the command-line, so it's best to pass it as the first option. You can set configs to defaults, make some changes, and then save, like this:\n");
         printf("		cxine -defaults -background myimage.jpg -ao alsa -keygrab media -save\n");
     }
-
-
-    exit(0);
 }
 
 
+void HelpAndExit(const char *Page)
+{
+    Help(Page);
+    exit(0);
+}

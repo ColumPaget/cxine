@@ -319,6 +319,10 @@ CXine supports on-screen-displays at the top and bottom of the screen. These are
 
 cxine -osd `top,%t now playing: %T` -osd `bottom,%tP%% %ts/%tl`
 
+There's also a console-status bar that is output on stdout can be modified with:
+
+cxine -osd `console,%t %tP%% %ts/%tl`
+
 The argument of the -osd option is a pair of comma-seperated strings. The first is `top` or `bottom` indicating which area of the screen the OSD should be displayed in. The second is the string to display, with the following printf-style `%` substitutions supported:
 
 ```

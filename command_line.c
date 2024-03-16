@@ -89,7 +89,7 @@ void CommandLineCmd(const char *Cmd)
     else if (strcmp(Cmd, "mini")==0) ControlSendMessage("minimize\n");
     else if (strcmp(Cmd, "icon")==0) ControlSendMessage("minimize\n");
     else if (strcmp(Cmd, "minimize")==0) ControlSendMessage("minimize\n");
-    else if (strcmp(Cmd, "help")==0 ) Help("cmd");
+    else if (strcmp(Cmd, "help")==0 ) HelpAndExit("cmd");
     else printf("ERROR: unknown command '%s'\n", Cmd);
 
     exit(0);
@@ -158,7 +158,9 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-vloud")==0 ) Config->flags |= CONFIG_VLOUD;
         else if ( strcmp(argv[i], "-identify")==0 ) Config->flags |=CONFIG_IDENTIFY;
         else if ( strcmp(argv[i], "-bookmark")==0 ) Config->flags |= CONFIG_BOOKMARK;
+        else if ( strcmp(argv[i], "-bookmarks")==0 ) Config->flags |= CONFIG_BOOKMARK;
         else if ( strcmp(argv[i], "-no-bookmark")==0 ) Config->flags &= ~CONFIG_BOOKMARK;
+        else if ( strcmp(argv[i], "-no-bookmarks")==0 ) Config->flags &= ~CONFIG_BOOKMARK;
         else if ( strcmp(argv[i], "-stream")==0 ) Config->flags |= CONFIG_STREAM;
         else if ( strcmp(argv[i], "-webcast")==0 ) Config->flags |= CONFIG_STREAM | CONFIG_WEBCAST;
         else if ( strcmp(argv[i], "-playlist")==0 ) Config->flags |= CONFIG_PLAYLIST;
@@ -234,9 +236,11 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-hide-osd")==0 ) Config->flags &= ~CONFIG_OSD;
         else if ( strcmp(argv[i], "-osd")==0 )
         {
-            Config->flags |= CONFIG_OSD;
-            ptr=rstrtok(argv[++i],",",&Token);
-            if (strcmp(Token,"bottom")==0) Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, argv[i]);
+						i++;
+            ptr=rstrtok(argv[i],",",&Token);
+            if (strcmp(Token,"top")==0) Config->top_osd_text=rstrcpy(Config->top_osd_text, ptr);
+            else if (strcmp(Token,"bottom")==0) Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, ptr);
+            else if (strcmp(Token,"console")==0) Config->console_osd_text=rstrcpy(Config->console_osd_text, ptr);
             else Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, argv[i]);
         }
         else if ( strcmp(argv[i], "-title")==0 ) Title=rstrcpy(Title, argv[++i]);
@@ -276,9 +280,9 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
             printf("Mime Types Supported:\n%s\n", Token);
             exit(0);
         }
-        else if ( strcmp(argv[i], "-?")==0 ) Help(argv[++i]);
-        else if ( strcmp(argv[i], "-help")==0 ) Help(argv[++i]);
-        else if ( strcmp(argv[i], "--help")==0 ) Help(argv[++i]);
+        else if ( strcmp(argv[i], "-?")==0 ) HelpAndExit(argv[++i]);
+        else if ( strcmp(argv[i], "-help")==0 ) HelpAndExit(argv[++i]);
+        else if ( strcmp(argv[i], "--help")==0 ) HelpAndExit(argv[++i]);
         else PlaylistAdd(Config->playlist, argv[i], ID, Title);
     }
 

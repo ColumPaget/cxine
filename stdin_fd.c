@@ -81,12 +81,12 @@ void StdInAskJump()
     printf("Enter Jump: ");
     fflush(stdout);
     Entry=StdInReadString(Entry);
-		printf("\n");
+    printf("\n");
 
     pos=PlaylistFindMatch(Entry);
     if (pos < 0) pos=atoi(Entry);
     if (pos >= 0) CXineSelectStream(Config, pos);
-		else printf("ERROR: Can't jump to that position\n");
+    else printf("ERROR: Can't jump to that position\n");
 
     destroy(Entry);
 }

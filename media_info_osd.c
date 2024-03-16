@@ -5,7 +5,6 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 #include "media_info_osd.h"
 #include "X11.h"
-#include <glob.h>
 
 static CXineOSD *OSD=NULL;
 
@@ -14,8 +13,11 @@ void InfoOSDUpdate()
 {
     if (! (Config->state & STATE_INFO_DISPLAYED) ) return;
 
-    OSD->Contents=OSDFormatString(OSD->Contents, "Playing: %P:%T\nVideo: [%v4] %wx%h %vC\nAudio: [%a4] %ac %aC\nArtist: %ma\nTitle: %mt\n", Config->stream);
-    OSDUpdateSingle(OSD,TRUE);
+    if (OSD)
+    {
+        OSD->Contents=OSDFormatString(OSD->Contents, "Playing: %P:%T\nVideo: [%v4] %wx%h %vC\nAudio: [%a4] %ac %aC\nArtist: %ma\nTitle: %mt\n", Config->stream);
+        OSDUpdateSingle(OSD,TRUE);
+    }
 }
 
 

@@ -8,6 +8,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playlist_osd.h"
 #include "load_files_osd.h"
 #include "media_info_osd.h"
+#include "help_osd.h"
 #include "X11.h"
 #include "audio_drivers.h"
 #include "stdin_fd.h"
@@ -345,7 +346,8 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         break;
 
     case 'o':
-        Config->flags ^= CONFIG_OSD;
+        OSDToggleShowHide();
+        if (! Config->vo_port) consoleOSDToggleShowHide();
         break;
 
     case 'p':
@@ -366,6 +368,11 @@ void MainScreenHandleKeyPress(void *X11Out, xine_stream_t *stream, int keychar, 
         xine_get_pos_length (stream, &val, &pos_msecs, &len_msecs);
         val= (keychar - '0') * len_msecs / 10;
         xine_play(stream, 0, val);
+        break;
+
+    case '?':
+        OSDShowHelp();
+        HelpOSDToggle();
         break;
     }
 

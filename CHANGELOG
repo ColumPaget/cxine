@@ -1,0 +1,170 @@
+v6.6 (2024-03-16)
+  * added help screens displayed by pressing '?'
+  * add 'console osd' status bar
+  * actually honor -bookmark and -no-bookmark options
+
+v6.5 (2023-04-10)
+  * new splashscreen as old one segfaulted libxine
+  * don't inject default background if other background specified
+  * fix for hang when no video-out and no playable media
+
+v6.4 (2022-06-25)
+  * fixes for console mode
+  * added 'j' keypress and 'playlist jump' in console mode
+  * Fixes for 'no window' console mode
+
+v6.3 (2022-05-23)
+  * Do not reset playback speed after pause/unpause
+
+v6.2 (2021-12-12)
+  * handle mplayer-style '-ao alsa:device=hw=1.0' audio config
+  * Fix leaky file descriptors
+
+v6.1 (2021-02-20)
+  * fixed ever-growing bookmarks file, improvements to podcast support
+
+v6.0 (2021-02-18)
+  * curl follow redirects
+  * fix memory leak
+  * better playlist file detection. support rss podcasts
+
+v5.3 (2020-11-15)
+  * more work on keypresses from stdin. added 'info' display triggered by pressing 'i'
+
+v5.2 (2020-11-12)
+  * fix for overusing cpu if stdin not connected to anything
+  * more changes to ALSA devices
+
+v5.1 (2020-10-27)
+  * changes to alsa device handling
+  * support alsa device names as well as numbers
+
+v5.0 (2020-08-08)
+  * compile fixes for clang
+  * added splashscreen and loadfiles menu
+  * fix compile when no xscreensave-dev is installed
+
+v4.10 (2020-05-21)
+  * added -r, -list-extn and -list-mime command-line options. 
+  * Added manpage. 
+  * Fix for crash when deleting items in playlist
+
+v4.9 (2020-04-20)
+  * another fix for handling input. Don't read from stdin if we have an X11 window
+
+v4.8 (2020-04-20)
+  * final commit for handling stdin when no X11 window
+
+v4.7 (2020-04-20)
+  * now works with no X11 window (this would crash previously)
+  * fix for control-protocol 'next' being interpreted as 'prev'
+  * fix -loop issue
+  * more intelligent bookmark handling
+
+v4.6 (2019-11-27)
+  * 'loop forever' added
+  * correction to playlist-keypress change, only right-arrow was having a problem
+  * pass keypresses not used by playlist mode to normal keypress control
+  * correct all use of ~/.xine directory to ~/.cxine
+  * fix for cxine not exiting even if -persist was not specified
+  * more screensaver fixes
+  * minor change to prevent wget logs in home directory
+  * Don't display OSD when displaying playlist. 
+  * Honor HAVE_ flags in Makefile. 
+  * Fix for typo in X11ScreenSaver code
+
+v4.5 (2019-08-10)
+  * more audio-driver fixes
+  * handle issues with oss driver using /dev/dsp or /dev/dsp0 for the first device
+  * added vo_fullscreen, vo_ontop, get_vo_fullscreen and get_vo_ontop slave-mode commands. Added 'T' key to toggle on top. 'f' key now toggles fullscreen. '{' and '}' keys now set half or twice speed playback. backspace resets playback speed
+  * only open audio driver when about to stream a track, rather than at program startup. Initial work on swithing audio device/driver while playing
+
+v4.4 (2019-08-08)
+  * fix for old downloads not being cleaned out of cache
+  * add DESTDIR to 'make install'
+  * Added SPDX headers
+  * Add GPLv3 LICENSE file
+
+v4.3 (2019-07-20)
+  * added '-cmd' command-line option that sends messages to a running cxine to pause/unpause, mute/unmute, stop playback, goto next or previous track, minimize/restore, lower/raise or shade/unshade window
+
+v4.2 (2019-06-12)
+  * Honor keypresses (e.g. media keys) even when playlist is being displayed. 
+  * More readable download progress. 
+  * Display download progress in titlebar.
+  * fix for ubuntu trusty
+  * fix for missing xine defs
+
+v4.1 (2019-04-10)
+  * Tidy up downloads system. 
+  * Make sure forked processes have no access to X11
+  * Add -webcast option which implies the -stream option and treats playlist files (.pls, .m3u) as webcast announcments, only containing one item, the webcast stream. 
+  * Handle #EXTINFO titles in .m3u files and titles in .pls files.
+  * fix for errors and warnings about 'open' needing three arguments, and not checking the result of 'setreuid'
+
+v4.0 (2019-02-16)
+  * improvements to playlist display, items can be moved and deleted
+  * Broadcaster support added. 
+  * More readable default font. 
+  * Currently playing item colored in on playlist screen.
+  * fix crash if Downloads in downloads.c is NULL
+
+v3.6 (2019-01-20)
+  * bugfix for the -slave/-persist bugfix where cxine wrongly tries to read from stdin
+
+v3.5 (2019-01-20)
+  * fix bug with -prefix attempting to read from stdin. 
+  * fix bugs with apostrophes/quotes in media titles. 
+  * '[' and ']' keys now allow slowing down and speeding up playback
+
+v3.4 (2019-01-16)
+  * bugfix for pixel aspect issues on wide screens
+
+v3.3 (2019-01-07)
+  * added playlist menu/display
+
+v3.2 (2019-01-06)
+  * bugfixes for keygrabs, moved shade/unshade and raise/lower to 'escape' key rather than 'tab' key. Keygrab escape when shaded or lowered
+  * fix 'back' button when only one item in playlist
+  * added -id option for downloads
+  * fall over to next helper if previous one fails
+
+v3.1 (2019-01-02)
+  * make +helpers prepend rather than append.
+  * fix race condition when launching downloads
+  * Helper app config can now be set on the command-line.
+  * more improvements to download system
+
+v3.0 (2018-12-12)
+  * Reworked download system. 
+  * Added 'clean up cache' feature. 
+  * Fixed '+queue' '+add' for long urls. 
+	* Added 'number of tracks, current track number' options to OSD.
+  * fix for 'cache clean segfault'
+  * Performance improvements regarding OSD. 
+  * Better handling of 'get curr track title'. 
+  * Clear items from cache after 2 days. 
+  * OSD options added for displaying playlist size and curr track.
+  * Reworked downloads system. Fixed queueing of long URLs (as from youtube etc)
+
+v2.1 (2018-11-07)
+  * Fixed segfault due to strings being freed internally by libxine
+
+v2.0 (2018-11-07)
+  * config can now be saved 
+  * dvd and audio devices can be selected 
+  * downloads are supported using a helper program (curl, wget, links)
+  * -stream mode added for internet radio 
+  * start minimized added 
+  * urls can be pasted into cxine window.
+  * break help out to its own code module
+  * Don't read instructions from stdin if a stdin:// url is passed
+  * only read from stdin if in -persist or -slave mode
+  * added 'next audio stream', attempt to fix issues with audio desync after pause
+
+v1.1 (2018-07-26)
+  * Fix for 'futex' hang up due to two threads trying to use the same X11 connection. 
+  * Better semantics for volume/audio-compression keypresses.
+
+v1.0 (2018-07-09)
+  * initial commit

@@ -27,36 +27,36 @@ gUwK3HjaJH0lNMrIlJHpv9FETEx3p1KBiT8mtDd/rD9XBQAAAABJRU5ErkJggg==\
 
 void CxineInjectSplashScreen(xine_t *xine)
 {
-size_t len;
-int fd;
-pid_t pid;
-uint8_t *decoded=NULL;
+    size_t len;
+    int fd;
+    pid_t pid;
+    uint8_t *decoded=NULL;
 
-StdInNewPipe(0);
-decoded=calloc(4096, 1);
+    StdInNewPipe(0);
+    decoded=calloc(4096, 1);
 
-if (fork()==0)
-{
+    if (fork()==0)
+    {
 //must close this or confusion occurs with two processes holding stdin
-close(Config->stdin);
-X11Disassociate(Config->X11Out);
+        close(Config->stdin);
+        X11Disassociate(Config->X11Out);
 
-decoded=calloc(strlen(cxine_img) * 4, 1);
-len=xine_base64_decode(cxine_img, decoded);
-len=write(Config->to_xine, decoded, len);
+        decoded=calloc(strlen(cxine_img) * 4, 1);
+        len=xine_base64_decode(cxine_img, decoded);
+        len=write(Config->to_xine, decoded, len);
 
-close(Config->to_xine);
-free(decoded);
-_exit(1);
-}
+        close(Config->to_xine);
+        free(decoded);
+        _exit(1);
+    }
 
 //must close our end of this
-close(Config->to_xine);
-if (xine_open(Config->stream, "stdin://"))
-{
-    xine_play(Config->stream, 0, 0);
-}
+    close(Config->to_xine);
+    if (xine_open(Config->stream, "stdin://"))
+    {
+        xine_play(Config->stream, 0, 0);
+    }
 
-close(0);
-dup(Config->stdin);
+    close(0);
+    dup(Config->stdin);
 }

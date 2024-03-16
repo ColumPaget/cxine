@@ -437,6 +437,8 @@ void X11WindowDimensions(void *p_Win, int *width, int *height)
 {
     X11Window *Win;
 
+    if (! p_Win) return;
+
     Win=(X11Window *) p_Win;
     *width=Win->width;
     *height=Win->height;
@@ -796,6 +798,8 @@ void X11WindowSetTitle(void *p_Win, const char *MainTitle, const char *IconTitle
 }
 
 
+//This function takes input x, y, width and height, and
+//adjusts them to fit in parent window
 void X11Fit(void *p_Win, int *x, int *y, int *wid, int *high)
 {
     int parent_wid, parent_high;

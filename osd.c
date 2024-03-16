@@ -6,6 +6,9 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "X11.h"
 #include "osd.h"
 #include "playlist.h"
+#include "help.h"
+#include <termios.h>
+#include <sys/ioctl.h>
 
 #define VALUE_STR_LEN 255
 
@@ -27,6 +30,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 CXineOSD *topOSD=NULL;
 CXineOSD *bottomOSD=NULL;
 CXineOSD *buttonsOSD=NULL;
+CXineOSD *consoleOSD=NULL;
 
 
 
@@ -413,6 +417,7 @@ char *OSDFormatString(char *RetStr, const char *fmt, xine_stream_t *stream)
     return(RetStr);
 }
 
+
 void OSDDrawButton(CXineOSD *OSD, const char *Text, int x, int y, int *wid, int *high)
 {
     int ex, ey;
@@ -494,11 +499,43 @@ void OSDUpdateSingle(CXineOSD *OSD, int show)
 }
 
 
+void OSDUpdateConsole(int show)
+{
+    char *Tempstr=NULL;
+
+    if (show)
+    {
+        if (! consoleOSD)
+        {
+            if (StrLen(Config->console_osd_text))
+            {
+                if (consoleOSD) OSDDestroy(consoleOSD);
+                consoleOSD=OSDCreate(NULL, Config->stream, "console font=mono", Config->console_osd_text);
+            }
+        }
+
+        if (consoleOSD)
+        {
+            Tempstr=OSDFormatString(Tempstr, consoleOSD->Contents, consoleOSD->stream);
+            if (strcmp(Tempstr, consoleOSD->Prev) !=0)
+            {
+                printf("\r%s   ", Tempstr);
+                fflush(NULL);
+            }
+        }
+    }
+
+    destroy(Tempstr);
+}
+
 void OSDUpdate(int show)
 {
+
     OSDUpdateSingle(topOSD, show);
     OSDUpdateSingle(bottomOSD, show);
+    OSDUpdateConsole(Config->flags & CONFIG_CONSOLE_OSD);
 //OSDUpdateSingle(buttonsOSD, show);
+
 }
 
 
@@ -541,6 +578,35 @@ void OSDSetupGeometry(CXineOSD *OSD, const char *config)
 }
 
 
+void OSDToggleShowHide()
+{
+    Config->flags ^= CONFIG_OSD;
+}
+
+void consoleOSDToggleShowHide()
+{
+    struct winsize w;
+    char *buff=NULL;
+    int wid=0;
+
+#ifdef TIOCGWINSZ
+    memset(&w,0,sizeof(struct winsize));
+    ioctl(1, TIOCGWINSZ, &w);
+
+    wid=w.ws_col;
+#endif
+
+    buff=(char *) calloc(wid+10, 1);
+    memset(buff, ' ', wid);
+    printf("\r%s\r", buff);
+    fflush(NULL);
+
+    Config->flags ^= CONFIG_CONSOLE_OSD;
+
+    destroy(buff);
+}
+
+
 CXineOSD *OSDCreate(void *X11Win, xine_stream_t *stream, const char *config, const char *text)
 {
     xine_osd_t *osd;
@@ -568,26 +634,31 @@ CXineOSD *OSDCreate(void *X11Win, xine_stream_t *stream, const char *config, con
 
         ptr=rstrtok(ptr, " ", &Token);
     }
+
     OSD->Contents=strdup(text);
 
     x=OSD->x;
     y=OSD->y;
     wid=OSD->wid;
     high=OSD->high;
-    X11Fit(X11Win, &x, &y, &wid, &high);
 
-    OSD->osd=xine_osd_new(stream, x, y, wid, high);
-    xine_osd_show(OSD->osd, 0);
+    if (X11Win)
+    {
+        X11Fit(X11Win, &x, &y, &wid, &high);
+
+        OSD->osd=xine_osd_new(stream, x, y, wid, high);
+        xine_osd_show(OSD->osd, 0);
 
 // XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT
-    xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1);
-    xine_osd_set_encoding(OSD->osd, "");
+        xine_osd_set_text_palette(OSD->osd, XINE_TEXTPALETTE_WHITE_BLACK_TRANSPARENT, XINE_OSD_TEXT1);
+        xine_osd_set_encoding(OSD->osd, "");
 
-    ptr=rstrtok(OSD->Font, ",", &Token);
-    while (ptr)
-    {
-        if (xine_osd_set_font(OSD->osd, Token, 18)) break;
-        ptr=rstrtok(ptr, ",", &Token);
+        ptr=rstrtok(OSD->Font, ",", &Token);
+        while (ptr)
+        {
+            if (xine_osd_set_font(OSD->osd, Token, 18)) break;
+            ptr=rstrtok(ptr, ",", &Token);
+        }
     }
 
 
@@ -614,10 +685,14 @@ CXineOSD *OSDMessage(int x, int y, const char *Text)
 
 void OSDDestroy(CXineOSD *OSD)
 {
-    xine_osd_free(OSD->osd);
-    free(OSD->Contents);
-    free(OSD->Prev);
-    free(OSD);
+    if (OSD)
+    {
+        if (OSD->osd) xine_osd_free(OSD->osd);
+        if (OSD->Contents) free(OSD->Contents);
+        if (OSD->Prev)  free(OSD->Prev);
+        free(OSD);
+    }
+
 }
 
 
@@ -649,10 +724,19 @@ void OSDSetup(TConfig *Config)
         bottomOSD=OSDCreate(Config->X11Out, Config->stream, "bottom font=mono", Config->bottom_osd_text);
     }
 
-    /*
+    if (StrLen(Config->console_osd_text))
+    {
+        if (consoleOSD) OSDDestroy(consoleOSD);
+        consoleOSD=OSDCreate(NULL, Config->stream, "console font=mono", Config->console_osd_text);
+    }
+
     if (buttonsOSD) OSDDestroy(buttonsOSD);
     buttonsOSD=OSDCreate(Config->X11Out, Config->stream, "top font=mono buttons x=10 y=-40 wid=-20 high=25", "");
-    */
 }
 
 
+
+void OSDShowHelp()
+{
+    Help("keys");
+}

@@ -2,8 +2,11 @@ CFLAGS=-g -O2 -I/usr/X11R7/include -DPACKAGE_NAME=\"\" -DPACKAGE_TARNAME=\"\" -D
 LDFLAGS= -L/usr/X11R7/lib
 LIBS=-lXss -lX11 -lxine -lm 
 prefix=/usr/local
+exec_prefix=${prefix}
+bindir=${exec_prefix}/bin
+mandir=${prefix}/share/man
 
-OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o download_osd.o playlist_osd.o load_files_osd.o media_info_osd.o plugins.o audio_drivers.o splashscreen.o stdin_fd.o X11.o 
+OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o download_osd.o playlist_osd.o load_files_osd.o media_info_osd.o help_osd.o plugins.o audio_drivers.o splashscreen.o stdin_fd.o X11.o 
 
 all: $(OBJ)
 	$(CC) -o cxine -Wall $(CFLAGS) $(LDFLAGS) $(OBJ) cxine.c $(LIBS) 
@@ -66,6 +69,9 @@ load_files_osd.o: load_files_osd.h load_files_osd.c common.h
 media_info_osd.o: media_info_osd.h media_info_osd.c common.h
 	$(CC) $(CFLAGS) -c media_info_osd.c
 
+help_osd.o: help_osd.h help_osd.c common.h
+	$(CC) $(CFLAGS) -c help_osd.c
+
 plugins.o: plugins.h plugins.c common.h
 	$(CC) $(CFLAGS) -c plugins.c
 
@@ -79,11 +85,13 @@ X11.o: X11.h X11.c common.h
 	$(CC) $(CFLAGS)  -c X11.c
 
 clean:
-	rm -f *.o cxine
+	rm -f *.o *.orig cxine 
 
 install:
-	-mkdir -p $(DESTDIR)/$(prefix)/bin
-	cp cxine $(DESTDIR)/$(prefix)/bin
+	-mkdir -p $(DESTDIR)/$(bindir)
+	cp cxine $(DESTDIR)/$(bindir)
+	-mkdir -p $(DESTDIR)/$(mandir)/man1
+	cp cxine.1 $(DESTDIR)/$(mandir)/man1
 
 test:
 	-echo "no tests"

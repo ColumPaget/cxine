@@ -212,7 +212,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
             CXineStreamInitConfig(Config);
 
             startms=Config->startms;
-            if ((startms==0) && xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE))
+            if ( (Config->flags & CONFIG_BOOKMARK) && (startms==0) && xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE))
             {
                 startms=LoadBookmark(URL);
             }

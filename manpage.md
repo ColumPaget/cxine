@@ -301,9 +301,18 @@ On Screen Displays
 
 CXine supports on-screen-displays at the top and bottom of the screen. These are defined using the `-osd` switch like so:
 
+```
 cxine -osd `top,%t now playing: %T` -osd `bottom,%tP%% %ts/%tl`
+```
 
-The argument of the -osd option is a pair of comma-seperated strings. The first is `top` or `bottom` indicating which area of the screen the OSD should be displayed in. The second is the string to display, with the following printf-style `%` substitutions supported:
+There is also a 'console OSD': a statusbar printed to stdout. This can be configured like so:
+
+
+```
+cxine -osd `console,%T %tP%% %ts/%tl`
+```
+
+The argument of the -osd option is a pair of comma-seperated strings. The first is `top`, `bottom` or `console` indicating which area of the screen the OSD should be displayed in. The second part is the string to display, with the following printf-style `%` substitutions supported:
 
 ```
 %%     output '%'
@@ -396,6 +405,7 @@ s               toggle 'slow' playback (1/4 speed, no sound)
 <               prev item in playlist
 >               next item in playlist
 1,2,3...        seek to n*10 percent (so 5 seeks to 50% of stream)
+?               display keypress help
 ```
 
 The `+` and `-` keys represent a departure from mplayer. On the keypad they work as expected, with the 'shift' modifier alowing change of audio compression. However, on UK keyboards you have to press shift to get `+` on the non-keypad part of the keyboard. This creates confusion. Hence on the normal keyboard `=` and `-` change volume up and down, and their shifted versions `_` and `+` alter audio compression.
@@ -441,5 +451,5 @@ media                       vup, vdown, mute, stop, play, prev, next, vpause
 keypad                      up, down, left, right pgup, pgdn, home, end, +, -
 ```
 
-All key and group names can have a modifier prepended. Available modifiers are `shift-`, `cntrl-` and `alt-`. If a key-modifier pair isn`t bound to an action, then cxine will treat the key as though it had no modifier. Thus `alt-o` can be bound to turn OSD display on-and-off without depriving other programs of use of the `o` key.
+All key and group names can have a modifier prepended. Available modifiers are `shift-`, `cntrl-` and `alt-`. If a key-modifier pair isn't bound to an action, then cxine will treat the key as though it had no modifier. Thus `alt-o` can be bound to turn OSD display on-and-off without depriving other programs of use of the `o` key.
 

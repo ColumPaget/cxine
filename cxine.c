@@ -101,15 +101,15 @@ static void event_listener(void *user_data, const xine_event_t *event)
 
 static void cxine_set_background(int startup)
 {
-   if (StrLen(Config->background))
-   {
-        if (xine_open(Config->stream, Config->background)) 
-				{
-								xine_play(Config->stream, 0, 0);
-				}
+    if (StrLen(Config->background))
+    {
+        if (xine_open(Config->stream, Config->background))
+        {
+            xine_play(Config->stream, 0, 0);
+        }
         Config->state |= STATE_BACKGROUND_DISPLAYED;
-   }
-   else if (startup && (! (Config->flags & (CONFIG_READ_STDIN | CONFIG_CONTROL)))) CxineInjectSplashScreen(Config->xine);
+    }
+    else if (startup && (! (Config->flags & (CONFIG_READ_STDIN | CONFIG_CONTROL)))) CxineInjectSplashScreen(Config->xine);
 }
 
 
@@ -466,8 +466,8 @@ int main(int argc, char **argv)
     else Config->stdin=-1;
 
 
-		//must do this after open stdin, as injecting splashscreen uses stdin
-		if (Config->vo_port) cxine_set_background(TRUE);
+    //must do this after open stdin, as injecting splashscreen uses stdin
+    if (Config->vo_port) cxine_set_background(TRUE);
 
     CXineSwitchUser();
     KeyGrabsSetup(Config->X11Out);

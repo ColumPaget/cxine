@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "6.5"
+#define VERSION                   "6.6"
 #endif
 
 
@@ -56,25 +56,26 @@ int arg2;
 #define CONFIG_PAUSE 8
 #define CONFIG_LOUD  16
 #define CONFIG_VLOUD 32
-#define CONFIG_NOAUTOPLAY 64
-#define CONFIG_BOOKMARK 128
-#define CONFIG_PERSIST  256
-#define CONFIG_OSD      512
-#define CONFIG_RECURSIVE 1024 
-#define CONFIG_IDENTIFY 2048
-#define CONFIG_SHUFFLE  4096
+#define CONFIG_NOAUTOPLAY    64
+#define CONFIG_BOOKMARK     128
+#define CONFIG_PERSIST      256
+#define CONFIG_OSD          512
+#define CONFIG_CONSOLE_OSD 1024
+#define CONFIG_RECURSIVE   2048 
+#define CONFIG_SHUFFLE     4096
 #define CONFIG_ALLOW_KEY_EXIT 8192
 #define DISABLE_SCREENSAVER   16384
 #define KILL_SCREENSAVER      32768
 #define CONFIG_NOVIDEO        65536
 #define CONFIG_STREAM         131072
 #define CONFIG_WEBCAST        262144
-#define CONFIG_DEBUG 1048576
-#define CONFIG_SAVE  2097152
+#define CONFIG_DEBUG   1048576
+#define CONFIG_SAVE    2097152
 #define CONFIG_SLAVE   4194304
 #define CONFIG_CONTROL 8388608
-#define CONFIG_READ_STDIN   16777216
+#define CONFIG_READ_STDIN 16777216
 #define CONFIG_PLAYLIST   33554432
+#define CONFIG_IDENTIFY   67108864
 
 
 #define STATE_NEWTITLE 1
@@ -91,6 +92,7 @@ int arg2;
 #define STATE_PLAYING 32768
 #define STATE_LOADFILES_DISPLAYED 65536
 #define STATE_INFO_DISPLAYED 131172
+#define STATE_HELP_DISPLAYED 262344
 
 
 
@@ -129,6 +131,7 @@ char *control_pipe_path;
 char *nowplay_pipe_path;
 char *top_osd_text;
 char *bottom_osd_text;
+char *console_osd_text;
 char *keygrabs;
 char *background;
 char *cache_dir;

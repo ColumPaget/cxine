@@ -84,7 +84,7 @@ void CXineNowPlaying(TConfig *Config)
         }
         else ptr=CXineGetStringValue(Config->stream, ClipInfoID[i], 0);
 
-        printf(" %s: %s\n",ClipInfoTypes[i], ptr);
+        if (ptr && (*ptr != '\0')) printf(" %s: %s\n",ClipInfoTypes[i], ptr);
         Tempstr=rstrcpy(Tempstr, "CXINE:");
         Tempstr=rstrcat(Tempstr, ClipInfoTypes[i]);
 

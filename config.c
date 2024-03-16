@@ -37,8 +37,9 @@ TConfig *ConfigInit(xine_t *xine)
 
 
     Config->top_osd_text=rstrcpy(Config->top_osd_text, xine_config_register_string (xine, "cxine.top_osd", DEFAULT_TOPOSD_STRING, "Default text for top OSD", "", 1, 0, NULL));
-    Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, xine_config_register_string (xine, "cxine.bottom_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for bottom OSD", "", 1, 0, NULL));
 
+    Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, xine_config_register_string (xine, "cxine.bottom_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for bottom OSD", "", 1, 0, NULL));
+    Config->console_osd_text=rstrcpy(Config->console_osd_text, xine_config_register_string (xine, "cxine.console_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for console OSD", "", 1, 0, NULL));
     //we will not have changed stdin to point to our internal pipe at this point
     if (isatty(0)) Config->flags |= CONFIG_CONTROL;
 
@@ -72,6 +73,7 @@ TConfig *ConfigInit(xine_t *xine)
     if (xine_config_register_bool(xine, "cxine.bookmark", TRUE, "Bookmarks (Start playing a track from where we were last)", "", 1, 0, NULL)) Config->flags |=CONFIG_BOOKMARK;
     if (xine_config_register_bool(xine, "cxine.persist", FALSE, "Keep cxine open (persistent) even if nothing playing", "", 1, 0, NULL)) Config->flags |=CONFIG_PERSIST;
     if (xine_config_register_bool(xine, "cxine.show_osd", FALSE, "Display On Screen Display in cxine", "", 1, 0, NULL)) Config->flags |=CONFIG_OSD;
+    if (xine_config_register_bool(xine, "cxine.show_console_status", TRUE, "Display console statusbar", "", 1, 0, NULL)) Config->flags |=CONFIG_CONSOLE_OSD;
     if (xine_config_register_bool(xine, "cxine.disable_screensaver", FALSE, "Disable X11 screensaver", "", 1, 0, NULL)) Config->flags |= DISABLE_SCREENSAVER;
 
 
