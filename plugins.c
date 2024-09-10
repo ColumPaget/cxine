@@ -19,6 +19,8 @@ void DisplayPluginInfo(xine_t *xine, const char *title, const char *const *list,
     {
         //for some reason looking up a description for xvmc causes a segfault
         if (strcmp(list[i], "xvmc")==0) ptr="";
+        //for some reason looking up a description for opengl2 causes a segfault
+        else if (strcmp(list[i], "opengl2")==0) ptr="";
         else ptr=description_func(xine, list[i]);
         if (! ptr) ptr="";
         printf("	%s - %s\n",list[i], ptr);
