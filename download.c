@@ -145,7 +145,7 @@ void DownloadAddHelpers(const char *Helpers)
     destroy(Protos);
 }
 
-static char *DownloadFormatHelperCommand(char *RetStr, const char *Cmd, const char *MRL)
+char *DownloadFormatHelperCommand(char *RetStr, const char *Cmd, const char *MRL)
 {
     char *Proto=NULL, *Host=NULL, *Port=NULL, *Path=NULL;
     const char *ptr;
@@ -175,6 +175,11 @@ static char *DownloadFormatHelperCommand(char *RetStr, const char *Cmd, const ch
             else if (strncmp(ptr, "(path)", 6)==0)
             {
                 RetStr=rstrcat(RetStr, Path);
+                ptr+=5;
+            }
+            else if (strncmp(ptr, "(name)", 6)==0)
+            {
+                RetStr=rstrcat(RetStr, basename(Path));
                 ptr+=5;
             }
             else if (strncmp(ptr, "(proto)", 7)==0)

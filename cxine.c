@@ -85,9 +85,8 @@ static void event_listener(void *user_data, const xine_event_t *event)
 
     case XINE_EVENT_UI_SET_TITLE:
         msg=(xine_ui_data_t *) event->data;
-        Config->CurrTitle=rstrlcpy(Config->CurrTitle, msg->str, msg->str_len);
+        Config->curr_subitem=rstrlcpy(Config->curr_subitem, msg->str, msg->str_len);
         Config->state |= STATE_NEWTITLE;
-        CXineNowPlaying(Config);
         break;
 
     case XINE_EVENT_UI_NUM_BUTTONS:
@@ -151,6 +150,7 @@ void PeriodicProcessing()
 //if there's not a 'nowplaying' pipe, perhaps because a client disconnected, then open one
     if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK, 0660);
 
+		//if (Config->state & STATE_NEWTITLE) NowPlayingNewTitle(Config);
     OSDUpdate((Config->flags & CONFIG_OSD) && (! (Config->state & STATE_PLAYLIST_DISPLAYED)));
 
     if (Config->state & STATE_DOWNLOADING) DownloadOSDDisplay();
@@ -508,7 +508,6 @@ int main(int argc, char **argv)
             }
         }
 
-//		if (Config->state & STATE_NEWTITLE) CXineNewTitle(Config);
 
         result=WatchFileDescriptors(Config, Config->stdin, control_pipe);
         switch (result)

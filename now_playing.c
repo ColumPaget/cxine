@@ -51,19 +51,35 @@ ID_CHAPTERS=0
 static const char *CXineGetStringValue(xine_stream_t *stream, int ValID, int Quote)
 {
     const char *ptr;
-    char *Tempstr=NULL;
 
     ptr=xine_get_meta_info(Config->stream, ValID);
-    if (! ptr)
-    {
-        return("");
-    }
+    if (! ptr) return("");
     return(ptr);
 }
 
 
+char *CXineGetCurrTrack(char *RetStr)
+{
+if (StrLen(Config->curr_title)) RetStr=rstrcpy(RetStr, Config->curr_title);
+if (StrLen(Config->curr_subitem)) 
+{
+RetStr=rstrcat(RetStr, ": ");
+RetStr=rstrcat(RetStr, Config->curr_subitem);
+}
 
-void CXineNowPlaying(TConfig *Config)
+return(RetStr);
+}
+
+
+void NowPlayingSetWindowTitle(const char *WindowTitle, const char *TrackName)
+{
+X11WindowSetTitle(Config->X11Out, WindowTitle, "cxine");
+if (Config->flags & CONFIG_XTERM) printf("\033]0;cxine: %s\007", WindowTitle);
+if (StrLen(TrackName)) printf("\rnow playing: %s\n", TrackName);
+}
+
+
+void NowPlayingNewFile(TConfig *Config)
 {
     const char *ClipInfoTypes[]= {"Title","Artist","Album","Year","Comment","Track","Genre","Video", "Audio", NULL};
     int ClipInfoID[]= {XINE_META_INFO_TITLE, XINE_META_INFO_ARTIST, XINE_META_INFO_ALBUM, XINE_META_INFO_YEAR, XINE_META_INFO_COMMENT, XINE_META_INFO_TRACK_NUMBER, XINE_META_INFO_GENRE, XINE_META_INFO_VIDEOCODEC, XINE_META_INFO_AUDIOCODEC};
@@ -72,9 +88,7 @@ void CXineNowPlaying(TConfig *Config)
     char *Tempstr=NULL, *Title=NULL, *PipeStr=NULL;
 
 
-    X11WindowSetTitle(Config->X11Out, Config->CurrTitle,"cxine");
-
-    printf("\nClip info:\n");
+   printf("\nClip info:\n");
     for (i=0; ClipInfoTypes[i] !=NULL; i++)
     {
         if (ClipInfoID[i]==XINE_META_INFO_TITLE)
@@ -83,6 +97,7 @@ void CXineNowPlaying(TConfig *Config)
             ptr=Title;
         }
         else ptr=CXineGetStringValue(Config->stream, ClipInfoID[i], 0);
+
 
         if (ptr && (*ptr != '\0')) printf(" %s: %s\n",ClipInfoTypes[i], ptr);
         Tempstr=rstrcpy(Tempstr, "CXINE:");
@@ -101,9 +116,10 @@ void CXineNowPlaying(TConfig *Config)
             printf("ID_CLIP_INFO_VALUE%d=%s\n",i,ptr);
         }
     }
+		printf("\n");
 
+		NowPlayingSetWindowTitle(Title, Title);
     PipeStr=rstrcat(PipeStr, "\n");
-
     if (Config->nowplay_pipe > 0) write(Config->nowplay_pipe, PipeStr, StrLen(PipeStr));
 
     xine_get_pos_length(Config->stream, &pos, &pos_msecs, &len_msecs);
@@ -125,5 +141,31 @@ void CXineNowPlaying(TConfig *Config)
 
     destroy(Tempstr);
     destroy(PipeStr);
+    destroy(Title);
 }
+
+
+void NowPlayingNewTitle(TConfig *Config)
+{
+char *Tempstr=NULL, *TrackName=NULL;
+
+		if (StrLen(Config->curr_subitem))
+		{
+		TrackName=CXineGetCurrTrack(TrackName);
+		NowPlayingSetWindowTitle(TrackName, Config->curr_subitem);
+    X11SetTextProperty(Config->X11Out, "CXINE:Title", TrackName);
+
+		Tempstr=rstrcpy(Tempstr, "Title='");
+		Tempstr=rstrcat(Tempstr, TrackName);
+		Tempstr=rstrcat(Tempstr, "'\n");
+    if (Config->nowplay_pipe > 0) write(Config->nowplay_pipe, Tempstr, StrLen(Tempstr));
+
+    //if (Config->vo_port) CXineAddVideoPostPlugins(Config->xine, Config->stream, &Config->ao_port, &Config->vo_port);
+    Config->state &= ~STATE_NEWTITLE;
+		}
+
+destroy(TrackName);
+destroy(Tempstr);
+}
+
 

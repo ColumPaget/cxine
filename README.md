@@ -382,9 +382,28 @@ Playlist OSD
 Pressing 'p' brings up the Playlist On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will switch playback to that item. Pressing 'u' or 'd' when an item has the cursor on it will move the item up and down in the playlist. Pressing 'delete' or 'backspace' will delete an item from the playlist. Finally pressing 'p' again will dismiss the Playlist OSD.
 
 Load Files OSD
-------------
+--------------
 
 Pressing 'l' brings up the Load Files On Screen Display. This is a simple menu whose cursor is controlled with the arrow keys on the keyboard. Putting the cursor on a particular item and pressing 'enter' will either enter a directory, or add a file to the playlist. Pressing 'delete' or 'backspace' go up one directory level. Pressing 'l' again will dismiss this menu.
+
+
+Tracklists
+----------
+
+Some media files contain many tracks, but lack any tracklisting info. This can be provided with an external 'tracklist file'. These files are made of text lines in the format:
+
+```
+mm:ss name
+```
+
+Where 'mm' is minutes into the media, and 'ss' is seconds, and 'name' is the track name or whatever else is to be displayed when this point is reached.
+
+By default cxine looks for tracklist files at '$(mrl).tracklist', where '$(mrl)' is the media url or file path of the media file. e.g. a file at '/home/music/binary_finary.mp3' will cause a lookup for a tracklist file at '/home/music/binary_finary.mp3.tracklist'.
+
+The tracklist path can be changed using the '-tl' or '-tracklist' command-line switches. e.g. 'cxine https://myserver/music/mixtape.mp3 -tracklist /home/tracklists/$(name).tracklist'.
+
+In addition to '$(mrl)' there are also the variables '$(path)' and $(name). 'path' is the none-network part of a url. e.g., in 'https://myhost/music/rock.mp3' the path would be '/music/rock.mp3'. 'name' is the filename, so in 'https://myhost/music/rock.mp3' it would be 'rock.mp3'.
+
 
 
 Keybindings

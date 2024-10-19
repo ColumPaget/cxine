@@ -16,5 +16,6 @@ void DownloadAddHelpers(const char *Helpers);
 int DownloadState(char **MRL, const char *ID);
 int DownloadProcess(char **MRL, const char *ID, int DoDownload);
 size_t DownloadTransferred(const char *MRL);
+char *DownloadFormatHelperCommand(char *RetStr, const char *Cmd, const char *MRL);
 
 #endif

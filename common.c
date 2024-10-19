@@ -21,6 +21,9 @@ unsigned int fnv_hash(unsigned const char *key, int NoOfItems)
     return(h % NoOfItems);
 }
 
+
+//basename but handle directory paths, that end in '/' 
+//we don't want to return a blank string for paths that end in '/'
 const char *cbasename(const char *Path)
 {
     char *ptr;
@@ -29,10 +32,11 @@ const char *cbasename(const char *Path)
     ptr=strrchr(Path, '/');
     if (ptr)
     {
+				//this was a path ending in '/', so rewind to the next '/'
         if (*(ptr+1)=='\0')
         {
             ptr--;
-            while ((ptr > Path) && (*ptr !='/')) ptr--;
+            while ((ptr > Path) && (*ptr != '/')) ptr--;
         }
         if (*ptr=='/') return(ptr+1);
         return(ptr);

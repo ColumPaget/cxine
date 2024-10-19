@@ -10,6 +10,19 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #define DEFAULT_HELPERS "http,https,ftp,ftps,sftp,smb,smbs:curl -L -o - $(mrl);http,https,ftp,ftps:wget -q -o /dev/null -O - $(mrl);http,https,ftp,gopher:links -source $(mrl);http,https,ftp,gopher:elinks -source $(mrl);http,https,ftp,gopher:lynx -source $(mrl);http,ftp:snarf $(mrl) -;ssh:ssh -T $(host) 'cat $(path)'"
 
 
+int StdOutIsXterm()
+{
+const char *ptr;
+
+//something more ambitious may be here one day,
+//trying to talk to the terminal directly
+if (! isatty(1)) return(FALSE);
+ptr=getenv("TERM");
+if (StrLen(ptr) ==0) return(FALSE);
+return(TRUE);
+}
+
+
 TConfig *ConfigInit(xine_t *xine)
 {
     TConfig *Config=NULL;
@@ -17,6 +30,7 @@ TConfig *ConfigInit(xine_t *xine)
     int pipes[2];
 
     Config=(TConfig *) calloc(1, sizeof(TConfig));
+		if (StdOutIsXterm()) Config->flags |= CONFIG_XTERM;
     Config->xine=xine;
     Config->playlist=StringListCreate(0,NULL);
     Tempstr=rstrcpy(Tempstr, xine_get_homedir());
@@ -24,6 +38,7 @@ TConfig *ConfigInit(xine_t *xine)
     xine_config_load(xine, Tempstr);
 
     Config->audio_compression=xine_config_register_num(xine, "cxine.audio_compression", 150, "Audio compression level", "", 1, 0, NULL);
+
     //Cache media for 48 hours
     Config->cache_maxage=xine_config_register_num(xine, "cxine.cache_maxage", 3600 * 48, "Cache items for this many seconds since last played", "", 1, 0, NULL);
 
@@ -40,6 +55,9 @@ TConfig *ConfigInit(xine_t *xine)
 
     Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, xine_config_register_string (xine, "cxine.bottom_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for bottom OSD", "", 1, 0, NULL));
     Config->console_osd_text=rstrcpy(Config->console_osd_text, xine_config_register_string (xine, "cxine.console_osd", DEFAULT_BOTTOMOSD_STRING, "Default text for console OSD", "", 1, 0, NULL));
+
+
+    Config->tracklist=rstrcpy(Config->tracklist, "$(mrl).tracklist");
     //we will not have changed stdin to point to our internal pipe at this point
     if (isatty(0)) Config->flags |= CONFIG_CONTROL;
 

@@ -6,7 +6,7 @@ exec_prefix=@exec_prefix@
 bindir=@bindir@
 mandir=@mandir@
 
-OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o now_playing.o playlist_files.o download.o osd.o download_osd.o playlist_osd.o load_files_osd.o media_info_osd.o help_osd.o plugins.o audio_drivers.o splashscreen.o stdin_fd.o X11.o 
+OBJ=string_list.o common.o config.o playback_control.o control_protocol.o command_line.o playlist.o help.o keypress.o bookmarks.o tracklist.o now_playing.o playlist_files.o download.o osd.o download_osd.o playlist_osd.o load_files_osd.o media_info_osd.o help_osd.o plugins.o audio_drivers.o splashscreen.o stdin_fd.o X11.o 
 
 all: $(OBJ)
 	$(CC) -o cxine -Wall $(CFLAGS) $(LDFLAGS) $(OBJ) cxine.c $(LIBS) 
@@ -40,6 +40,9 @@ now_playing.o: now_playing.h now_playing.c common.h
 
 bookmarks.o: bookmarks.h bookmarks.c common.h
 	$(CC) $(CFLAGS) -c bookmarks.c
+
+tracklist.o: tracklist.h tracklist.c common.h
+	$(CC) $(CFLAGS) -c tracklist.c
 
 playlist_files.o: playlist_files.h playlist_files.c common.h
 	$(CC) $(CFLAGS) -c playlist_files.c

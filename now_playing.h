@@ -3,7 +3,9 @@
 
 #include "common.h"
 
-void CXineNowPlaying(TConfig *Config);
+char *CXineGetCurrTrack(char *RetStr);
+void NowPlayingNewFile(TConfig *Config);
+void NowPlayingNewTitle(TConfig *Config);
 
 #endif
 

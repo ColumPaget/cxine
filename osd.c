@@ -6,6 +6,8 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "X11.h"
 #include "osd.h"
 #include "playlist.h"
+#include "tracklist.h"
+#include "now_playing.h"
 #include "help.h"
 #include <termios.h>
 #include <sys/ioctl.h>
@@ -33,7 +35,7 @@ CXineOSD *buttonsOSD=NULL;
 CXineOSD *consoleOSD=NULL;
 
 
-
+//beware: this function does not allocate memory, ValueStr must be an appropriate size
 char *OSDFormatMSecs(char *ValueStr, int msecs)
 {
     int hours, mins, secs;
@@ -52,6 +54,7 @@ char *OSDFormatMSecs(char *ValueStr, int msecs)
 }
 
 
+//beware: this function does not allocate memory, ValueStr must be an appropriate size
 char *OSDFormatTime(char *ValueStr, const char *Format)
 {
     struct tm *tms;
@@ -64,6 +67,7 @@ char *OSDFormatTime(char *ValueStr, const char *Format)
 }
 
 
+//beware: this function does not allocate memory, ValueStr must be an appropriate size
 char *OSDFormatDuration(char *ValueStr, xine_stream_t *stream, int FormatType)
 {
     int pos, pos_msecs, len_msecs;
@@ -101,6 +105,7 @@ char *OSDFormatDuration(char *ValueStr, xine_stream_t *stream, int FormatType)
 }
 
 
+//beware: this function does not allocate memory, ValueStr must be an appropriate size
 char *OSDFormatParam(char *ValueStr, xine_stream_t *stream, int Type)
 {
     int val;
@@ -137,6 +142,7 @@ char *OSDFormatParam(char *ValueStr, xine_stream_t *stream, int Type)
 }
 
 
+//beware: this function does not allocate memory, ValueStr must be an appropriate size
 char *OSDFormatValue(char *ValueStr, xine_stream_t *stream, int Type)
 {
     uint32_t val;
@@ -528,13 +534,26 @@ void OSDUpdateConsole(int show)
     destroy(Tempstr);
 }
 
+
 void OSDUpdate(int show)
 {
+    char *Tempstr=NULL, *TrackName=NULL;
+
+		Tempstr=(char *) calloc(1, 255);
+    Tempstr=OSDFormatDuration(Tempstr, Config->stream, FMT_EXPENDED);
+    if (TrackListCheck(Tempstr, &TrackName)) 
+		{
+			Config->curr_subitem=rstrcpy(Config->curr_subitem, TrackName);
+			NowPlayingNewTitle(Config);
+		}
 
     OSDUpdateSingle(topOSD, show);
     OSDUpdateSingle(bottomOSD, show);
     OSDUpdateConsole(Config->flags & CONFIG_CONSOLE_OSD);
 //OSDUpdateSingle(buttonsOSD, show);
+
+    destroy(Tempstr);
+    destroy(TrackName);
 
 }
 

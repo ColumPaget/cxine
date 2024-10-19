@@ -15,9 +15,10 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "playlist_osd.h"
 #include "media_info_osd.h"
 #include "audio_drivers.h"
+#include "tracklist.h"
 #include "X11.h"
 
-void CXineStreamInitConfig(TConfig *Config)
+static void CXineStreamInitConfig(TConfig *Config, const char *URL)
 {
     if ((Config->flags & CONFIG_MUTE) && (! xine_get_param (Config->stream, XINE_PARAM_AUDIO_MUTE))) CXineMute(Config->stream, 1);
     else CXineMute(Config->stream, 0);
@@ -39,6 +40,8 @@ void CXineStreamInitConfig(TConfig *Config)
         xine_set_param (Config->stream, XINE_PARAM_VO_ZOOM_X, Config->zoom);
         xine_set_param (Config->stream, XINE_PARAM_VO_ZOOM_Y, Config->zoom);
     }
+
+    TrackListLoad(URL);
 
 //if (Config->brightness > -1) xine_set_param (stream, XINE_PARAM_VO_BRIGHTNESS, Config->brightness);
 //if (Config->contrast > -1) xine_set_param (stream, XINE_PARAM_VO_CONTRAST, Config->contrast);
@@ -80,6 +83,7 @@ void CXineMute(xine_stream_t *stream, int Setting)
 {
     int val;
 
+		if (! stream) return;
     val=xine_get_param (stream, XINE_PARAM_AUDIO_AMP_MUTE);
     if (Setting==TOGGLE)
     {
@@ -165,13 +169,6 @@ void CXineSetRangeValue(xine_stream_t *stream, int Type, int SetType, int Value)
 
 
 
-void CXineNewTitle(TConfig *Config)
-{
-    CXineNowPlaying(Config);
-
-    //if (Config->vo_port) CXineAddVideoPostPlugins(Config->xine, Config->stream, &Config->ao_port, &Config->vo_port);
-    Config->state &= ~STATE_NEWTITLE;
-}
 
 
 int CXinePlayStream(TConfig *Config, const char *info)
@@ -205,11 +202,12 @@ int CXinePlayStream(TConfig *Config, const char *info)
         {
             TouchFile(URL);
             Config->state &= ~STATE_DOWNLOADING;
-            if (StrLen(PI->Title)) Config->CurrTitle=rstrcpy(Config->CurrTitle, PI->Title);
-            else Config->CurrTitle=rstrcpy(Config->CurrTitle, cbasename(URL));
+            if (StrLen(PI->Title)) Config->curr_title=rstrcpy(Config->curr_title, PI->Title);
+            else Config->curr_title=rstrcpy(Config->curr_title, cbasename(URL));
 
             //do this before calling play..
-            CXineStreamInitConfig(Config);
+            CXineStreamInitConfig(Config, URL);
+            CXineOpenAudio();
 
             startms=Config->startms;
             if ( (Config->flags & CONFIG_BOOKMARK) && (startms==0) && xine_get_stream_info(Config->stream, XINE_STREAM_INFO_SEEKABLE))
@@ -217,8 +215,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
                 startms=LoadBookmark(URL);
             }
 
-            CXineNewTitle(Config);
-            CXineOpenAudio();
+            NowPlayingNewFile(Config);
 
             if (xine_play(Config->stream, 0, startms))
             {
@@ -227,7 +224,7 @@ int CXinePlayStream(TConfig *Config, const char *info)
                 //XineNewTitle must be called *before* xine_play
 
                 //and again after, because some configs require the stream to be playing to take effect (pause)
-                CXineStreamInitConfig(Config);
+                CXineStreamInitConfig(Config, URL);
                 Config->state &= ~STATE_BACKGROUND_DISPLAYED;
                 Config->state |= STATE_PLAYING;
                 if (strncmp(URL,"stdin:",6)==0) Config->state |= STATE_STDIN_URL;

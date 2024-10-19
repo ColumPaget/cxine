@@ -32,9 +32,9 @@ void CxineInjectSplashScreen(xine_t *xine)
     pid_t pid;
     uint8_t *decoded=NULL;
 
-		// take a copy of stdin so that we don't lose our controlling terminal
+    // take a copy of stdin so that we don't lose our controlling terminal
     // this may get us killed by SIGHUP
-		dup(0);
+    dup(0);
 
     StdInNewPipe(0);
     decoded=calloc(4096, 1);

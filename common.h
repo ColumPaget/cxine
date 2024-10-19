@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "6.6"
+#define VERSION                   "6.7"
 #endif
 
 
@@ -76,6 +76,7 @@ int arg2;
 #define CONFIG_READ_STDIN 16777216
 #define CONFIG_PLAYLIST   33554432
 #define CONFIG_IDENTIFY   67108864
+#define CONFIG_XTERM      134217728 //stdout is an xterm, use 'XtermSetTitle'
 
 
 #define STATE_NEWTITLE 1
@@ -122,8 +123,9 @@ char *parent;
 char *vo_driver;
 char *ao_driver;
 const char *ao_curr;
-TStringList *playlist;
-char *CurrTitle;
+char *curr_title;
+char *curr_subitem;
+char *tracklist;
 double startms;
 char *path_prefix;
 char *audio_plugins;
@@ -143,6 +145,7 @@ int image_ms;
 int bcast_port;
 void *X11Out;
 int DVDNavButtons;
+TStringList *playlist;
 xine_t              *xine;
 xine_stream_t       *stream;
 xine_video_port_t   *vo_port;
@@ -155,7 +158,11 @@ extern int running;
 extern time_t Now;
 
 unsigned int fnv_hash(unsigned const char *key, int NoOfItems);
+
+//basename but handle directory paths, that end in '/' 
+//we don't want to return a blank string for paths that end in '/'
 const char *cbasename(const char *Path);
+
 void strrep(char *Str, char c1, char c2);
 char *rstrcat(char *Dest, const char *Src);
 char *rstrcpy(char *Dest, const char *Src);

@@ -197,6 +197,8 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-prio")==0 ) Config->priority=atoi(argv[++i])+1;
         else if ( strcmp(argv[i], "-bcast")==0 ) Config->bcast_port=atoi(argv[++i]);
         else if ( strcmp(argv[i], "-shuffle")==0 ) Config->flags |= CONFIG_SHUFFLE;
+        else if ( strcmp(argv[i], "-tl")==0 ) Config->tracklist=rstrcpy(Config->tracklist, argv[++i]);
+        else if ( strcmp(argv[i], "-track-list")==0 ) Config->tracklist=rstrcpy(Config->tracklist, argv[++i]);
         else if ( strcmp(argv[i], "-loop")==0 )
         {
             val=atoi(argv[++i]);
@@ -236,7 +238,7 @@ int ParseCommandLine(int argc, char *argv[], TConfig *Config)
         else if ( strcmp(argv[i], "-hide-osd")==0 ) Config->flags &= ~CONFIG_OSD;
         else if ( strcmp(argv[i], "-osd")==0 )
         {
-						i++;
+            i++;
             ptr=rstrtok(argv[i],",",&Token);
             if (strcmp(Token,"top")==0) Config->top_osd_text=rstrcpy(Config->top_osd_text, ptr);
             else if (strcmp(Token,"bottom")==0) Config->bottom_osd_text=rstrcpy(Config->bottom_osd_text, ptr);

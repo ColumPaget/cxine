@@ -97,6 +97,18 @@ static void HelpCommandSend()
     printf("		zcycle    cycle between raised, normal, and lowered window\n");
 }
 
+static void HelpTracklists()
+{
+printf("\nSome media files contain many tracks, but lack any tracklisting info. This can be provided with an external 'tracklist file'. These files are made of text lines in the format:\n");
+printf("\nmm:ss name\n\n");
+printf("Where 'mm' is minutes into the media, and 'ss' is seconds, and 'name' is the track name or whatever else is to be displayed when this point is reached\n");
+
+printf("By default cxine looks for tracklist files at '$(mrl).tracklist', where '$(mrl)' is the media url or file path of the media file. e.g. a file at '/home/music/binary_finary.mp3' will cause a lookup for a tracklist file at '/home/music/binary_finary.mp3.tracklist'\n");
+
+printf("The tracklist path can be changed using the '-tl' or '-tracklist' command-line switches. e.g. 'cxine https://myserver/music/mixtape.mp3 -tracklist /home/tracklists/$(name).tracklist'\n");
+
+printf("In addition to '$(mrl)' there are also the variables '$(path)' and $(name). 'path' is the none-network part of a url. e.g., in 'https://myhost/music/rock.mp3' the path would be '/music/rock.mp3'. 'name' is the filename, so in 'https://myhost/music/rock.mp3' it would be 'rock.mp3'.\n");
+}
 
 static void HelpHelpers()
 {
@@ -275,6 +287,8 @@ void Help(const char *Page)
     else if ( StrLen(Page) && (strcmp(Page, "helpers")==0) ) HelpHelpers();
     else if ( StrLen(Page) && (strcmp(Page, "osd")==0) ) HelpOSD();
     else if ( StrLen(Page) && (strcmp(Page, "slave")==0) ) HelpSlaveMode();
+    else if ( StrLen(Page) && (strcmp(Page, "tracklist")==0) ) HelpTracklists();
+    else if ( StrLen(Page) && (strcmp(Page, "tracklists")==0) ) HelpTracklists();
     else if ( StrLen(Page) && (strcmp(Page, "plugins")==0) ) CXineDisplayPlugins(Config);
     else if ( StrLen(Page) && (strcmp(Page, "cmd")==0) ) HelpCommandSend();
     else
@@ -313,6 +327,7 @@ void Help(const char *Page)
         printf("  -shuffle                Shuffle playlist.\n");
         printf("  -loop <n>               Repeat playback <n> times.\n");
         printf("  -show-playlist          Start with playlist displayed\n");
+        printf("  -tracklist <path>       Tracklist file to use to use. 'Path' can include the variable $(mrl) meaning 'Media uRL', which is replaced with the path/url of the file. The default setting is $(mrl).tracklist (see '--help tracklists)'£\n");
         printf("  -title <title>          Set title displayed for this track. This argument is positional and must preceede the track it names, so for exampe 'cxine -title 'title 1' track1.mp4 -title 'title 2' track2.mp4.\n");
         printf("  -image-time <ms>        Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
         printf("  -imagems <ms>           Number of milliseconds to pause on an image for, until starting to play/display the next track.\n");
