@@ -150,7 +150,7 @@ void PeriodicProcessing()
 //if there's not a 'nowplaying' pipe, perhaps because a client disconnected, then open one
     if ((Config->nowplay_pipe==-1) && (StrLen(Config->nowplay_pipe_path))) Config->nowplay_pipe=open(Config->nowplay_pipe_path, O_CREAT |O_WRONLY | O_NONBLOCK, 0660);
 
-		//if (Config->state & STATE_NEWTITLE) NowPlayingNewTitle(Config);
+    //if (Config->state & STATE_NEWTITLE) NowPlayingNewTitle(Config);
     OSDUpdate((Config->flags & CONFIG_OSD) && (! (Config->state & STATE_PLAYLIST_DISPLAYED)));
 
     if (Config->state & STATE_DOWNLOADING) DownloadOSDDisplay();
@@ -159,15 +159,6 @@ void PeriodicProcessing()
 }
 
 
-int FDCopyBytes(int in, int out)
-{
-    char Buffer[1024];
-    int result;
-
-    result=read(in, Buffer, 1024);
-    write(out, Buffer, result);
-    return(result);
-}
 
 
 int WatchFileDescriptors(TConfig *Config, int stdin_fd, int control_pipe)

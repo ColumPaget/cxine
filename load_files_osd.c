@@ -9,6 +9,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include "keypress.h"
 #include "X11.h"
 #include <glob.h>
+#include <errno.h>
 
 static CXineOSD *OSD=NULL;
 static char *LoadFilesCurrDir=NULL;
@@ -184,9 +185,12 @@ void LoadFilesOSDShow()
     {
         OSD=OSDCreate(Config->X11Out, Config->stream, "0,10,-20,-20 font=mono", "");
         Tempstr=calloc(1024, sizeof(char));
-        getcwd(Tempstr, 1024);
+        if (getcwd(Tempstr, 1024) != NULL)
+	{
         LoadFilesCurrDir=rstrcpy(LoadFilesCurrDir, Tempstr);
         LoadFiles(LoadFilesCurrDir);
+	}
+	else printf("ERROR: no current working directory: %s\n", strerror(errno));
     }
     Config->state |= STATE_LOADFILES_DISPLAYED;
     LoadFilesOSDUpdate();

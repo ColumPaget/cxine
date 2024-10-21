@@ -12,6 +12,7 @@ static CXineOSD *OSD=NULL;
 void HelpOSDUpdate()
 {
     if (! (Config->state & STATE_HELP_DISPLAYED) ) return;
+    if (! Config->X11Out) return;
 
     if (OSD)
     {
@@ -23,6 +24,8 @@ void HelpOSDUpdate()
 
 void HelpOSDHide()
 {
+    if (! Config->X11Out) return;
+
     if (OSD)
     {
         xine_osd_hide(OSD->osd, 0);
@@ -38,6 +41,8 @@ void HelpOSDShow()
 {
 
     if (Config->state & STATE_HELP_DISPLAYED) return;
+    if (! Config->X11Out) return;
+
     if (! OSD)
     {
         OSD=OSDCreate(Config->X11Out, Config->stream, "0,24,-20,-20 font=mono", "");
@@ -49,6 +54,8 @@ void HelpOSDShow()
 
 void HelpOSDToggle()
 {
+    if (! Config->X11Out) return;
+
     if (Config->state & STATE_HELP_DISPLAYED) HelpOSDHide();
     else HelpOSDShow();
 }

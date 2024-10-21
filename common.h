@@ -18,7 +18,7 @@
 
 
 #ifndef VERSION
-#define VERSION                   "6.7"
+#define VERSION                   "6.8"
 #endif
 
 
@@ -171,6 +171,10 @@ char *rstrlcpy(char *Dest, const char *Src, int SrcLen);
 const char *rstrtok(const char *Str, const char *Separators, char **Token);
 char *rstrquot(char *RetStr, const char *Str, const char *QuoteChars);
 char *rstrunquot(char *RetStr, const char *Str);
+
+int FDPushBytes(int out, char *Buffer, size_t len);
+int FDCopyBytes(int in, int out);
+
 
 void TouchFile(const char *Path);
 void MkDirPath(const char *Dir);

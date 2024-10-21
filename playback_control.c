@@ -83,7 +83,7 @@ void CXineMute(xine_stream_t *stream, int Setting)
 {
     int val;
 
-		if (! stream) return;
+    if (! stream) return;
     val=xine_get_param (stream, XINE_PARAM_AUDIO_AMP_MUTE);
     if (Setting==TOGGLE)
     {

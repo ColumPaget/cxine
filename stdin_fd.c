@@ -2,6 +2,7 @@
 #include "playlist.h"
 #include "playback_control.h"
 #include <termios.h>
+#include <errno.h>
 
 struct termios tty_old;
 
@@ -34,14 +35,23 @@ int StdInNewPipe(int Flags)
     int pipes[2];
 
     //rearrange file descriptors
-    pipe(pipes);
-    close(0);
-    if (Config->to_xine > -1) close(Config->to_xine);
-    dup(pipes[0]);
-    Config->to_xine=dup(pipes[1]);
-    close(pipes[0]);
-    close(pipes[1]);
-    if (Flags & CONFIG_CONTROL) StdInSetup();
+    if (pipe(pipes) ==0)
+    {
+        close(0);
+        if (Config->to_xine > -1) close(Config->to_xine);
+
+        //as we have closed stdin, this dup will connect our pipe to our stdin
+        if (dup(pipes[0]) > -1)
+        {
+            Config->to_xine=dup(pipes[1]);
+            close(pipes[0]);
+            close(pipes[1]);
+
+            if (Flags & CONFIG_CONTROL) StdInSetup();
+        }
+        else printf("ERROR: can't attach pipe to stdin: %s\n", strerror(errno));
+    }
+    else printf("ERROR: can't create pipe to redirect stdin: %s\n", strerror(errno));
 }
 
 

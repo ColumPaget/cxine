@@ -22,7 +22,7 @@ unsigned int fnv_hash(unsigned const char *key, int NoOfItems)
 }
 
 
-//basename but handle directory paths, that end in '/' 
+//basename but handle directory paths, that end in '/'
 //we don't want to return a blank string for paths that end in '/'
 const char *cbasename(const char *Path)
 {
@@ -32,7 +32,7 @@ const char *cbasename(const char *Path)
     ptr=strrchr(Path, '/');
     if (ptr)
     {
-				//this was a path ending in '/', so rewind to the next '/'
+        //this was a path ending in '/', so rewind to the next '/'
         if (*(ptr+1)=='\0')
         {
             ptr--;
@@ -168,6 +168,30 @@ void StripQuotes(char *Str)
         memmove(Str, Str+1, len);
     }
 
+}
+
+int FDPushBytes(int out, char *Buffer, size_t len)
+{
+    int wrote=0, result;
+
+    while (wrote < len)
+    {
+        result=write(out, Buffer+wrote, len-wrote);
+        if (result < 0) break;
+        wrote += result;
+    }
+
+    return(wrote);
+}
+
+
+int FDCopyBytes(int in, int out)
+{
+    char Buffer[1024];
+    int bytes_read, wrote;
+
+    bytes_read=read(in, Buffer, 1024);
+    return(FDPushBytes(out, Buffer, bytes_read));
 }
 
 

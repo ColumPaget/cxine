@@ -99,15 +99,15 @@ static void HelpCommandSend()
 
 static void HelpTracklists()
 {
-printf("\nSome media files contain many tracks, but lack any tracklisting info. This can be provided with an external 'tracklist file'. These files are made of text lines in the format:\n");
-printf("\nmm:ss name\n\n");
-printf("Where 'mm' is minutes into the media, and 'ss' is seconds, and 'name' is the track name or whatever else is to be displayed when this point is reached\n");
+    printf("\nSome media files contain many tracks, but lack any tracklisting info. This can be provided with an external 'tracklist file'. These files are made of text lines in the format:\n");
+    printf("\nmm:ss name\n\n");
+    printf("Where 'mm' is minutes into the media, and 'ss' is seconds, and 'name' is the track name or whatever else is to be displayed when this point is reached\n");
 
-printf("By default cxine looks for tracklist files at '$(mrl).tracklist', where '$(mrl)' is the media url or file path of the media file. e.g. a file at '/home/music/binary_finary.mp3' will cause a lookup for a tracklist file at '/home/music/binary_finary.mp3.tracklist'\n");
+    printf("By default cxine looks for tracklist files at '$(mrl).tracklist', where '$(mrl)' is the media url or file path of the media file. e.g. a file at '/home/music/binary_finary.mp3' will cause a lookup for a tracklist file at '/home/music/binary_finary.mp3.tracklist'\n");
 
-printf("The tracklist path can be changed using the '-tl' or '-tracklist' command-line switches. e.g. 'cxine https://myserver/music/mixtape.mp3 -tracklist /home/tracklists/$(name).tracklist'\n");
+    printf("The tracklist path can be changed using the '-tl' or '-tracklist' command-line switches. e.g. 'cxine https://myserver/music/mixtape.mp3 -tracklist /home/tracklists/$(name).tracklist'\n");
 
-printf("In addition to '$(mrl)' there are also the variables '$(path)' and $(name). 'path' is the none-network part of a url. e.g., in 'https://myhost/music/rock.mp3' the path would be '/music/rock.mp3'. 'name' is the filename, so in 'https://myhost/music/rock.mp3' it would be 'rock.mp3'.\n");
+    printf("In addition to '$(mrl)' there are also the variables '$(path)' and $(name). 'path' is the none-network part of a url. e.g., in 'https://myhost/music/rock.mp3' the path would be '/music/rock.mp3'. 'name' is the filename, so in 'https://myhost/music/rock.mp3' it would be 'rock.mp3'.\n");
 }
 
 static void HelpHelpers()

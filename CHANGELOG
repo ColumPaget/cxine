@@ -1,3 +1,13 @@
+v6.8 (2024-10-21)
+  * prevent tracklist system from printing final track over and over
+  * handle either hh:mm:ss or mm:ss format for tracklist items
+  * fix segfault when help key pressed in non-X11 mode
+  * tidy up some compiler warnings about unchecked return values for dup and write
+
+v6.7 (2024-10-20)
+  * support for xterm title setting
+  * 'tracklist' system to display names of items within a file (e.g. mixtape)
+
 v6.6 (2024-03-16)
   * added help screens displayed by pressing '?'
   * add 'console osd' status bar

@@ -11,6 +11,7 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 #include <fcntl.h>
 #include <sys/file.h>
 #include <glob.h>
+#include <errno.h>
 
 TStringList *Helpers=NULL;
 xine_list_t *Downloads=NULL;
@@ -241,11 +242,14 @@ static pid_t DownloadLaunchHelper(TDownload *Download)
                 // set stdout to be fd, then we can close fd
                 // DO NOT PRINTF ANYTHING AFTER HERE. It will go in the file
                 close(1);
-                dup(fd);
+                if (dup(fd) > -1)
+		{
                 close(fd);
 
                 //forked program will effectively end here as we exec the helper
                 Exec(Cmd);
+		}
+		else printf("ERROR: failed to setup download program. Stdout not redirected: %s\n", strerror(errno));
             }
             else if (Config->flags & CONFIG_DEBUG) printf("Can't find program: '%s'",Cmd);
 

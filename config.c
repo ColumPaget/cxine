@@ -12,14 +12,14 @@ Copyright (c) 2019 Colum Paget <colums.projects@googlemail.com>
 
 int StdOutIsXterm()
 {
-const char *ptr;
+    const char *ptr;
 
 //something more ambitious may be here one day,
 //trying to talk to the terminal directly
-if (! isatty(1)) return(FALSE);
-ptr=getenv("TERM");
-if (StrLen(ptr) ==0) return(FALSE);
-return(TRUE);
+    if (! isatty(1)) return(FALSE);
+    ptr=getenv("TERM");
+    if (StrLen(ptr) ==0) return(FALSE);
+    return(TRUE);
 }
 
 
@@ -30,7 +30,7 @@ TConfig *ConfigInit(xine_t *xine)
     int pipes[2];
 
     Config=(TConfig *) calloc(1, sizeof(TConfig));
-		if (StdOutIsXterm()) Config->flags |= CONFIG_XTERM;
+    if (StdOutIsXterm()) Config->flags |= CONFIG_XTERM;
     Config->xine=xine;
     Config->playlist=StringListCreate(0,NULL);
     Tempstr=rstrcpy(Tempstr, xine_get_homedir());

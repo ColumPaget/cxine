@@ -461,6 +461,7 @@ void OSDUpdateSingle(CXineOSD *OSD, int show)
     const char *ptr;
 
     if (! OSD) return;
+    if (! OSD->osd) return;
 
 //xine_osd_set_palette(osd, &textpalettes_color, &textpalettes_trans);
 //xine_osd_draw_rect(osd, 10, 10, 100, 30, XINE_OSD_TEXT1, 0);
@@ -539,13 +540,13 @@ void OSDUpdate(int show)
 {
     char *Tempstr=NULL, *TrackName=NULL;
 
-		Tempstr=(char *) calloc(1, 255);
+    Tempstr=(char *) calloc(1, 255);
     Tempstr=OSDFormatDuration(Tempstr, Config->stream, FMT_EXPENDED);
-    if (TrackListCheck(Tempstr, &TrackName)) 
-		{
-			Config->curr_subitem=rstrcpy(Config->curr_subitem, TrackName);
-			NowPlayingNewTitle(Config);
-		}
+    if (TrackListCheck(Tempstr, &TrackName))
+    {
+        Config->curr_subitem=rstrcpy(Config->curr_subitem, TrackName);
+        NowPlayingNewTitle(Config);
+    }
 
     OSDUpdateSingle(topOSD, show);
     OSDUpdateSingle(bottomOSD, show);

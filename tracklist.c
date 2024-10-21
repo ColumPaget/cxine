@@ -46,8 +46,24 @@ static void TrackListParseTimestamp(const char *Timestamp, int *Mins, int *Secs)
 {
     char *Tok=NULL;
     const char *ptr;
+    int count=0;
+	
+    ptr=strchr(Timestamp, ':');
+    while (ptr)
+    {
+    ptr++;
+    count++;
+    ptr=strchr(ptr, ':');
+    }
 
-    ptr=rstrtok(Timestamp, ":", &Tok);
+    ptr=Timestamp;
+    if (count > 1) 
+    {
+    ptr=rstrtok(ptr, ":", &Tok);
+    *Mins=atoi(Tok) * 60;
+    }
+
+    ptr=rstrtok(ptr, ":", &Tok);
     *Mins=atoi(Tok);
     ptr=rstrtok(ptr, ":", &Tok);
     *Secs=atoi(Tok);
@@ -60,7 +76,7 @@ static int TrackListCurr(char **Timestamp, char **Name)
 {
     const char *ptr;
 
-		if (! CurrTrackList) return(FALSE);
+    if (! CurrTrackList) return(FALSE);
     if (CurrTrackList->size < 1) return(FALSE);
     if (CurrTrackList->next == 0)
     {
@@ -94,14 +110,14 @@ int TrackListCheck(const char *Timestamp, char **RetStr)
     {
         TrackListParseTimestamp(Tok, &TrackMins, &TrackSecs);
 
-				//if the track is in the future, then don't consider it
+        //if the track is in the future, then don't consider it
         if ((TrackMins > CurrMins)) break;
         if ((TrackMins == CurrMins) && (TrackSecs > CurrSecs)) break;
 
-				//if the track is current, update it's name
+        //if the track is current, update it's name
         *RetStr=rstrcpy(*RetStr, TrackName);
-        Changed=TRUE;
         if (! StringListNext(CurrTrackList)) break;
+        Changed=TRUE;
     }
 
 
